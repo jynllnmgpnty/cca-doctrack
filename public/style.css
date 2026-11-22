@@ -1561,6 +1561,17 @@ button {
   flex: 1;
 }
 
+/* Subtabs Display Control */
+.student-subtab,
+.admin-subtab {
+  display: none;
+}
+
+.student-subtab.active,
+.admin-subtab.active {
+  display: block;
+}
+
 /* Flowize Portal Greeting Banner (Matching Alex Greeting) */
 .flowize-portal-greeting {
   background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);

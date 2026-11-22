@@ -586,10 +586,12 @@ function switchView(viewName) {
     elements.viewStudentPortal.classList.add('active');
     syncStudentProfileFromAuth();
     filterStudentRequests();
+    switchStudentSubtab(state.studentActiveTab || 'submit');
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
     updateAdminDashboard();
     renderAdminTable();
+    switchAdminSubtab(state.adminActiveTab || 'dashboard');
   }
 }
 
