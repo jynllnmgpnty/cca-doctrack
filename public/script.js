@@ -537,10 +537,6 @@ function setupNavigationHandlers() {
     }
   });
 
-  elements.btnAdminSwitchStudent?.addEventListener('click', () => {
-    switchView('student');
-  });
-
   // Student Subtab Switchers
   elements.studentNavItems.forEach((btn) => {
     btn.addEventListener('click', () => {
