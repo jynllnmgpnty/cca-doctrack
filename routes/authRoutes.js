@@ -53,23 +53,34 @@ router.post('/register', async (req, res) => {
     }
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedStudentId = studentId ? studentId.trim() : '';
 
-    // Check if email already registered in Turso
+    // Check if email or student ID is already registered in Turso
     const existingUser = await db.execute({
-      sql: 'SELECT id FROM users WHERE email = ?',
-      args: [normalizedEmail]
+      sql: 'SELECT id, email, student_id FROM users WHERE LOWER(email) = ? OR (student_id != "" AND LOWER(student_id) = ?)',
+      args: [normalizedEmail, normalizedStudentId.toLowerCase()]
     });
 
     if (existingUser.rows.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'An account with this email address is already registered.'
-      });
+      const match = existingUser.rows[0];
+      if (match.email && match.email.toLowerCase() === normalizedEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'An account with this email address is already registered.'
+        });
+      }
+      if (normalizedStudentId && match.student_id && match.student_id.toLowerCase() === normalizedStudentId.toLowerCase()) {
+        return res.status(400).json({
+          success: false,
+          message: 'An account with this Student ID Number is already registered.'
+        });
+      }
     }
 
-    // Hash password with bcrypt
+    // Hash clean password with bcrypt
+    const cleanPassword = password.trim();
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(cleanPassword, salt);
 
     // Insert user into Turso SQL database
     const insertResult = await db.execute({
@@ -77,7 +88,7 @@ router.post('/register', async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?)`,
       args: [
         fullName.trim(),
-        studentId ? studentId.trim() : '',
+        normalizedStudentId,
         normalizedEmail,
         hashedPassword,
         course ? course.trim() : 'BS Information Technology',
@@ -116,7 +127,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @route   POST /api/auth/login
- * @desc    Authenticate user & return credentials from Turso database
+ * @desc    Authenticate user & return credentials from Turso database (Accepts Email OR Student ID)
  * @access  Public
  */
 router.post('/login', async (req, res) => {
@@ -126,38 +137,45 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide both email and password.'
+        message: 'Please provide both email/student ID and password.'
       });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedInput = email.trim().toLowerCase();
+    const rawPassword = password;
+    const trimmedPassword = password.trim();
 
-    // Find user in Turso database
+    // Find user in Turso database by email OR student_id (case-insensitive)
     let userResult = await db.execute({
-      sql: 'SELECT * FROM users WHERE email = ?',
-      args: [normalizedEmail]
+      sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
+      args: [normalizedInput, normalizedInput]
     });
 
     // If default demo accounts missing, re-seed and query again
-    if (userResult.rows.length === 0 && (normalizedEmail === 'admin@cca.edu.ph' || normalizedEmail === 'jaynellan@cca.edu.ph')) {
+    const isDefaultSeed = ['admin@cca.edu.ph', 'jaynellan@cca.edu.ph', '23-67894', 'admin-001'].includes(normalizedInput);
+    if (userResult.rows.length === 0 && isDefaultSeed) {
       await seedDefaultAccounts();
       userResult = await db.execute({
-        sql: 'SELECT * FROM users WHERE email = ?',
-        args: [normalizedEmail]
+        sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
+        args: [normalizedInput, normalizedInput]
       });
     }
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials. No account found with this email.'
+        message: 'Invalid credentials. No account found matching this Email Address or Student ID.'
       });
     }
 
     const user = userResult.rows[0];
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
+    // Check password (try raw, and try trimmed as fallback)
+    let isMatch = await bcrypt.compare(rawPassword, user.password);
+    if (!isMatch && trimmedPassword !== rawPassword) {
+      isMatch = await bcrypt.compare(trimmedPassword, user.password);
+    }
+
     if (!isMatch) {
       return res.status(401).json({
         success: false,
@@ -169,7 +187,7 @@ router.post('/login', async (req, res) => {
     if (targetPortal === 'admin' && user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Administrator privileges are required to access the Registrar Admin Portal.'
+        message: 'Access denied. Administrator privileges are required to access the Registrar Admin Portal. Please switch the portal indicator to "Student".'
       });
     }
 

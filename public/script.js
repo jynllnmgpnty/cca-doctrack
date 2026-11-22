@@ -265,7 +265,7 @@ function setRoleIndicator(role = 'student') {
 
   // Update inputs placeholder and button labels
   if (elements.loginEmail) {
-    elements.loginEmail.placeholder = isStudent ? 'e.g., student@cca.edu.ph' : 'e.g., admin@cca.edu.ph';
+    elements.loginEmail.placeholder = isStudent ? 'e.g., student@cca.edu.ph or 23-0000' : 'e.g., admin@cca.edu.ph';
   }
   if (elements.loginBtnLabel) {
     elements.loginBtnLabel.textContent = isStudent ? 'Sign In as Student' : 'Sign In as Admin';
@@ -312,6 +312,11 @@ function setRoleIndicator(role = 'student') {
 function openAuthModal(mode = 'signin', targetPortal = 'student') {
   setRoleIndicator(targetPortal);
   clearAuthAlert();
+
+  // Clear password inputs on open to prevent stale browser autocomplete issues
+  if (elements.loginPassword) elements.loginPassword.value = '';
+  if (elements.regPassword) elements.regPassword.value = '';
+  if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
 
   if (mode === 'signin') {
     elements.authTabSignIn.classList.add('active');
@@ -416,10 +421,10 @@ async function handleLoginSubmit(e) {
   clearAuthAlert();
 
   const email = elements.loginEmail.value.trim();
-  const password = elements.loginPassword.value;
+  const password = elements.loginPassword.value.trim();
 
   if (!email || !password) {
-    showAuthAlert('Please fill in both email and password.', 'error');
+    showAuthAlert('Please fill in both email/student ID and password.', 'error');
     return;
   }
 
@@ -537,6 +542,11 @@ async function handleRegisterSubmit(e) {
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
 
+    // Pre-fill login input with registered email/ID for seamless future logins
+    if (elements.loginEmail) elements.loginEmail.value = result.user.email;
+    if (elements.regPassword) elements.regPassword.value = '';
+    if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
+
     showToast('Account created successfully!', 'success');
     closeAuthModal();
     updateLandingAuthUI();
@@ -555,10 +565,22 @@ async function handleRegisterSubmit(e) {
 }
 
 function handleLogout() {
+  const lastUser = state.currentUser;
   state.currentUser = null;
   localStorage.removeItem('cca_auth_user');
   updateLandingAuthUI();
   switchView('landing');
+
+  // Clear sensitive password inputs
+  if (elements.loginPassword) elements.loginPassword.value = '';
+  if (elements.regPassword) elements.regPassword.value = '';
+  if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
+
+  // Pre-fill email/ID with the user who just logged out for convenient re-login
+  if (lastUser && lastUser.email && elements.loginEmail) {
+    elements.loginEmail.value = lastUser.email;
+  }
+
   showToast('You have been logged out safely.', 'info');
 }
 
