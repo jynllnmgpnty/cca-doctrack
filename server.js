@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const requestRoutes = require('./routes/requestRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Initialize Express Application
 const app = express();
@@ -69,7 +70,8 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Mount Request Routes
+// Mount Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
 
 // Fallback route for unmatched API requests (404)

@@ -14,15 +14,146 @@
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <!-- AUTHENTICATION MODAL (LOGIN & REGISTER) -->
+  <div class="auth-modal-overlay hidden" id="authModalOverlay">
+    <div class="auth-modal" id="authModal">
+      <button class="modal-close-btn" id="btnAuthClose" aria-label="Close modal">&times;</button>
+      
+      <div class="auth-modal-header">
+        <div class="auth-crest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h2 id="authModalHeading">Sign In to CCA DocTrack</h2>
+        <p class="auth-modal-sub" id="authModalSubtext">Office of the College Registrar &bull; City College of Angeles</p>
+      </div>
+
+      <!-- Segmented Tab Switcher (Sign In vs Register) -->
+      <div class="auth-segmented-tabs">
+        <button type="button" class="auth-tab-btn active" id="authTabSignIn">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="authTabRegister">Create Account</button>
+      </div>
+
+      <!-- Portal Target Selector Banner -->
+      <div class="portal-target-banner" id="portalTargetBanner">
+        <div class="target-left">
+          <span class="portal-target-badge student" id="portalTargetBadge">Student Portal</span>
+          <span class="portal-target-hint" id="portalTargetHint">Logging in as Student</span>
+        </div>
+        <button type="button" class="portal-target-toggle" id="btnToggleTargetPortal">
+          Switch to Admin Portal
+        </button>
+      </div>
+
+      <!-- Inline Alert Box -->
+      <div class="auth-alert hidden" id="authAlert"></div>
+
+      <!-- 1. SIGN IN FORM -->
+      <form id="formSignIn" class="auth-form active" novalidate>
+        <div class="form-group">
+          <label for="loginEmail">Institutional Email Address</label>
+          <input type="email" id="loginEmail" placeholder="e.g., student@cca.edu.ph" required>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Account Password</label>
+          <div class="pw-wrapper">
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <button type="button" class="pw-toggle-btn" id="btnToggleLoginPw" title="Show/Hide Password">👁</button>
+          </div>
+        </div>
+
+        <div class="form-auth-actions">
+          <button type="submit" class="btn btn-navy btn-block" id="btnSignInSubmit">
+            <span class="btn-spinner hidden" id="loginSpinner"></span>
+            <span id="loginBtnLabel">Sign In</span>
+          </button>
+        </div>
+
+        <!-- Quick One-Click Demo Logins for Class Presentation -->
+        <div class="quick-demo-wrapper">
+          <span class="demo-heading">⚡ One-Click Academic Demo Logins:</span>
+          <div class="demo-btn-row">
+            <button type="button" class="demo-btn student" id="btnDemoLoginStudent">
+              🎓 Student: Jaynellan
+            </button>
+            <button type="button" class="demo-btn admin" id="btnDemoLoginAdmin">
+              🏛️ Registrar: Admin
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- 2. CREATE ACCOUNT (REGISTER) FORM -->
+      <form id="formRegister" class="auth-form" novalidate>
+        <div class="form-grid auth-grid">
+          <div class="form-group">
+            <label for="regFullName">Full Name <span class="required">*</span></label>
+            <input type="text" id="regFullName" placeholder="e.g., Juan Dela Cruz" required>
+          </div>
+
+          <div class="form-group" id="groupRegStudentId">
+            <label for="regStudentId">Student ID Number <span class="required">*</span></label>
+            <input type="text" id="regStudentId" placeholder="e.g., 23-67894" required>
+          </div>
+
+          <div class="form-group">
+            <label for="regCourse">Academic Program</label>
+            <select id="regCourse">
+              <option value="BS Information Technology">BS Information Technology (BSIT)</option>
+              <option value="BS Computer Science">BS Computer Science (BSCS)</option>
+              <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
+              <option value="BS Business Administration">BS Business Administration (BSBA)</option>
+              <option value="Bachelor of Elementary Education">Bachelor of Elementary Education (BEEd)</option>
+              <option value="Bachelor of Secondary Education">Bachelor of Secondary Education (BSEd)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="regRole">Account Role</label>
+            <select id="regRole">
+              <option value="student">Student Account</option>
+              <option value="admin">Registrar Administrator</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="regEmail">Email Address <span class="required">*</span></label>
+            <input type="email" id="regEmail" placeholder="e.g., student@cca.edu.ph" required>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="regPassword">Password (Min. 6 chars) <span class="required">*</span></label>
+            <input type="password" id="regPassword" placeholder="Create a secure password" minlength="6" required>
+          </div>
+        </div>
+
+        <div class="form-auth-actions">
+          <button type="submit" class="btn btn-navy btn-block" id="btnRegisterSubmit">
+            <span class="btn-spinner hidden" id="registerSpinner"></span>
+            <span id="registerBtnLabel">Create Account &amp; Sign In</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
   <!-- VIEW 1: LANDING PAGE -->
   <div class="app-view active" id="viewLanding">
-    <!-- Institutional Top Notice Bar -->
+    <!-- Top Announcement Bar (Navy with Gold & Red Accents) -->
     <div class="top-announcement-bar">
       <div class="container announcement-inner">
-        <span>📢 Official Online Portal | City College of Angeles – Office of the College Registrar</span>
+        <div class="announcement-left">
+          <span class="gold-badge">CCA OFFICIAL</span>
+          <span>City College of Angeles &bull; Office of the College Registrar</span>
+        </div>
         <div class="top-meta">
           <span class="db-indicator" id="landingDbIndicator">
-            <span class="dot"></span> <span class="label">Cloud DB Connecting...</span>
+            <span class="dot"></span> <span class="label">MongoDB Atlas Live</span>
           </span>
           <span class="divider">|</span>
           <span class="acad-term">A.Y. 2026–2027</span>
@@ -43,7 +174,7 @@
           </div>
           <div class="brand-titles">
             <span class="school-name">CITY COLLEGE OF ANGELES</span>
-            <span class="system-name">CCA DocTrack System</span>
+            <span class="system-name">CCA DocTrack Portal</span>
           </div>
         </a>
 
@@ -51,14 +182,13 @@
           <a href="#servicesSection" class="nav-link">Available Documents</a>
           <a href="#workflowSection" class="nav-link">How it Works</a>
           <a href="#faqsSection" class="nav-link">FAQs</a>
-          <div class="portal-cta-group">
-            <button class="btn btn-secondary btn-sm" id="btnGoStudentPortalHeader">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              <span>Student Portal</span>
+          <div class="portal-cta-group" id="landingAuthActions">
+            <button class="btn btn-outline-navy btn-sm" id="btnLandingSignIn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              <span>Sign In</span>
             </button>
-            <button class="btn btn-primary btn-sm" id="btnGoAdminPortalHeader">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>Admin Portal</span>
+            <button class="btn btn-navy btn-sm" id="btnLandingRegister">
+              <span>Register</span>
             </button>
           </div>
         </nav>
@@ -70,56 +200,60 @@
       <div class="container hero-container">
         <div class="hero-content">
           <div class="hero-tag">
-            <span class="tag-pulse"></span> Fast, Transparent &amp; Cloud-Based
+            <span class="tag-dot"></span> Cloud-Based Document Tracking System
           </div>
           <h1 class="hero-title">
-            Student Document Request &amp; Status Tracking
+            Student Document Requests <br>&amp; Real-Time Tracking
           </h1>
           <p class="hero-subtitle">
-            Skip the long registrar queues. Submit academic document requests online, monitor live verification milestones, and receive notifications when your credentials are ready for release.
+            Submit official academic document requests online, monitor live verification milestones, and track processing progress from submission to release.
           </p>
 
-          <!-- Portal Selection Cards -->
+          <!-- Portal Access Selection Cards -->
           <div class="portal-selection-box">
-            <div class="portal-box-label">Select Your Access Portal:</div>
+            <div class="portal-box-label">Choose Your Portal to Continue:</div>
             <div class="portal-cards-grid">
+              
               <!-- Student Portal Card -->
-              <div class="portal-card student" id="cardEnterStudentPortal">
+              <div class="portal-card student-card" id="cardEnterStudentPortal">
                 <div class="portal-card-header">
-                  <div class="portal-icon">
+                  <div class="portal-icon gold-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                   </div>
                   <div class="portal-meta">
+                    <span class="portal-category gold-tag">STUDENT SERVICES</span>
                     <h3>Student Portal</h3>
-                    <span class="user-desc">For Enrolled Students &amp; Alumni</span>
+                    <span class="user-desc">For currently enrolled students &amp; alumni</span>
                   </div>
                 </div>
                 <ul class="portal-feature-list">
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Submit document request online</li>
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Track request progress in real time</li>
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> View student profile &amp; filing history</li>
+                  <li><span class="check-icon">✓</span> Request certificates &amp; credentials</li>
+                  <li><span class="check-icon">✓</span> 3-Step interactive progress tracking</li>
+                  <li><span class="check-icon">✓</span> View request history &amp; digital ID</li>
                 </ul>
-                <button class="btn btn-primary btn-block">Enter Student Portal &rarr;</button>
+                <button class="btn btn-gold btn-block">Access Student Portal &rarr;</button>
               </div>
 
               <!-- Admin Portal Card -->
-              <div class="portal-card admin" id="cardEnterAdminPortal">
+              <div class="portal-card admin-card" id="cardEnterAdminPortal">
                 <div class="portal-card-header">
-                  <div class="portal-icon">
+                  <div class="portal-icon red-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                   </div>
                   <div class="portal-meta">
+                    <span class="portal-category red-tag">REGISTRAR OPERATIONS</span>
                     <h3>Registrar Admin Portal</h3>
-                    <span class="user-desc">For College Registrar Officers</span>
+                    <span class="user-desc">For authorized College Registrar staff</span>
                   </div>
                 </div>
                 <ul class="portal-feature-list">
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Manage &amp; approve student requests</li>
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Update status (Pending, Processing, Done)</li>
-                  <li><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Cloud database metrics &amp; logs</li>
+                  <li><span class="check-icon">✓</span> Review &amp; approve document requests</li>
+                  <li><span class="check-icon">✓</span> Update status (Pending, Processing, Done)</li>
+                  <li><span class="check-icon">✓</span> Real-time MongoDB Atlas analytics</li>
                 </ul>
-                <button class="btn btn-secondary btn-block">Enter Admin Portal &rarr;</button>
+                <button class="btn btn-red btn-block">Access Admin Portal &rarr;</button>
               </div>
+
             </div>
           </div>
         </div>
@@ -130,72 +264,68 @@
     <section class="landing-section" id="servicesSection">
       <div class="container">
         <div class="section-heading">
-          <span class="section-tag">Academic Credentials</span>
-          <h2 class="section-title">Available Official Documents</h2>
-          <p class="section-desc">You can request the following certified documents through the CCA DocTrack online system.</p>
+          <span class="section-tag">Official Credentials</span>
+          <h2 class="section-title">Available School Documents</h2>
+          <p class="section-desc">Submit your official request for any of the following registrar-certified documents.</p>
         </div>
 
         <div class="doc-catalog-grid">
-          <!-- Document Card 1 -->
           <div class="doc-item-card">
-            <div class="doc-item-icon blue">
+            <div class="doc-item-icon navy">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </div>
             <div class="doc-item-body">
-              <div class="doc-type-badge">Evaluation</div>
+              <span class="doc-badge-pill gold">Semester Grades</span>
               <h3>Report Card</h3>
-              <p>Official summary of semester grades and academic rating for evaluation, scholarship renewals, or prerequisites.</p>
+              <p>Official summary of semester grades and academic evaluation required for scholarship renewals or prerequisite clearances.</p>
               <div class="doc-meta-row">
                 <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">2–3 Business Days</span>
+                <span class="meta-val">2–3 Working Days</span>
               </div>
             </div>
           </div>
 
-          <!-- Document Card 2 -->
           <div class="doc-item-card">
-            <div class="doc-item-icon indigo">
+            <div class="doc-item-icon gold">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
             </div>
             <div class="doc-item-body">
-              <div class="doc-type-badge">Certification</div>
+              <span class="doc-badge-pill navy">Enrollment Proof</span>
               <h3>Certificate of Enrollment</h3>
-              <p>Official registrar certification verifying that the student is legitimately enrolled in the current academic semester.</p>
+              <p>Certified registrar document confirming legitimate, active student status for the current academic term.</p>
               <div class="doc-meta-row">
                 <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">1–2 Business Days</span>
+                <span class="meta-val">1–2 Working Days</span>
               </div>
             </div>
           </div>
 
-          <!-- Document Card 3 -->
           <div class="doc-item-card">
-            <div class="doc-item-icon green">
+            <div class="doc-item-icon red">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
             </div>
             <div class="doc-item-body">
-              <div class="doc-type-badge">Conduct</div>
+              <span class="doc-badge-pill red">Character Record</span>
               <h3>Good Moral Certificate</h3>
-              <p>Formal character endorsement issued in coordination with Student Affairs confirming good student conduct.</p>
+              <p>Official character certificate issued in coordination with Student Affairs attesting to commendable student conduct.</p>
               <div class="doc-meta-row">
                 <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">2–3 Business Days</span>
+                <span class="meta-val">2–3 Working Days</span>
               </div>
             </div>
           </div>
 
-          <!-- Document Card 4 -->
           <div class="doc-item-card">
-            <div class="doc-item-icon amber">
+            <div class="doc-item-icon navy">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             </div>
             <div class="doc-item-body">
-              <div class="doc-type-badge">Permanent Record</div>
+              <span class="doc-badge-pill gold">Academic Record</span>
               <h3>Transcript of Records (TOR)</h3>
-              <p>Comprehensive transcript documenting all completed subjects, credit units, and general weighted average (GWA).</p>
+              <p>Comprehensive transcript documenting all completed subjects, semester units, and general weighted average (GWA).</p>
               <div class="doc-meta-row">
                 <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">5–7 Business Days</span>
+                <span class="meta-val">5–7 Working Days</span>
               </div>
             </div>
           </div>
@@ -207,31 +337,31 @@
     <section class="landing-section bg-alt" id="workflowSection">
       <div class="container">
         <div class="section-heading">
-          <span class="section-tag">Procedure Guide</span>
+          <span class="section-tag red-tag">Procedures</span>
           <h2 class="section-title">How Document Requesting Works</h2>
-          <p class="section-desc">Our streamlined 4-step process ensures transparency and speedy release.</p>
+          <p class="section-desc">Our streamlined 4-step workflow ensures transparency and speed.</p>
         </div>
 
         <div class="steps-container">
           <div class="step-card">
-            <div class="step-num">1</div>
+            <div class="step-num navy">1</div>
             <h4>Submit Request</h4>
-            <p>Access the Student Portal, fill in your student ID, select the document type, and specify your purpose.</p>
+            <p>Log in to your Student Portal, select your document, and state your purpose of request.</p>
           </div>
           <div class="step-card">
-            <div class="step-num">2</div>
+            <div class="step-num gold">2</div>
             <h4>Registrar Review</h4>
-            <p>The College Registrar verifies your student record, clearance status, and enrollment validity.</p>
+            <p>The Registrar Office verifies your student status, clearance, and enrollment validity.</p>
           </div>
           <div class="step-card">
-            <div class="step-num">3</div>
+            <div class="step-num red">3</div>
             <h4>Processing &amp; Seal</h4>
-            <p>Credentials are generated, signed by designated college officials, and stamped with the official college seal.</p>
+            <p>The document is prepared, signed by college authorities, and dry-sealed with the CCA official seal.</p>
           </div>
           <div class="step-card">
-            <div class="step-num">4</div>
+            <div class="step-num navy">4</div>
             <h4>Claim &amp; Release</h4>
-            <p>Once marked "Completed", present your CCA Student ID at the Registrar Window to claim your documents.</p>
+            <p>Once marked "Completed", present your Student ID at the Registrar Window to claim your document.</p>
           </div>
         </div>
       </div>
@@ -241,26 +371,26 @@
     <section class="landing-section" id="faqsSection">
       <div class="container">
         <div class="section-heading">
-          <span class="section-tag">Help &amp; Guidelines</span>
+          <span class="section-tag">Student Assistance</span>
           <h2 class="section-title">Frequently Asked Questions</h2>
         </div>
 
         <div class="faqs-grid">
           <div class="faq-card">
-            <h4>How do I check the real-time status of my request?</h4>
-            <p>Enter the <strong>Student Portal</strong>, click <strong>My Requests &amp; Tracking</strong>, and your submitted requests will display with a visual 3-step progress bar.</p>
+            <h4>How do I track the status of my request?</h4>
+            <p>Log in to the <strong>Student Portal</strong> and open <strong>My Requests &amp; Tracking</strong>. Your submissions display a live 3-step progress stepper.</p>
           </div>
           <div class="faq-card">
-            <h4>Can I request more than one document?</h4>
-            <p>Yes. You may submit separate requests for each document type as needed. All submissions will be organized under your student history.</p>
+            <h4>Can I request multiple documents?</h4>
+            <p>Yes. You can submit separate requests for each document type as required. All requests will remain tracked under your Student ID.</p>
           </div>
           <div class="faq-card">
-            <h4>What does "Processing" status mean?</h4>
-            <p>"Processing" means the registrar has accepted your request and is currently printing, authenticating, and signing your document.</p>
+            <h4>What does "Processing" status indicate?</h4>
+            <p>"Processing" indicates that the Registrar has approved your submission and is preparing, validating, and sealing your document.</p>
           </div>
           <div class="faq-card">
             <h4>Where do I claim my completed document?</h4>
-            <p>Claim your document at the <strong>Office of the College Registrar, Ground Floor, Admin Building, City College of Angeles</strong>.</p>
+            <p>Visit the <strong>Office of the College Registrar, Ground Floor, Admin Building, City College of Angeles</strong>.</p>
           </div>
         </div>
       </div>
@@ -274,7 +404,7 @@
           <p>Agyu Tamu! | IT 412 Platform Technologies Academic Capstone Project</p>
         </div>
         <div class="footer-right">
-          <span>Powered by Node.js &bull; Express.js &bull; MongoDB Atlas &bull; Render</span>
+          <span>Colors: Navy Blue &bull; Yellow &bull; Crimson Red | Powered by Express &bull; MongoDB Atlas &bull; Render</span>
         </div>
       </div>
     </footer>
@@ -315,7 +445,7 @@
           <button class="nav-item" data-student-tab="history">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             <span>My Requests &amp; Tracking</span>
-            <span class="nav-badge" id="studentMyRequestsBadge">0</span>
+            <span class="nav-badge gold-badge-num" id="studentMyRequestsBadge">0</span>
           </button>
           <button class="nav-item" data-student-tab="profile">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -324,9 +454,13 @@
         </nav>
 
         <div class="sidebar-footer">
-          <button class="btn btn-outline btn-block btn-sm" id="btnStudentBackToHome">
+          <button class="btn btn-outline-navy btn-block btn-sm" id="btnStudentBackToHome">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Back to Portal Home</span>
+            <span>Portal Home</span>
+          </button>
+          <button class="btn btn-red btn-block btn-sm" id="btnStudentLogout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Log Out</span>
           </button>
         </div>
       </aside>
@@ -345,7 +479,7 @@
           </div>
           <div class="topbar-right">
             <div class="portal-badge student-badge">Student Mode</div>
-            <button class="btn btn-sm btn-outline" id="btnStudentSwitchAdmin">Switch to Admin</button>
+            <button class="btn btn-sm btn-outline-navy" id="btnStudentSwitchAdmin">Switch to Admin</button>
           </div>
         </header>
 
@@ -354,10 +488,10 @@
           <div class="student-subtab active" id="studentSubtab-submit">
             <div class="form-wrapper">
               <div class="card">
-                <div class="card-header">
+                <div class="card-header border-navy">
                   <div>
                     <h3 class="card-title">Online Request Application Form</h3>
-                    <p class="card-subtitle">Please ensure that your student ID number matches your official CCA registration.</p>
+                    <p class="card-subtitle">Ensure your student ID number matches your official CCA registration.</p>
                   </div>
                 </div>
 
@@ -365,21 +499,18 @@
 
                 <form id="studentRequestForm" novalidate>
                   <div class="form-grid">
-                    <!-- Student Name -->
                     <div class="form-group">
                       <label for="formStudentName">Student Full Name <span class="required">*</span></label>
-                      <input type="text" id="formStudentName" name="studentName" placeholder="e.g., Juan Dela Cruz" required>
+                      <input type="text" id="formStudentName" name="studentName" placeholder="e.g., Jaynellan Almary Magpantay" required>
                       <span class="field-error" id="errStudentName"></span>
                     </div>
 
-                    <!-- Student ID -->
                     <div class="form-group">
                       <label for="formStudentId">Student ID Number <span class="required">*</span></label>
-                      <input type="text" id="formStudentId" name="studentId" placeholder="e.g., 2023-00123" required>
+                      <input type="text" id="formStudentId" name="studentId" placeholder="e.g., 23-67894" required>
                       <span class="field-error" id="errStudentId"></span>
                     </div>
 
-                    <!-- Academic Program -->
                     <div class="form-group">
                       <label for="formCourse">Course / Program</label>
                       <select id="formCourse" name="course">
@@ -392,7 +523,6 @@
                       </select>
                     </div>
 
-                    <!-- Document Type -->
                     <div class="form-group">
                       <label for="formDocumentType">Document Type <span class="required">*</span></label>
                       <select id="formDocumentType" name="documentType" required>
@@ -405,31 +535,27 @@
                       <span class="field-error" id="errDocumentType"></span>
                     </div>
 
-                    <!-- Date Submitted -->
                     <div class="form-group">
                       <label for="formDateSubmitted">Date Submitted <span class="required">*</span></label>
                       <input type="date" id="formDateSubmitted" name="dateSubmitted" required>
                       <span class="field-error" id="errDateSubmitted"></span>
                     </div>
 
-                    <!-- Student Email / Contact (Optional) -->
                     <div class="form-group">
                       <label for="formEmail">Notification Email (Optional)</label>
-                      <input type="email" id="formEmail" name="email" placeholder="e.g., juandelacruz@cca.edu.ph">
+                      <input type="email" id="formEmail" name="email" placeholder="e.g., student@cca.edu.ph">
                     </div>
                   </div>
 
-                  <!-- Purpose -->
                   <div class="form-group full-width">
                     <label for="formPurpose">Purpose of Request <span class="required">*</span></label>
                     <textarea id="formPurpose" name="purpose" rows="3" placeholder="State purpose (e.g., Scholarship renewal, employment requirement, board exam clearance)..." required></textarea>
                     <span class="field-error" id="errPurpose"></span>
                   </div>
 
-                  <!-- Submit Actions -->
                   <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" id="btnStudentFormReset">Reset</button>
-                    <button type="submit" class="btn btn-primary" id="btnStudentSubmit">
+                    <button type="button" class="btn btn-secondary" id="btnStudentFormReset">Reset Form</button>
+                    <button type="submit" class="btn btn-navy" id="btnStudentSubmit">
                       <span class="btn-spinner hidden" id="studentSubmitSpinner"></span>
                       <span id="studentSubmitBtnText">Submit Request Now</span>
                     </button>
@@ -441,41 +567,38 @@
 
           <!-- SUB-TAB 2: MY REQUESTS & TRACKING HISTORY -->
           <div class="student-subtab" id="studentSubtab-history">
-            <!-- Student Request Stats -->
             <div class="student-stats-row">
               <div class="stat-pill">
                 <span class="pill-label">Total Filed</span>
-                <span class="pill-num" id="statStudentTotal">0</span>
+                <span class="pill-num navy-text" id="statStudentTotal">0</span>
               </div>
-              <div class="stat-pill pending-pill">
+              <div class="stat-pill gold-accent">
                 <span class="pill-label">Pending</span>
-                <span class="pill-num" id="statStudentPending">0</span>
+                <span class="pill-num gold-text" id="statStudentPending">0</span>
               </div>
-              <div class="stat-pill processing-pill">
+              <div class="stat-pill navy-accent">
                 <span class="pill-label">In Processing</span>
-                <span class="pill-num" id="statStudentProcessing">0</span>
+                <span class="pill-num navy-text" id="statStudentProcessing">0</span>
               </div>
-              <div class="stat-pill completed-pill">
+              <div class="stat-pill red-accent">
                 <span class="pill-label">Ready for Release</span>
-                <span class="pill-num" id="statStudentCompleted">0</span>
+                <span class="pill-num green-text" id="statStudentCompleted">0</span>
               </div>
             </div>
 
-            <!-- Tracking List -->
             <div class="card">
-              <div class="card-header flex-header">
+              <div class="card-header flex-header border-navy">
                 <div>
                   <h3 class="card-title">My Document Tracking &amp; History</h3>
-                  <p class="card-subtitle">Real-time live status for all submissions under your Student ID</p>
+                  <p class="card-subtitle">Real-time status for all submissions under your Student ID</p>
                 </div>
-                <button class="btn btn-outline btn-sm" id="btnStudentRefreshHistory">
+                <button class="btn btn-outline-navy btn-sm" id="btnStudentRefreshHistory">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  <span>Refresh Status</span>
+                  <span>Sync Status</span>
                 </button>
               </div>
 
               <div class="student-requests-container" id="studentRequestsContainer">
-                <!-- Rendered dynamically via JavaScript -->
                 <div class="empty-state-box">Loading your document requests from MongoDB Atlas...</div>
               </div>
             </div>
@@ -484,7 +607,7 @@
           <!-- SUB-TAB 3: MY PROFILE -->
           <div class="student-subtab" id="studentSubtab-profile">
             <div class="profile-layout">
-              <!-- Digital Student ID Card Preview -->
+              <!-- Digital Student ID Card Visual -->
               <div class="card student-id-card-visual">
                 <div class="id-card-banner">
                   <div class="id-crest">CCA</div>
@@ -520,7 +643,7 @@
 
               <!-- Profile Management Settings -->
               <div class="card profile-settings-card">
-                <div class="card-header">
+                <div class="card-header border-navy">
                   <h3 class="card-title">Active Student Profile Settings</h3>
                   <p class="card-subtitle">Set your Student ID to filter and load your specific document requests.</p>
                 </div>
@@ -544,7 +667,7 @@
                     </select>
                   </div>
                   <div class="profile-actions">
-                    <button class="btn btn-primary" id="btnSaveStudentProfile">Save Active Profile</button>
+                    <button class="btn btn-navy" id="btnSaveStudentProfile">Save Active Profile</button>
                   </div>
                 </div>
               </div>
@@ -582,7 +705,7 @@
           <button class="nav-item" data-admin-tab="manage">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
             <span>Manage All Requests</span>
-            <span class="nav-badge" id="adminTotalBadge">0</span>
+            <span class="nav-badge red-badge-num" id="adminTotalBadge">0</span>
           </button>
           <button class="nav-item" data-admin-tab="system">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
@@ -595,9 +718,13 @@
             <span class="status-dot"></span>
             <span class="status-label">Atlas Checking...</span>
           </div>
-          <button class="btn btn-outline btn-block btn-sm" id="btnAdminBackToHome">
+          <button class="btn btn-outline-navy btn-block btn-sm" id="btnAdminBackToHome">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Back to Portal Home</span>
+            <span>Portal Home</span>
+          </button>
+          <button class="btn btn-red btn-block btn-sm" id="btnAdminLogout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Log Out</span>
           </button>
         </div>
       </aside>
@@ -620,14 +747,13 @@
               <span>Sync Cloud DB</span>
             </button>
             <div class="portal-badge admin-badge">Registrar Admin</div>
-            <button class="btn btn-sm btn-outline" id="btnAdminSwitchStudent">Switch to Student</button>
+            <button class="btn btn-sm btn-outline-navy" id="btnAdminSwitchStudent">Switch to Student</button>
           </div>
         </header>
 
         <div class="portal-content">
           <!-- ADMIN SUB-TAB 1: DASHBOARD OVERVIEW -->
           <div class="admin-subtab active" id="adminSubtab-dashboard">
-            <!-- 4 Metric Cards -->
             <div class="stats-grid">
               <div class="stat-card total">
                 <div class="stat-content">
@@ -635,7 +761,7 @@
                   <h3 class="stat-value" id="cardTotalCount">0</h3>
                   <span class="stat-hint">All records stored in Atlas</span>
                 </div>
-                <div class="stat-icon-wrapper">
+                <div class="stat-icon-wrapper navy">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 </div>
               </div>
@@ -644,9 +770,9 @@
                 <div class="stat-content">
                   <span class="stat-label">Pending Review</span>
                   <h3 class="stat-value" id="cardPendingCount">0</h3>
-                  <span class="stat-hint">Needs verification</span>
+                  <span class="stat-hint">Awaiting verification</span>
                 </div>
-                <div class="stat-icon-wrapper">
+                <div class="stat-icon-wrapper gold">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
               </div>
@@ -657,7 +783,7 @@
                   <h3 class="stat-value" id="cardProcessingCount">0</h3>
                   <span class="stat-hint">Under printing / signing</span>
                 </div>
-                <div class="stat-icon-wrapper">
+                <div class="stat-icon-wrapper navy">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
                 </div>
               </div>
@@ -668,7 +794,7 @@
                   <h3 class="stat-value" id="cardCompletedCount">0</h3>
                   <span class="stat-hint">Ready for pickup / released</span>
                 </div>
-                <div class="stat-icon-wrapper">
+                <div class="stat-icon-wrapper red">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
               </div>
@@ -676,12 +802,12 @@
 
             <!-- Recent Requests Table -->
             <div class="card table-card">
-              <div class="card-header flex-header">
+              <div class="card-header flex-header border-navy">
                 <div>
                   <h3 class="card-title">Recent Document Submissions</h3>
                   <p class="card-subtitle">Latest requests received from student portal</p>
                 </div>
-                <button class="btn btn-outline btn-sm" id="btnAdminViewAll">View All Requests &rarr;</button>
+                <button class="btn btn-outline-navy btn-sm" id="btnAdminViewAll">View All Requests &rarr;</button>
               </div>
               <div class="table-responsive">
                 <table class="data-table">
@@ -705,7 +831,7 @@
           <!-- ADMIN SUB-TAB 2: MANAGE ALL REQUESTS -->
           <div class="admin-subtab" id="adminSubtab-manage">
             <div class="card table-card">
-              <div class="card-header manage-header">
+              <div class="card-header manage-header border-navy">
                 <div>
                   <h3 class="card-title">Master Document Requests Table</h3>
                   <p class="card-subtitle">Update statuses, search student records, and manage releases</p>
@@ -755,7 +881,7 @@
           <div class="admin-subtab" id="adminSubtab-system">
             <div class="system-grid">
               <div class="card">
-                <div class="card-header">
+                <div class="card-header border-navy">
                   <h3 class="card-title">Cloud Infrastructure Status</h3>
                   <span class="badge badge-success" id="adminSysHealthBadge">Connected</span>
                 </div>
@@ -780,11 +906,21 @@
               </div>
 
               <div class="card">
-                <div class="card-header">
+                <div class="card-header border-navy">
                   <h3 class="card-title">REST API Specifications</h3>
                   <span class="badge badge-primary">Standard HTTP</span>
                 </div>
                 <div class="api-list">
+                  <div class="api-item">
+                    <span class="http-tag post">POST</span>
+                    <span class="api-route">/api/auth/login</span>
+                    <span class="api-desc">User authentication (Student &amp; Admin)</span>
+                  </div>
+                  <div class="api-item">
+                    <span class="http-tag post">POST</span>
+                    <span class="api-route">/api/auth/register</span>
+                    <span class="api-desc">Create new student/admin account</span>
+                  </div>
                   <div class="api-item">
                     <span class="http-tag get">GET</span>
                     <span class="api-route">/api/health</span>

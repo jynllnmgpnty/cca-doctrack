@@ -1,21 +1,18 @@
 /**
  * CCA DocTrack – Student Document Request Tracking System
  * City College of Angeles (CCA) Web Application
- * Client-Side Application Logic (ES6+ Vanilla JavaScript)
+ * Client-Side Application Logic with Authentication & Multi-Portal Support
  */
 
-// Application Global State
+// Global Application State
 const state = {
   currentView: 'landing', // 'landing' | 'student' | 'admin'
   studentActiveTab: 'submit', // 'submit' | 'history' | 'profile'
   adminActiveTab: 'dashboard', // 'dashboard' | 'manage' | 'system'
 
-  // Active Student Profile (Pre-configured to match student records in Atlas)
-  activeStudent: {
-    name: 'Jaynellan Almary O. Magpantay',
-    id: '23-67894',
-    course: 'BS Information Technology'
-  },
+  // Current authenticated user session (null when not signed in)
+  currentUser: null,
+  authTargetPortal: 'student', // 'student' | 'admin'
 
   allRequests: [],
   studentRequests: [],
@@ -31,12 +28,51 @@ const elements = {
   viewStudentPortal: document.getElementById('viewStudentPortal'),
   viewAdminPortal: document.getElementById('viewAdminPortal'),
 
-  // Navigation / Portal Switchers
-  btnGoStudentPortalHeader: document.getElementById('btnGoStudentPortalHeader'),
-  btnGoAdminPortalHeader: document.getElementById('btnGoAdminPortalHeader'),
+  // Auth Modal Elements
+  authModalOverlay: document.getElementById('authModalOverlay'),
+  btnAuthClose: document.getElementById('btnAuthClose'),
+  authTabSignIn: document.getElementById('authTabSignIn'),
+  authTabRegister: document.getElementById('authTabRegister'),
+  formSignIn: document.getElementById('formSignIn'),
+  formRegister: document.getElementById('formRegister'),
+  portalTargetBadge: document.getElementById('portalTargetBadge'),
+  portalTargetHint: document.getElementById('portalTargetHint'),
+  btnToggleTargetPortal: document.getElementById('btnToggleTargetPortal'),
+  authAlert: document.getElementById('authAlert'),
+
+  // Auth Inputs
+  loginEmail: document.getElementById('loginEmail'),
+  loginPassword: document.getElementById('loginPassword'),
+  btnToggleLoginPw: document.getElementById('btnToggleLoginPw'),
+  btnSignInSubmit: document.getElementById('btnSignInSubmit'),
+  loginSpinner: document.getElementById('loginSpinner'),
+  loginBtnLabel: document.getElementById('loginBtnLabel'),
+
+  regFullName: document.getElementById('regFullName'),
+  regStudentId: document.getElementById('regStudentId'),
+  regCourse: document.getElementById('regCourse'),
+  regRole: document.getElementById('regRole'),
+  regEmail: document.getElementById('regEmail'),
+  regPassword: document.getElementById('regPassword'),
+  btnRegisterSubmit: document.getElementById('btnRegisterSubmit'),
+  registerSpinner: document.getElementById('registerSpinner'),
+  registerBtnLabel: document.getElementById('registerBtnLabel'),
+
+  // Demo Login Buttons
+  btnDemoLoginStudent: document.getElementById('btnDemoLoginStudent'),
+  btnDemoLoginAdmin: document.getElementById('btnDemoLoginAdmin'),
+
+  // Landing Header Auth Action Buttons
+  landingAuthActions: document.getElementById('landingAuthActions'),
+  btnLandingSignIn: document.getElementById('btnLandingSignIn'),
+  btnLandingRegister: document.getElementById('btnLandingRegister'),
   cardEnterStudentPortal: document.getElementById('cardEnterStudentPortal'),
   cardEnterAdminPortal: document.getElementById('cardEnterAdminPortal'),
   btnLandingBrand: document.getElementById('btnLandingBrand'),
+
+  // Logout Buttons
+  btnStudentLogout: document.getElementById('btnStudentLogout'),
+  btnAdminLogout: document.getElementById('btnAdminLogout'),
   btnStudentBackToHome: document.getElementById('btnStudentBackToHome'),
   btnAdminBackToHome: document.getElementById('btnAdminBackToHome'),
   btnStudentSwitchAdmin: document.getElementById('btnStudentSwitchAdmin'),
@@ -70,14 +106,14 @@ const elements = {
   studentSubmitBtnText: document.getElementById('studentSubmitBtnText'),
   studentFormAlert: document.getElementById('studentFormAlert'),
 
-  // Student Form Error Elements
+  // Form Field Errors
   errStudentName: document.getElementById('errStudentName'),
   errStudentId: document.getElementById('errStudentId'),
   errDocumentType: document.getElementById('errDocumentType'),
   errDateSubmitted: document.getElementById('errDateSubmitted'),
   errPurpose: document.getElementById('errPurpose'),
 
-  // Student Tracking & History Tab
+  // Student Tracking & History
   statStudentTotal: document.getElementById('statStudentTotal'),
   statStudentPending: document.getElementById('statStudentPending'),
   statStudentProcessing: document.getElementById('statStudentProcessing'),
@@ -85,7 +121,7 @@ const elements = {
   btnStudentRefreshHistory: document.getElementById('btnStudentRefreshHistory'),
   studentRequestsContainer: document.getElementById('studentRequestsContainer'),
 
-  // Student Profile Tab Elements
+  // Student Profile Elements
   cardProfileName: document.getElementById('cardProfileName'),
   cardProfileId: document.getElementById('cardProfileId'),
   cardProfileCourse: document.getElementById('cardProfileCourse'),
@@ -94,7 +130,7 @@ const elements = {
   profileInputCourse: document.getElementById('profileInputCourse'),
   btnSaveStudentProfile: document.getElementById('btnSaveStudentProfile'),
 
-  // Admin Portal Sidebar & Navigation
+  // Admin Portal Navigation & Dashboard
   adminNavItems: document.querySelectorAll('[data-admin-tab]'),
   adminSubtabs: document.querySelectorAll('.admin-subtab'),
   adminPageTitle: document.getElementById('adminPageTitle'),
@@ -103,7 +139,6 @@ const elements = {
   adminTotalBadge: document.getElementById('adminTotalBadge'),
   adminGlobalRefreshBtn: document.getElementById('adminGlobalRefreshBtn'),
 
-  // Admin Dashboard Stat Cards
   cardTotalCount: document.getElementById('cardTotalCount'),
   cardPendingCount: document.getElementById('cardPendingCount'),
   cardProcessingCount: document.getElementById('cardProcessingCount'),
@@ -111,23 +146,20 @@ const elements = {
   btnAdminViewAll: document.getElementById('btnAdminViewAll'),
   adminRecentTableBody: document.getElementById('adminRecentTableBody'),
 
-  // Admin Manage Table Elements
   adminSearchInput: document.getElementById('adminSearchInput'),
   adminStatusFilter: document.getElementById('adminStatusFilter'),
   adminAllRequestsTableBody: document.getElementById('adminAllRequestsTableBody'),
   adminRecordsCount: document.getElementById('adminRecordsCount'),
 
-  // Admin System Info Elements
   adminSysHealthBadge: document.getElementById('adminSysHealthBadge'),
   adminSysDbStatus: document.getElementById('adminSysDbStatus'),
 
-  // Mobile Toggles
+  // Mobile Drawers
   mobileStudentToggle: document.getElementById('mobileStudentToggle'),
   mobileStudentSidebarClose: document.getElementById('mobileStudentSidebarClose'),
   mobileAdminToggle: document.getElementById('mobileAdminToggle'),
   mobileAdminSidebarClose: document.getElementById('mobileAdminSidebarClose'),
 
-  // Toast Container
   toastContainer: document.getElementById('toastContainer')
 };
 
@@ -135,27 +167,350 @@ const elements = {
 // Initialization
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Load saved student profile from localStorage if exists
-  loadSavedProfile();
+  // Check for existing session in localStorage
+  restoreSession();
 
-  // Set default date to today (YYYY-MM-DD)
+  // Set default date to today
   const today = new Date().toISOString().split('T')[0];
   if (elements.formDateSubmitted) {
     elements.formDateSubmitted.value = today;
   }
 
-  // Bind Event Listeners
-  setupPortalSwitching();
-  setupStudentNavigation();
-  setupAdminNavigation();
+  // Register Event Handlers
+  setupAuthHandlers();
+  setupNavigationHandlers();
   setupStudentForm();
   setupAdminFilters();
   setupMobileDrawers();
 
-  // Check Database & Fetch initial records
+  // Check Database & Load Initial Data
   fetchHealthCheck();
   fetchAllRequests();
 });
+
+// ==========================================
+// Authentication Logic (Login & Register)
+// ==========================================
+
+function restoreSession() {
+  const savedUser = localStorage.getItem('cca_auth_user');
+  if (savedUser) {
+    try {
+      state.currentUser = JSON.parse(savedUser);
+      updateLandingAuthUI();
+    } catch (e) {
+      console.warn('Session parse error:', e);
+      state.currentUser = null;
+    }
+  }
+}
+
+function updateLandingAuthUI() {
+  if (!elements.landingAuthActions) return;
+
+  if (state.currentUser) {
+    elements.landingAuthActions.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:0.85rem;font-weight:700;color:var(--cca-navy);">
+          👤 ${escapeHtml(state.currentUser.fullName.split(' ')[0])}
+        </span>
+        <button class="btn btn-navy btn-sm" id="btnLandingGoDashboard">
+          <span>Go to ${state.currentUser.role === 'admin' ? 'Admin' : 'Student'} Portal &rarr;</span>
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnLandingSignOut">
+          <span>Sign Out</span>
+        </button>
+      </div>
+    `;
+
+    document.getElementById('btnLandingGoDashboard')?.addEventListener('click', () => {
+      switchView(state.currentUser.role === 'admin' ? 'admin' : 'student');
+    });
+
+    document.getElementById('btnLandingSignOut')?.addEventListener('click', handleLogout);
+  } else {
+    elements.landingAuthActions.innerHTML = `
+      <button class="btn btn-outline-navy btn-sm" id="btnLandingSignIn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        <span>Sign In</span>
+      </button>
+      <button class="btn btn-navy btn-sm" id="btnLandingRegister">
+        <span>Register</span>
+      </button>
+    `;
+
+    document.getElementById('btnLandingSignIn')?.addEventListener('click', () => openAuthModal('signin', 'student'));
+    document.getElementById('btnLandingRegister')?.addEventListener('click', () => openAuthModal('register', 'student'));
+  }
+}
+
+function openAuthModal(mode = 'signin', targetPortal = 'student') {
+  state.authTargetPortal = targetPortal;
+  updatePortalTargetBanner();
+  clearAuthAlert();
+
+  if (mode === 'signin') {
+    elements.authTabSignIn.classList.add('active');
+    elements.authTabRegister.classList.remove('active');
+    elements.formSignIn.classList.add('active');
+    elements.formRegister.classList.remove('active');
+  } else {
+    elements.authTabRegister.classList.add('active');
+    elements.authTabSignIn.classList.remove('active');
+    elements.formRegister.classList.add('active');
+    elements.formSignIn.classList.remove('active');
+  }
+
+  elements.authModalOverlay.classList.remove('hidden');
+}
+
+function closeAuthModal() {
+  elements.authModalOverlay.classList.add('hidden');
+  clearAuthAlert();
+}
+
+function updatePortalTargetBanner() {
+  const isStudent = state.authTargetPortal === 'student';
+  elements.portalTargetBadge.className = `portal-target-badge ${isStudent ? 'student' : 'admin'}`;
+  elements.portalTargetBadge.textContent = isStudent ? 'Student Portal' : 'Admin Portal';
+  elements.portalTargetHint.textContent = isStudent ? 'Logging in as Student' : 'Logging in as Registrar Admin';
+  elements.btnToggleTargetPortal.textContent = isStudent ? 'Switch to Admin Portal' : 'Switch to Student Portal';
+}
+
+function setupAuthHandlers() {
+  // Modal Openers
+  elements.btnLandingSignIn?.addEventListener('click', () => openAuthModal('signin', 'student'));
+  elements.btnLandingRegister?.addEventListener('click', () => openAuthModal('register', 'student'));
+
+  elements.cardEnterStudentPortal?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  elements.cardEnterAdminPortal?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'admin') {
+      switchView('admin');
+    } else {
+      openAuthModal('signin', 'admin');
+    }
+  });
+
+  // Modal Closers
+  elements.btnAuthClose?.addEventListener('click', closeAuthModal);
+  elements.authModalOverlay?.addEventListener('click', (e) => {
+    if (e.target === elements.authModalOverlay) closeAuthModal();
+  });
+
+  // Segmented Tabs
+  elements.authTabSignIn?.addEventListener('click', () => {
+    elements.authTabSignIn.classList.add('active');
+    elements.authTabRegister.classList.remove('active');
+    elements.formSignIn.classList.add('active');
+    elements.formRegister.classList.remove('active');
+    clearAuthAlert();
+  });
+
+  elements.authTabRegister?.addEventListener('click', () => {
+    elements.authTabRegister.classList.add('active');
+    elements.authTabSignIn.classList.remove('active');
+    elements.formRegister.classList.add('active');
+    elements.formSignIn.classList.remove('active');
+    clearAuthAlert();
+  });
+
+  // Target Portal Toggle
+  elements.btnToggleTargetPortal?.addEventListener('click', () => {
+    state.authTargetPortal = state.authTargetPortal === 'student' ? 'admin' : 'student';
+    updatePortalTargetBanner();
+  });
+
+  // Password Visibility Toggle
+  elements.btnToggleLoginPw?.addEventListener('click', () => {
+    const isPw = elements.loginPassword.type === 'password';
+    elements.loginPassword.type = isPw ? 'text' : 'password';
+    elements.btnToggleLoginPw.textContent = isPw ? '🔒' : '👁';
+  });
+
+  // Demo Login Buttons
+  elements.btnDemoLoginStudent?.addEventListener('click', () => {
+    elements.loginEmail.value = 'jaynellan@cca.edu.ph';
+    elements.loginPassword.value = 'student123';
+    state.authTargetPortal = 'student';
+    updatePortalTargetBanner();
+    showAuthAlert('Pre-filled: Jaynellan Almary Magpantay (Student). Click "Sign In"!', 'success');
+  });
+
+  elements.btnDemoLoginAdmin?.addEventListener('click', () => {
+    elements.loginEmail.value = 'admin@cca.edu.ph';
+    elements.loginPassword.value = 'admin123';
+    state.authTargetPortal = 'admin';
+    updatePortalTargetBanner();
+    showAuthAlert('Pre-filled: Registrar Administrator. Click "Sign In"!', 'success');
+  });
+
+  // Login Form Submission
+  elements.formSignIn?.addEventListener('submit', handleLoginSubmit);
+
+  // Register Form Submission
+  elements.formRegister?.addEventListener('submit', handleRegisterSubmit);
+
+  // Logout Handlers
+  elements.btnStudentLogout?.addEventListener('click', handleLogout);
+  elements.btnAdminLogout?.addEventListener('click', handleLogout);
+}
+
+async function handleLoginSubmit(e) {
+  e.preventDefault();
+  clearAuthAlert();
+
+  const email = elements.loginEmail.value.trim();
+  const password = elements.loginPassword.value;
+
+  if (!email || !password) {
+    showAuthAlert('Please fill in both email and password.', 'error');
+    return;
+  }
+
+  setAuthLoading(true, 'signin');
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, targetPortal: state.authTargetPortal })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Authentication failed.');
+    }
+
+    // Save user session
+    state.currentUser = result.user;
+    localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
+
+    showToast(`Signed in successfully as ${result.user.fullName}!`, 'success');
+    closeAuthModal();
+    updateLandingAuthUI();
+
+    // Direct to matching portal
+    if (result.user.role === 'admin') {
+      switchView('admin');
+    } else {
+      switchView('student');
+    }
+
+  } catch (error) {
+    showAuthAlert(error.message, 'error');
+  } finally {
+    setAuthLoading(false, 'signin');
+  }
+}
+
+async function handleRegisterSubmit(e) {
+  e.preventDefault();
+  clearAuthAlert();
+
+  const payload = {
+    fullName: elements.regFullName.value.trim(),
+    studentId: elements.regStudentId.value.trim(),
+    course: elements.regCourse.value,
+    role: elements.regRole.value,
+    email: elements.regEmail.value.trim(),
+    password: elements.regPassword.value
+  };
+
+  if (!payload.fullName || !payload.email || !payload.password) {
+    showAuthAlert('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  if (payload.role === 'student' && !payload.studentId) {
+    showAuthAlert('Student ID is required for student registration.', 'error');
+    return;
+  }
+
+  setAuthLoading(true, 'register');
+
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      const err = result.errors ? result.errors.join('<br>') : result.message;
+      throw new Error(err || 'Registration failed.');
+    }
+
+    // Auto login with new user
+    state.currentUser = result.user;
+    localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
+
+    showToast('Account created successfully!', 'success');
+    closeAuthModal();
+    updateLandingAuthUI();
+
+    if (result.user.role === 'admin') {
+      switchView('admin');
+    } else {
+      switchView('student');
+    }
+
+  } catch (error) {
+    showAuthAlert(error.message, 'error');
+  } finally {
+    setAuthLoading(false, 'register');
+  }
+}
+
+function handleLogout() {
+  state.currentUser = null;
+  localStorage.removeItem('cca_auth_user');
+  updateLandingAuthUI();
+  switchView('landing');
+  showToast('You have been logged out safely.', 'info');
+}
+
+function showAuthAlert(msg, type) {
+  elements.authAlert.className = `auth-alert ${type}`;
+  elements.authAlert.innerHTML = msg;
+  elements.authAlert.classList.remove('hidden');
+}
+
+function clearAuthAlert() {
+  elements.authAlert.innerHTML = '';
+  elements.authAlert.classList.add('hidden');
+}
+
+function setAuthLoading(isLoading, mode) {
+  if (mode === 'signin') {
+    elements.btnSignInSubmit.disabled = isLoading;
+    if (isLoading) {
+      elements.loginSpinner.classList.remove('hidden');
+      elements.loginBtnLabel.textContent = 'Verifying...';
+    } else {
+      elements.loginSpinner.classList.add('hidden');
+      elements.loginBtnLabel.textContent = 'Sign In';
+    }
+  } else {
+    elements.btnRegisterSubmit.disabled = isLoading;
+    if (isLoading) {
+      elements.registerSpinner.classList.remove('hidden');
+      elements.registerBtnLabel.textContent = 'Creating Account...';
+    } else {
+      elements.registerSpinner.classList.add('hidden');
+      elements.registerBtnLabel.textContent = 'Create Account & Sign In';
+    }
+  }
+}
 
 // ==========================================
 // View & Portal Switching
@@ -169,10 +524,11 @@ function switchView(viewName) {
 
   if (viewName === 'landing') {
     elements.viewLanding.classList.add('active');
+    updateLandingAuthUI();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else if (viewName === 'student') {
     elements.viewStudentPortal.classList.add('active');
-    updateStudentProfileUI();
+    syncStudentProfileFromAuth();
     filterStudentRequests();
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
@@ -181,91 +537,76 @@ function switchView(viewName) {
   }
 }
 
-function setupPortalSwitching() {
-  // Landing Page Buttons
-  if (elements.btnGoStudentPortalHeader) {
-    elements.btnGoStudentPortalHeader.addEventListener('click', () => switchView('student'));
-  }
-  if (elements.cardEnterStudentPortal) {
-    elements.cardEnterStudentPortal.addEventListener('click', () => switchView('student'));
-  }
+function setupNavigationHandlers() {
+  elements.btnLandingBrand?.addEventListener('click', (e) => {
+    e.preventDefault();
+    switchView('landing');
+  });
 
-  if (elements.btnGoAdminPortalHeader) {
-    elements.btnGoAdminPortalHeader.addEventListener('click', () => switchView('admin'));
-  }
-  if (elements.cardEnterAdminPortal) {
-    elements.cardEnterAdminPortal.addEventListener('click', () => switchView('admin'));
-  }
+  elements.btnStudentBackToHome?.addEventListener('click', () => switchView('landing'));
+  elements.btnAdminBackToHome?.addEventListener('click', () => switchView('landing'));
 
-  // Back to Home Buttons
-  if (elements.btnLandingBrand) {
-    elements.btnLandingBrand.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchView('landing');
-    });
-  }
-  if (elements.btnStudentBackToHome) {
-    elements.btnStudentBackToHome.addEventListener('click', () => switchView('landing'));
-  }
-  if (elements.btnAdminBackToHome) {
-    elements.btnAdminBackToHome.addEventListener('click', () => switchView('landing'));
-  }
+  elements.btnStudentSwitchAdmin?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'admin') {
+      switchView('admin');
+    } else {
+      openAuthModal('signin', 'admin');
+    }
+  });
 
-  // Cross Portal Switchers
-  if (elements.btnStudentSwitchAdmin) {
-    elements.btnStudentSwitchAdmin.addEventListener('click', () => switchView('admin'));
-  }
-  if (elements.btnAdminSwitchStudent) {
-    elements.btnAdminSwitchStudent.addEventListener('click', () => switchView('student'));
-  }
-}
+  elements.btnAdminSwitchStudent?.addEventListener('click', () => {
+    switchView('student');
+  });
 
-// ==========================================
-// Student Portal Navigation & Subtabs
-// ==========================================
-function setupStudentNavigation() {
+  // Student Subtab Switchers
   elements.studentNavItems.forEach((btn) => {
     btn.addEventListener('click', () => {
-      const targetTab = btn.getAttribute('data-student-tab');
-      switchStudentSubtab(targetTab);
+      const tab = btn.getAttribute('data-student-tab');
+      switchStudentSubtab(tab);
       closeMobileDrawers();
     });
   });
 
-  if (elements.btnStudentRefreshHistory) {
-    elements.btnStudentRefreshHistory.addEventListener('click', async () => {
-      elements.btnStudentRefreshHistory.classList.add('rotating');
-      await fetchAllRequests();
-      showToast('Student requests refreshed from MongoDB Atlas', 'info');
-      elements.btnStudentRefreshHistory.classList.remove('rotating');
+  // Admin Subtab Switchers
+  elements.adminNavItems.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-admin-tab');
+      switchAdminSubtab(tab);
+      closeMobileDrawers();
     });
-  }
+  });
 
-  // Profile Save Button
-  if (elements.btnSaveStudentProfile) {
-    elements.btnSaveStudentProfile.addEventListener('click', handleSaveProfile);
-  }
+  elements.btnAdminViewAll?.addEventListener('click', () => switchAdminSubtab('manage'));
+
+  // Refresh Handlers
+  elements.btnStudentRefreshHistory?.addEventListener('click', async () => {
+    elements.btnStudentRefreshHistory.classList.add('rotating');
+    await fetchAllRequests();
+    showToast('Student requests refreshed from MongoDB Atlas', 'info');
+    elements.btnStudentRefreshHistory.classList.remove('rotating');
+  });
+
+  elements.adminGlobalRefreshBtn?.addEventListener('click', async () => {
+    elements.adminGlobalRefreshBtn.classList.add('rotating');
+    await fetchAllRequests();
+    await fetchHealthCheck();
+    showToast('Synchronized with MongoDB Atlas!', 'success');
+    elements.adminGlobalRefreshBtn.classList.remove('rotating');
+  });
+
+  // Save Profile in Profile Tab
+  elements.btnSaveStudentProfile?.addEventListener('click', handleSaveProfileManual);
 }
 
 function switchStudentSubtab(tabName) {
   state.studentActiveTab = tabName;
 
-  // Update Nav Buttons
   elements.studentNavItems.forEach((btn) => {
-    if (btn.getAttribute('data-student-tab') === tabName) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    btn.classList.toggle('active', btn.getAttribute('data-student-tab') === tabName);
   });
 
-  // Update Subtab Panes
   elements.studentSubtabs.forEach((pane) => {
-    if (pane.id === `studentSubtab-${tabName}`) {
-      pane.classList.add('active');
-    } else {
-      pane.classList.remove('active');
-    }
+    pane.classList.toggle('active', pane.id === `studentSubtab-${tabName}`);
   });
 
   const titles = {
@@ -275,7 +616,7 @@ function switchStudentSubtab(tabName) {
     },
     history: {
       title: 'My Requests & Live Tracking',
-      subtitle: `Tracking document requests for Student ID: ${state.activeStudent.id}`
+      subtitle: `Tracking document requests for Student ID: ${getActiveStudentId()}`
     },
     profile: {
       title: 'My Student Profile',
@@ -293,50 +634,15 @@ function switchStudentSubtab(tabName) {
   }
 }
 
-// ==========================================
-// Admin Portal Navigation & Subtabs
-// ==========================================
-function setupAdminNavigation() {
-  elements.adminNavItems.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const targetTab = btn.getAttribute('data-admin-tab');
-      switchAdminSubtab(targetTab);
-      closeMobileDrawers();
-    });
-  });
-
-  if (elements.btnAdminViewAll) {
-    elements.btnAdminViewAll.addEventListener('click', () => switchAdminSubtab('manage'));
-  }
-
-  if (elements.adminGlobalRefreshBtn) {
-    elements.adminGlobalRefreshBtn.addEventListener('click', async () => {
-      elements.adminGlobalRefreshBtn.classList.add('rotating');
-      await fetchAllRequests();
-      await fetchHealthCheck();
-      showToast('Data synchronized with MongoDB Atlas!', 'success');
-      elements.adminGlobalRefreshBtn.classList.remove('rotating');
-    });
-  }
-}
-
 function switchAdminSubtab(tabName) {
   state.adminActiveTab = tabName;
 
   elements.adminNavItems.forEach((btn) => {
-    if (btn.getAttribute('data-admin-tab') === tabName) {
-      btn.classList.add('active');
-    } else {
-      btn.classList.remove('active');
-    }
+    btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === tabName);
   });
 
   elements.adminSubtabs.forEach((pane) => {
-    if (pane.id === `adminSubtab-${tabName}`) {
-      pane.classList.add('active');
-    } else {
-      pane.classList.remove('active');
-    }
+    pane.classList.toggle('active', pane.id === `adminSubtab-${tabName}`);
   });
 
   const titles = {
@@ -368,18 +674,13 @@ function switchAdminSubtab(tabName) {
 // REST API Communication (Fetch)
 // ==========================================
 
-/**
- * Fetch Backend & MongoDB Atlas Health Status via GET /api/health
- */
 async function fetchHealthCheck() {
   try {
-    const response = await fetch('/api/health');
-    const data = await response.json();
-
+    const res = await fetch('/api/health');
+    const data = await res.json();
     const isConnected = data.database && data.database.status === 'Connected';
     state.isDbConnected = isConnected;
 
-    // Update Landing Page Indicator
     if (elements.landingDbIndicator) {
       elements.landingDbIndicator.className = isConnected ? 'db-indicator connected' : 'db-indicator disconnected';
       elements.landingDbIndicator.querySelector('.label').textContent = isConnected
@@ -387,7 +688,6 @@ async function fetchHealthCheck() {
         : 'Cloud DB Disconnected';
     }
 
-    // Update Admin Sidebar Status
     if (elements.adminDbStatus) {
       elements.adminDbStatus.className = isConnected ? 'db-status-badge connected' : 'db-status-badge disconnected';
       elements.adminDbStatus.querySelector('.status-label').textContent = isConnected
@@ -399,80 +699,59 @@ async function fetchHealthCheck() {
       elements.adminSysHealthBadge.textContent = isConnected ? 'Operational' : 'Database Offline';
       elements.adminSysHealthBadge.className = isConnected ? 'badge badge-success' : 'badge badge-error';
     }
-    if (elements.adminSysDbStatus) {
-      elements.adminSysDbStatus.textContent = isConnected
-        ? 'MongoDB Atlas (Connected)'
-        : 'Disconnected (Check .env)';
-    }
-  } catch (error) {
-    console.warn('Health check request failed:', error.message);
+  } catch (err) {
+    console.warn('Health check error:', err);
     state.isDbConnected = false;
-    if (elements.landingDbIndicator) {
-      elements.landingDbIndicator.className = 'db-indicator disconnected';
-      elements.landingDbIndicator.querySelector('.label').textContent = 'API Offline';
-    }
   }
 }
 
-/**
- * Fetch All Document Requests from MongoDB Atlas via GET /api/requests
- */
 async function fetchAllRequests() {
   try {
-    const response = await fetch('/api/requests');
-    const result = await response.json();
+    const res = await fetch('/api/requests');
+    const result = await res.json();
 
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to fetch document requests.');
-    }
+    if (!res.ok) throw new Error(result.message || 'Failed to fetch requests.');
 
     state.allRequests = result.data || [];
 
-    // Update Badges & Counters
     if (elements.adminTotalBadge) {
       elements.adminTotalBadge.textContent = state.allRequests.length;
     }
 
-    // Refresh Sub-Views
     updateAdminDashboard();
     renderAdminTable();
     filterStudentRequests();
-  } catch (error) {
-    console.error('Error fetching requests:', error.message);
-    renderTableErrors(error.message);
+  } catch (err) {
+    console.error('Fetch requests error:', err);
+    renderTableErrors(err.message);
   }
 }
 
-/**
- * Create a New Document Request via POST /api/requests
- */
 async function submitDocumentRequest(payload) {
   setSubmitLoading(true);
   clearFormAlert();
 
   try {
-    const response = await fetch('/api/requests', {
+    const res = await fetch('/api/requests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
-    const result = await response.json();
+    const result = await res.json();
 
-    if (!response.ok) {
-      const errorMsg = result.errors ? result.errors.join('<br>') : result.message;
-      throw new Error(errorMsg || 'Failed to submit document request.');
+    if (!res.ok) {
+      const msg = result.errors ? result.errors.join('<br>') : result.message;
+      throw new Error(msg || 'Failed to submit document request.');
     }
 
     showToast('Document request submitted successfully!', 'success');
     showFormAlert('Your document request has been recorded and saved in MongoDB Atlas.', 'success');
 
-    // Reset Form
     elements.studentRequestForm.reset();
     populateFormWithProfile();
     elements.formDateSubmitted.value = new Date().toISOString().split('T')[0];
 
-    // Reload Requests & Auto-switch to History Tab so student sees their request immediately!
     await fetchAllRequests();
 
     setTimeout(() => {
@@ -480,58 +759,124 @@ async function submitDocumentRequest(payload) {
       showToast('Switched to My Requests & Tracking view.', 'info');
     }, 1200);
 
-  } catch (error) {
-    console.error('Submission error:', error);
-    showFormAlert(error.message, 'error');
-    showToast(error.message.replace(/<br>/g, ', '), 'error');
+  } catch (err) {
+    showFormAlert(err.message, 'error');
+    showToast(err.message.replace(/<br>/g, ', '), 'error');
   } finally {
     setSubmitLoading(false);
   }
 }
 
-/**
- * Update Document Request Status via PATCH /api/requests/:id
- */
 async function updateRequestStatus(id, newStatus) {
   try {
-    const response = await fetch(`/api/requests/${id}`, {
+    const res = await fetch(`/api/requests/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
     });
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to update request status.');
-    }
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || 'Failed to update status.');
 
     showToast(`Status updated to "${newStatus}"`, 'success');
     await fetchAllRequests();
-  } catch (error) {
-    console.error('Update status error:', error);
-    showToast(error.message, 'error');
+  } catch (err) {
+    showToast(err.message, 'error');
     renderAdminTable();
   }
 }
 
 // ==========================================
-// Student Subtab Logic & Tracking Stepper
+// Student Profile & Tracking Helpers
 // ==========================================
-function filterStudentRequests() {
-  const activeId = state.activeStudent.id.trim().toLowerCase();
 
-  // Filter requests that match the active student ID
+function getActiveStudentId() {
+  if (state.currentUser && state.currentUser.studentId) {
+    return state.currentUser.studentId;
+  }
+  return elements.profileInputId?.value || '23-67894';
+}
+
+function syncStudentProfileFromAuth() {
+  const user = state.currentUser || {
+    fullName: 'Jaynellan Almary O. Magpantay',
+    studentId: '23-67894',
+    course: 'BS Information Technology'
+  };
+
+  if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = user.fullName;
+  if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${user.studentId}`;
+  if (elements.sidebarStudentAvatar) {
+    const initials = user.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
+    elements.sidebarStudentAvatar.textContent = initials || 'JM';
+  }
+
+  if (elements.cardProfileName) elements.cardProfileName.textContent = user.fullName;
+  if (elements.cardProfileId) elements.cardProfileId.textContent = `STUDENT ID: ${user.studentId}`;
+  if (elements.cardProfileCourse) elements.cardProfileCourse.textContent = user.course || 'BS Information Technology';
+
+  if (elements.profileInputName) elements.profileInputName.value = user.fullName;
+  if (elements.profileInputId) elements.profileInputId.value = user.studentId;
+  if (elements.profileInputCourse && user.course) elements.profileInputCourse.value = user.course;
+
+  populateFormWithProfile();
+}
+
+function populateFormWithProfile() {
+  const user = state.currentUser || {
+    fullName: elements.profileInputName?.value || 'Jaynellan Almary O. Magpantay',
+    studentId: elements.profileInputId?.value || '23-67894',
+    course: elements.profileInputCourse?.value || 'BS Information Technology',
+    email: 'jaynellan@cca.edu.ph'
+  };
+
+  if (elements.formStudentName && !elements.formStudentName.value) {
+    elements.formStudentName.value = user.fullName;
+  }
+  if (elements.formStudentId && !elements.formStudentId.value) {
+    elements.formStudentId.value = user.studentId;
+  }
+  if (elements.formCourse && user.course) {
+    elements.formCourse.value = user.course;
+  }
+  if (elements.formEmail && user.email && !elements.formEmail.value) {
+    elements.formEmail.value = user.email;
+  }
+}
+
+function handleSaveProfileManual() {
+  const name = elements.profileInputName.value.trim();
+  const id = elements.profileInputId.value.trim();
+  const course = elements.profileInputCourse.value;
+
+  if (!name || !id) {
+    showToast('Name and Student ID are required.', 'error');
+    return;
+  }
+
+  if (state.currentUser) {
+    state.currentUser.fullName = name;
+    state.currentUser.studentId = id;
+    state.currentUser.course = course;
+    localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+  }
+
+  syncStudentProfileFromAuth();
+  filterStudentRequests();
+  showToast('Student credentials updated in active session!', 'success');
+}
+
+function filterStudentRequests() {
+  const activeId = getActiveStudentId().trim().toLowerCase();
+
   state.studentRequests = state.allRequests.filter((req) => {
     return req.studentId && req.studentId.trim().toLowerCase() === activeId;
   });
 
-  // Update Student Request Count Badge
   if (elements.studentMyRequestsBadge) {
     elements.studentMyRequestsBadge.textContent = state.studentRequests.length;
   }
 
-  // Update Student Stat Pills
   const total = state.studentRequests.length;
   const pending = state.studentRequests.filter((r) => r.status === 'Pending').length;
   const processing = state.studentRequests.filter((r) => r.status === 'Processing').length;
@@ -553,8 +898,8 @@ function renderStudentTrackingCards() {
     container.innerHTML = `
       <div class="empty-state-box">
         <svg style="width:48px;height:48px;color:#94A3B8;margin-bottom:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <h4>No document requests found for ID: ${escapeHtml(state.activeStudent.id)}</h4>
-        <p style="font-size:0.85rem;color:#64748B;margin-top:6px;">Go to "Submit Request" to file your first academic document request, or verify your Student ID in "My Profile".</p>
+        <h4>No document requests found for ID: ${escapeHtml(getActiveStudentId())}</h4>
+        <p style="font-size:0.85rem;color:#64748B;margin-top:6px;">Go to "Submit Request" to submit your first academic request, or adjust your Student ID in "My Profile".</p>
       </div>
     `;
     return;
@@ -566,7 +911,6 @@ function renderStudentTrackingCards() {
       const status = req.status || 'Pending';
       const shortId = req._id ? req._id.substring(req._id.length - 6).toUpperCase() : `#${index + 1}`;
 
-      // Stepper Stage Logic
       let stepProgressClass = 'step-1';
       let step1Class = 'step-item completed';
       let step2Class = 'step-item';
@@ -575,7 +919,6 @@ function renderStudentTrackingCards() {
       if (status === 'Pending') {
         stepProgressClass = 'step-1';
         step2Class = 'step-item active';
-        step3Class = 'step-item';
       } else if (status === 'Processing') {
         stepProgressClass = 'step-2';
         step2Class = 'step-item completed';
@@ -604,25 +947,21 @@ function renderStudentTrackingCards() {
             </div>
           </div>
 
-          <!-- 3-Step Interactive Visual Stepper -->
           <div class="progress-stepper">
             <div class="stepper-line">
               <div class="stepper-progress ${stepProgressClass}"></div>
             </div>
 
-            <!-- Step 1 -->
             <div class="${step1Class}">
               <div class="step-icon">✓</div>
               <span class="step-label">1. Request Submitted<br><small style="color:#64748B;">${formattedDate}</small></span>
             </div>
 
-            <!-- Step 2 -->
             <div class="${step2Class}">
               <div class="step-icon">${status === 'Processing' || status === 'Completed' ? '✓' : '2'}</div>
               <span class="step-label">2. Under Review<br><small style="color:#64748B;">Registrar Office</small></span>
             </div>
 
-            <!-- Step 3 -->
             <div class="${step3Class}">
               <div class="step-icon">${status === 'Completed' ? '✓' : '3'}</div>
               <span class="step-label">3. Ready for Release<br><small style="color:#64748B;">Registrar Window</small></span>
@@ -631,81 +970,12 @@ function renderStudentTrackingCards() {
 
           <div class="tracking-footer-box">
             <span class="purpose-note"><strong>Stated Purpose:</strong> ${escapeHtml(req.purpose)}</span>
-            <span style="color:#64748B;font-size:0.75rem;">Status updated live via MongoDB Atlas</span>
+            <span style="color:#64748B;font-size:0.75rem;">Status live from MongoDB Atlas</span>
           </div>
         </div>
       `;
     })
     .join('');
-}
-
-// ==========================================
-// Student Profile Management
-// ==========================================
-function loadSavedProfile() {
-  const saved = localStorage.getItem('cca_student_profile');
-  if (saved) {
-    try {
-      state.activeStudent = JSON.parse(saved);
-    } catch (e) {
-      console.warn('Failed to parse saved profile');
-    }
-  }
-}
-
-function updateStudentProfileUI() {
-  const s = state.activeStudent;
-
-  // Sidebar Preview
-  if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = s.name;
-  if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${s.id}`;
-  if (elements.sidebarStudentAvatar) {
-    const initials = s.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
-    elements.sidebarStudentAvatar.textContent = initials || 'ST';
-  }
-
-  // Profile Card Preview
-  if (elements.cardProfileName) elements.cardProfileName.textContent = s.name;
-  if (elements.cardProfileId) elements.cardProfileId.textContent = `STUDENT ID: ${s.id}`;
-  if (elements.cardProfileCourse) elements.cardProfileCourse.textContent = s.course;
-
-  // Form Inputs
-  if (elements.profileInputName) elements.profileInputName.value = s.name;
-  if (elements.profileInputId) elements.profileInputId.value = s.id;
-  if (elements.profileInputCourse) elements.profileInputCourse.value = s.course;
-
-  // Populate Submission Form
-  populateFormWithProfile();
-}
-
-function populateFormWithProfile() {
-  if (elements.formStudentName && !elements.formStudentName.value) {
-    elements.formStudentName.value = state.activeStudent.name;
-  }
-  if (elements.formStudentId && !elements.formStudentId.value) {
-    elements.formStudentId.value = state.activeStudent.id;
-  }
-  if (elements.formCourse && state.activeStudent.course) {
-    elements.formCourse.value = state.activeStudent.course;
-  }
-}
-
-function handleSaveProfile() {
-  const name = elements.profileInputName.value.trim();
-  const id = elements.profileInputId.value.trim();
-  const course = elements.profileInputCourse.value;
-
-  if (!name || !id) {
-    showToast('Name and Student ID cannot be empty', 'error');
-    return;
-  }
-
-  state.activeStudent = { name, id, course };
-  localStorage.setItem('cca_student_profile', JSON.stringify(state.activeStudent));
-
-  updateStudentProfileUI();
-  filterStudentRequests();
-  showToast('Student profile and active ID updated successfully!', 'success');
 }
 
 // ==========================================
@@ -718,9 +988,7 @@ function setupStudentForm() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    if (!validateStudentForm()) {
-      return;
-    }
+    if (!validateStudentForm()) return;
 
     const payload = {
       studentName: elements.formStudentName.value.trim(),
@@ -735,22 +1003,19 @@ function setupStudentForm() {
     submitDocumentRequest(payload);
   });
 
-  if (elements.btnStudentFormReset) {
-    elements.btnStudentFormReset.addEventListener('click', () => {
-      form.reset();
-      clearStudentErrors();
-      clearFormAlert();
-      populateFormWithProfile();
-      elements.formDateSubmitted.value = new Date().toISOString().split('T')[0];
-    });
-  }
+  elements.btnStudentFormReset?.addEventListener('click', () => {
+    form.reset();
+    clearStudentErrors();
+    clearFormAlert();
+    populateFormWithProfile();
+    elements.formDateSubmitted.value = new Date().toISOString().split('T')[0];
+  });
 
-  // Real-time error clearing
-  elements.formStudentName.addEventListener('input', () => clearFieldValidation(elements.formStudentName, elements.errStudentName));
-  elements.formStudentId.addEventListener('input', () => clearFieldValidation(elements.formStudentId, elements.errStudentId));
-  elements.formDocumentType.addEventListener('change', () => clearFieldValidation(elements.formDocumentType, elements.errDocumentType));
-  elements.formPurpose.addEventListener('input', () => clearFieldValidation(elements.formPurpose, elements.errPurpose));
-  elements.formDateSubmitted.addEventListener('change', () => clearFieldValidation(elements.formDateSubmitted, elements.errDateSubmitted));
+  elements.formStudentName?.addEventListener('input', () => clearFieldValidation(elements.formStudentName, elements.errStudentName));
+  elements.formStudentId?.addEventListener('input', () => clearFieldValidation(elements.formStudentId, elements.errStudentId));
+  elements.formDocumentType?.addEventListener('change', () => clearFieldValidation(elements.formDocumentType, elements.errDocumentType));
+  elements.formPurpose?.addEventListener('input', () => clearFieldValidation(elements.formPurpose, elements.errPurpose));
+  elements.formDateSubmitted?.addEventListener('change', () => clearFieldValidation(elements.formDateSubmitted, elements.errDateSubmitted));
 }
 
 function validateStudentForm() {
@@ -829,11 +1094,10 @@ function clearFormAlert() {
 }
 
 // ==========================================
-// Admin Portal Dashboard & Master Table
+// Admin Dashboard & Table Logic
 // ==========================================
 function updateAdminDashboard() {
   const reqs = state.allRequests;
-
   const total = reqs.length;
   const pending = reqs.filter((r) => r.status === 'Pending').length;
   const processing = reqs.filter((r) => r.status === 'Processing').length;
@@ -852,7 +1116,6 @@ function renderAdminRecentTable() {
   if (!tbody) return;
 
   const recent = state.allRequests.slice(0, 5);
-
   if (recent.length === 0) {
     tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found in MongoDB Atlas.</td></tr>`;
     return;
@@ -876,12 +1139,8 @@ function renderAdminRecentTable() {
 }
 
 function setupAdminFilters() {
-  if (elements.adminSearchInput) {
-    elements.adminSearchInput.addEventListener('input', applyAdminFilters);
-  }
-  if (elements.adminStatusFilter) {
-    elements.adminStatusFilter.addEventListener('change', applyAdminFilters);
-  }
+  elements.adminSearchInput?.addEventListener('input', applyAdminFilters);
+  elements.adminStatusFilter?.addEventListener('change', applyAdminFilters);
 }
 
 function applyAdminFilters() {
@@ -955,46 +1214,32 @@ function renderTableErrors(msg) {
   if (elements.adminAllRequestsTableBody) elements.adminAllRequestsTableBody.innerHTML = errorHtml;
 }
 
-// Global hook for inline select element in table
 window.handleAdminStatusChange = function (event, requestId) {
   const newStatus = event.target.value;
   updateRequestStatus(requestId, newStatus);
 };
 
 // ==========================================
-// Mobile Drawers
+// Mobile Drawers & Utilities
 // ==========================================
 function setupMobileDrawers() {
   const studentSidebar = document.querySelector('.portal-sidebar.student-theme');
   const adminSidebar = document.querySelector('.portal-sidebar.admin-theme');
 
-  if (elements.mobileStudentToggle && studentSidebar) {
-    elements.mobileStudentToggle.addEventListener('click', () => studentSidebar.classList.add('open'));
-  }
-  if (elements.mobileStudentSidebarClose && studentSidebar) {
-    elements.mobileStudentSidebarClose.addEventListener('click', () => studentSidebar.classList.remove('open'));
-  }
-
-  if (elements.mobileAdminToggle && adminSidebar) {
-    elements.mobileAdminToggle.addEventListener('click', () => adminSidebar.classList.add('open'));
-  }
-  if (elements.mobileAdminSidebarClose && adminSidebar) {
-    elements.mobileAdminSidebarClose.addEventListener('click', () => adminSidebar.classList.remove('open'));
-  }
+  elements.mobileStudentToggle?.addEventListener('click', () => studentSidebar?.classList.add('open'));
+  elements.mobileStudentSidebarClose?.addEventListener('click', () => studentSidebar?.classList.remove('open'));
+  elements.mobileAdminToggle?.addEventListener('click', () => adminSidebar?.classList.add('open'));
+  elements.mobileAdminSidebarClose?.addEventListener('click', () => adminSidebar?.classList.remove('open'));
 }
 
 function closeMobileDrawers() {
   document.querySelectorAll('.portal-sidebar').forEach((s) => s.classList.remove('open'));
 }
 
-// ==========================================
-// Toast & Format Utilities
-// ==========================================
 function showToast(msg, type = 'info') {
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
   toast.innerHTML = `<span class="toast-message">${escapeHtml(msg)}</span>`;
-
   elements.toastContainer.appendChild(toast);
 
   setTimeout(() => {
@@ -1007,11 +1252,7 @@ function formatDate(dateString) {
   if (!dateString) return '--';
   const d = new Date(dateString);
   if (isNaN(d.getTime())) return dateString;
-  return d.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function truncateText(str, max) {
