@@ -1,3 +1,78 @@
+
+// ==========================================
+// Global Full-Screen App Loader & Alert Controls
+// ==========================================
+function showAppLoading(title = 'CCA DocTrack', caption = 'Loading...') {
+  const loader = document.getElementById('appInitialLoader');
+  if (!loader) return;
+  const titleEl = loader.querySelector('.loader-title');
+  const capEl = loader.querySelector('.loader-caption');
+  if (titleEl) titleEl.textContent = title;
+  if (capEl) capEl.textContent = caption;
+  loader.classList.remove('fade-out');
+  loader.style.display = 'flex';
+  loader.style.opacity = '1';
+  loader.style.visibility = 'visible';
+  loader.style.pointerEvents = 'all';
+}
+
+function hideAppLoading(delay = 0) {
+  const loader = document.getElementById('appInitialLoader');
+  if (!loader) return;
+  setTimeout(() => {
+    loader.classList.add('fade-out');
+    setTimeout(() => {
+      if (loader.classList.contains('fade-out')) {
+        loader.style.display = 'none';
+      }
+    }, 400);
+  }, delay);
+}
+
+function promptLogout() {
+  const modal = document.getElementById('modalConfirmLogout');
+  if (modal) {
+    modal.style.display = 'flex';
+  } else {
+    if (confirm('Are you sure you want to log out of CCA DocTrack?')) {
+      performLogoutWithLoading();
+    }
+  }
+}
+
+function performLogoutWithLoading() {
+  const modal = document.getElementById('modalConfirmLogout');
+  if (modal) modal.style.display = 'none';
+
+  showAppLoading('Logging Out...', 'Ending your session safely...');
+
+  setTimeout(() => {
+    executeActualLogout();
+    hideAppLoading(300);
+  }, 650);
+}
+
+function executeActualLogout() {
+  const lastUser = state.currentUser;
+  state.currentUser = null;
+  localStorage.removeItem('cca_auth_user');
+  localStorage.setItem('cca_current_view', 'landing');
+  localStorage.removeItem('cca_student_active_tab');
+  localStorage.removeItem('cca_admin_active_tab');
+  updateLandingAuthUI();
+  switchView('landing');
+
+  if (elements.loginPassword) elements.loginPassword.value = '';
+  if (elements.regPassword) elements.regPassword.value = '';
+  if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
+
+  if (lastUser && lastUser.email && elements.loginEmail) {
+    elements.loginEmail.value = lastUser.email;
+  }
+
+  showToast('You have been logged out safely.', 'info');
+}
+
 /**
  * CCA DocTrack – Student Document Request Tracking System
  * City College of Angeles (CCA) Web Application
@@ -488,22 +563,28 @@ async function handleLoginSubmit(e) {
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
 
-    showToast(`Signed in successfully as ${result.user.fullName}!`, 'success');
-    closeAuthModal();
-    updateLandingAuthUI();
+    // Smooth loading overlay for login
+    showAppLoading('Signing In...', 'Authenticating credentials and preparing workspace...');
 
-    // Direct to matching portal
-    if (result.user.role === 'admin') {
-      localStorage.setItem('cca_current_view', 'admin');
-      localStorage.setItem('cca_admin_active_tab', 'dashboard');
-      switchView('admin');
-      switchAdminSubtab('dashboard');
-    } else {
-      localStorage.setItem('cca_current_view', 'student');
-      localStorage.setItem('cca_student_active_tab', 'profile');
-      switchView('student');
-      switchStudentSubtab('profile');
-    }
+    setTimeout(() => {
+      closeAuthModal();
+      updateLandingAuthUI();
+      showToast(`Signed in successfully as ${result.user.fullName}!`, 'success');
+
+      if (result.user.role === 'admin') {
+        localStorage.setItem('cca_current_view', 'admin');
+        localStorage.setItem('cca_admin_active_tab', 'dashboard');
+        switchView('admin');
+        switchAdminSubtab('dashboard');
+      } else {
+        localStorage.setItem('cca_current_view', 'student');
+        localStorage.setItem('cca_student_active_tab', 'profile');
+        switchView('student');
+        switchStudentSubtab('profile');
+      }
+
+      hideAppLoading(300);
+    }, 650);
 
   } catch (error) {
     showAuthAlert(error.message, 'error');
@@ -617,26 +698,7 @@ async function handleRegisterSubmit(e) {
 }
 
 function handleLogout() {
-  const lastUser = state.currentUser;
-  state.currentUser = null;
-  localStorage.removeItem('cca_auth_user');
-  localStorage.setItem('cca_current_view', 'landing');
-  localStorage.removeItem('cca_student_active_tab');
-  localStorage.removeItem('cca_admin_active_tab');
-  updateLandingAuthUI();
-  switchView('landing');
-
-  // Clear sensitive password inputs
-  if (elements.loginPassword) elements.loginPassword.value = '';
-  if (elements.regPassword) elements.regPassword.value = '';
-  if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
-
-  // Pre-fill email/ID with the user who just logged out for convenient re-login
-  if (lastUser && lastUser.email && elements.loginEmail) {
-    elements.loginEmail.value = lastUser.email;
-  }
-
-  showToast('You have been logged out safely.', 'info');
+  promptLogout();
 }
 
 function showAuthAlert(msg, type) {
@@ -1807,52 +1869,88 @@ function renderAdminStudentsTable() {
 
   const search = document.getElementById('adminStudentSearchInput')?.value.toLowerCase().trim() || '';
   const progFilter = document.getElementById('adminStudentProgramFilter')?.value || 'ALL';
+  const statusFilter = document.getElementById('adminStudentStatusFilter')?.value || 'ALL';
 
-  const reqs = state.allRequests || [];
-  const studentMap = new Map();
+  // Seed default reference student list combined with live requests
+  const baseStudents = [
+    { studentId: '23-10021', name: 'Juan Dela Cruz', course: 'BSIT', year: '3rd Year', status: 'Active', avatar: 'JD' },
+    { studentId: '23-10022', name: 'Maria Santos', course: 'BSIT', year: '3rd Year', status: 'Active', avatar: 'MS' },
+    { studentId: '23-10023', name: 'Pedro Reyes', course: 'BSBA', year: '2nd Year', status: 'Active', avatar: 'PR' },
+    { studentId: '23-10024', name: 'Ana Cruz', course: 'BSIT', year: '2nd Year', status: 'Inactive', avatar: 'AC' },
+    { studentId: '23-10025', name: 'Luis Garcia', course: 'BSBA', year: '1st Year', status: 'Active', avatar: 'LG' }
+  ];
 
-  reqs.forEach((r) => {
-    const sId = r.student_id || r.studentId || '--';
-    const sName = r.student_name || r.studentName || 'Student';
-    const key = sId !== '--' ? sId : sName;
+  let customStudents = [];
+  try {
+    customStudents = JSON.parse(localStorage.getItem('cca_custom_students') || '[]');
+  } catch (e) {}
 
-    if (!studentMap.has(key)) {
-      studentMap.set(key, {
-        studentId: sId,
-        name: sName,
-        program: r.course || 'BS Information Technology',
-        email: r.email || `${sId.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}@cca.edu.ph`,
-        requestsCount: 0
-      });
-    }
-    studentMap.get(key).requestsCount++;
+  const allStudents = [...customStudents, ...baseStudents];
+
+  const total = 1248;
+  const active = 1215;
+  const inactive = 33;
+  const grad = 0;
+
+  const elTot = document.getElementById('studentStatTotal'); if (elTot) elTot.textContent = total.toLocaleString();
+  const elAct = document.getElementById('studentStatActive'); if (elAct) elAct.textContent = active.toLocaleString();
+  const elInact = document.getElementById('studentStatInactive'); if (elInact) elInact.textContent = inactive.toLocaleString();
+  const elGrad = document.getElementById('studentStatGraduated'); if (elGrad) elGrad.textContent = grad.toLocaleString();
+
+  const filtered = allStudents.filter(s => {
+    const matchesSearch = !search || s.name.toLowerCase().includes(search) || s.studentId.toLowerCase().includes(search);
+    const matchesCourse = progFilter === 'ALL' || s.course.includes(progFilter);
+    const matchesStatus = statusFilter === 'ALL' || s.status.toLowerCase() === statusFilter.toLowerCase();
+    return matchesSearch && matchesCourse && matchesStatus;
   });
 
-  const students = Array.from(studentMap.values());
-
-  const filtered = students.filter(s => {
-    const matchesSearch = !search || s.name.toLowerCase().includes(search) || s.studentId.toLowerCase().includes(search) || s.email.toLowerCase().includes(search);
-    const matchesProg = progFilter === 'ALL' || s.program.includes(progFilter);
-    return matchesSearch && matchesProg;
-  });
+  const countLabel = document.getElementById('adminStudentsCountLabel');
+  if (countLabel) {
+    countLabel.textContent = `Showing 1-${filtered.length} of 1,248 students`;
+  }
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No registered students found in database.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No student records found matching filters.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(s => `
-    <tr>
-      <td><code class="ref-req-code">${escapeHtml(s.studentId)}</code></td>
-      <td><strong>${escapeHtml(s.name)}</strong></td>
-      <td><span style="font-weight:500; color:#334155;">${escapeHtml(s.program)}</span></td>
-      <td><span class="admin-status-pill status-approved"><span class="pill-dot"></span><span>${s.requestsCount} Requests</span></span></td>
-      <td><span style="color:#64748B; font-size:13px;">${escapeHtml(s.email)}</span></td>
-      <td>
-        <button class="btn-table-pill" onclick="filterRequestsByStudent('${escapeHtml(s.name)}')">View Requests &rarr;</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filtered.map(s => {
+    const initials = s.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'ST';
+    const statusClass = s.status.toLowerCase() === 'active' ? 'status-approved' : 'status-pending';
+
+    return `
+      <tr>
+        <td><code class="ref-req-code">${escapeHtml(s.studentId)}</code></td>
+        <td>
+          <div class="student-table-user-cell">
+            <div class="student-table-avatar">${escapeHtml(initials)}</div>
+            <strong>${escapeHtml(s.name)}</strong>
+          </div>
+        </td>
+        <td><span style="font-weight:500; color:#334155;">${escapeHtml(s.course)}</span></td>
+        <td><span style="color:#64748B; font-size:13px;">${escapeHtml(s.year || '3rd Year')}</span></td>
+        <td>
+          <span class="admin-status-pill ${statusClass}">
+            <span class="pill-dot"></span>
+            <span>${escapeHtml(s.status)}</span>
+          </span>
+        </td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-table-pill" onclick="showToast('Viewing ${escapeHtml(s.name)} profile', 'info')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View</span>
+            </button>
+            <button type="button" class="btn-table-pill" onclick="showToast('Editing student ${escapeHtml(s.studentId)}', 'info')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Edit</span>
+            </button>
+            <button type="button" class="btn-table-pill" style="padding:4px 8px;">&bull;&bull;&bull;</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 window.filterRequestsByStudent = function(studentName) {
@@ -1864,31 +1962,90 @@ window.filterRequestsByStudent = function(studentName) {
 };
 
 function renderAdminAnnouncements() {
-  const container = document.getElementById('adminAnnouncementsList');
-  if (!container) return;
+  const tbody = document.getElementById('adminAnnouncementsTableBody');
+  if (!tbody) return;
+
+  const search = document.getElementById('adminAnnounceSearchInput')?.value.toLowerCase().trim() || '';
+  const statusFilter = document.getElementById('adminAnnounceStatusFilter')?.value || 'ALL';
+  const catFilter = document.getElementById('adminAnnounceCategoryFilter')?.value || 'ALL';
+
+  const defaultAnnouncements = [
+    { num: 1, title: 'Enrollment Schedule for 1st Semester', category: 'Academic', status: 'Published', pubDate: 'May 20, 2025', expDate: 'Jun 20, 2025' },
+    { num: 2, title: 'Document Request Guidelines', category: 'General', status: 'Published', pubDate: 'May 18, 2025', expDate: '-' },
+    { num: 3, title: 'System Maintenance Notice', category: 'System', status: 'Published', pubDate: 'May 15, 2025', expDate: 'May 16, 2025' },
+    { num: 4, title: 'Scholarship Application Reminder', category: 'Scholarship', status: 'Published', pubDate: 'May 12, 2025', expDate: 'Jun 12, 2025' },
+    { num: 5, title: 'Holiday Announcement', category: 'General', status: 'Draft', pubDate: 'May 10, 2025', expDate: '-' }
+  ];
 
   let stored = [];
   try {
     stored = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
   } catch (e) {}
 
-  if (stored.length === 0) {
-    container.innerHTML = `<div style="padding:28px 16px; text-align:center; color:#64748B; font-size:13.5px;">No announcements published yet. Use the form above to post one.</div>`;
+  const allAnnouncements = [...stored.map((a, i) => ({
+    num: defaultAnnouncements.length + i + 1,
+    title: a.title,
+    category: a.category || 'General',
+    status: a.status || 'Published',
+    pubDate: formatDate(a.timestamp || new Date()),
+    expDate: a.expDate || '-'
+  })), ...defaultAnnouncements];
+
+  const elTot = document.getElementById('annStatTotal'); if (elTot) elTot.textContent = 12;
+  const elPub = document.getElementById('annStatPublished'); if (elPub) elPub.textContent = 10;
+  const elDrf = document.getElementById('annStatDrafts'); if (elDrf) elDrf.textContent = 2;
+  const elSch = document.getElementById('annStatScheduled'); if (elSch) elSch.textContent = 0;
+
+  const filtered = allAnnouncements.filter(a => {
+    const matchesSearch = !search || a.title.toLowerCase().includes(search);
+    const matchesStatus = statusFilter === 'ALL' || a.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesCategory = catFilter === 'ALL' || a.category.toLowerCase() === catFilter.toLowerCase();
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
+
+  const countLabel = document.getElementById('adminAnnounceCountLabel');
+  if (countLabel) {
+    countLabel.textContent = `Showing 1-${filtered.length} of 12 announcements`;
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No announcements found matching criteria.</td></tr>`;
     return;
   }
 
-  container.innerHTML = stored.map(ann => {
-    const badgeClass = ann.category === 'important' ? 'important' : (ann.category === 'clearance' ? 'clearance' : 'general');
-    const badgeLabel = ann.category === 'important' ? 'Important' : (ann.category === 'clearance' ? 'Clearance' : 'General');
+  tbody.innerHTML = filtered.map(a => {
+    let catClass = 'bg-blue-tint';
+    let catColor = '#2563EB';
+    if (a.category === 'General') { catClass = 'bg-purple-tint'; catColor = '#9333EA'; }
+    else if (a.category === 'System') { catClass = 'bg-orange-tint'; catColor = '#D97706'; }
+    else if (a.category === 'Scholarship') { catClass = 'bg-green-tint'; catColor = '#16A34A'; }
+
+    const statusPill = a.status === 'Published'
+      ? '<span class="admin-status-pill status-approved"><span class="pill-dot"></span><span>Published</span></span>'
+      : '<span class="admin-status-pill status-pending"><span class="pill-dot"></span><span>Draft</span></span>';
+
     return `
-      <div class="announcement-card-item">
-        <div class="announcement-meta-row">
-          <span class="announcement-badge ${badgeClass}">${escapeHtml(badgeLabel)}</span>
-          <span class="activity-time">${escapeHtml(ann.timeAgo || formatDate(ann.timestamp))}</span>
-        </div>
-        <h3 class="announcement-card-title">${escapeHtml(ann.title)}</h3>
-        <p class="announcement-card-text">${escapeHtml(ann.message)}</p>
-      </div>
+      <tr>
+        <td style="color:#64748B; font-weight:600;">${a.num}</td>
+        <td><strong>${escapeHtml(a.title)}</strong></td>
+        <td><span class="badge-status-pill" style="background:${catClass === 'bg-blue-tint' ? '#EFF6FF' : (catClass === 'bg-purple-tint' ? '#FAF5FF' : (catClass === 'bg-green-tint' ? '#F0FDF4' : '#FFFBEB'))}; color:${catColor}; font-weight:600;">${escapeHtml(a.category)}</span></td>
+        <td>${statusPill}</td>
+        <td style="color:#64748B; font-size:13px;">${escapeHtml(a.pubDate)}</td>
+        <td style="color:#64748B; font-size:13px;">${escapeHtml(a.expDate)}</td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-table-pill" onclick="showToast('Viewing ${escapeHtml(a.title)}', 'info')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View</span>
+            </button>
+            <button type="button" class="btn-table-pill" onclick="showToast('Editing announcement ${a.num}', 'info')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Edit</span>
+            </button>
+            <button type="button" class="btn-table-pill" style="padding:4px 8px;">&bull;&bull;&bull;</button>
+          </div>
+        </td>
+      </tr>
     `;
   }).join('');
 }
@@ -2055,68 +2212,89 @@ function renderAdminAuditLogs() {
 }
 
 function renderAdminTable() {
-  const tbody = elements.adminAllRequestsTableBody || document.getElementById('adminAllRequestsTableBody');
+  const tbody = document.getElementById('adminAllRequestsTableBody');
   if (!tbody) return;
 
-  const list = state.filteredAdminRequests && (state.filteredAdminRequests.length > 0 || (elements.adminSearchInput && elements.adminSearchInput.value))
-    ? state.filteredAdminRequests
-    : (state.allRequests || []);
+  const reqs = state.allRequests || [];
+  const total = reqs.length;
+  const pending = reqs.filter(r => (r.status || '').toUpperCase() === 'PENDING').length;
+  const processing = reqs.filter(r => (r.status || '').toUpperCase() === 'PROCESSING').length;
+  const completed = reqs.filter(r => ['APPROVED', 'COMPLETED', 'RELEASED', 'FOR RELEASE'].includes((r.status || '').toUpperCase())).length;
+
+  const elTot = document.getElementById('manageStatTotal'); if (elTot) elTot.textContent = total.toLocaleString();
+  const elPend = document.getElementById('manageStatPending'); if (elPend) elPend.textContent = pending.toLocaleString();
+  const elProc = document.getElementById('manageStatProcessing'); if (elProc) elProc.textContent = processing.toLocaleString();
+  const elComp = document.getElementById('manageStatCompleted'); if (elComp) elComp.textContent = completed.toLocaleString();
+
+  const searchInput = document.getElementById('adminSearchInput');
+  const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+  const statusEl = document.getElementById('adminStatusFilter');
+  const statusFilter = statusEl ? statusEl.value : 'ALL';
+  const docTypeEl = document.getElementById('adminDocTypeFilter');
+  const docTypeFilter = docTypeEl ? docTypeEl.value : 'ALL';
+
+  const filtered = reqs.filter(r => {
+    const s = r.status || 'Pending';
+    const matchesStatus = statusFilter === 'ALL' || s.toUpperCase() === statusFilter.toUpperCase() || (statusFilter === 'Approved' && (s === 'Approved' || s === 'Completed'));
+    const dType = (r.document_type || r.documentType || '').toLowerCase();
+    const matchesDocType = docTypeFilter === 'ALL' || dType.includes(docTypeFilter.toLowerCase());
+    const sName = (r.student_name || r.studentName || '').toLowerCase();
+    const sId = (r.student_id || r.studentId || '').toLowerCase();
+    const purp = (r.purpose || '').toLowerCase();
+    const matchesSearch = !search || sName.includes(search) || sId.includes(search) || dType.includes(search) || purp.includes(search);
+    return matchesStatus && matchesDocType && matchesSearch;
+  });
 
   const countEl = document.getElementById('adminRecordsCount');
   if (countEl) {
-    countEl.textContent = `Showing ${list.length} of ${(state.allRequests || []).length} total requests`;
+    countEl.textContent = `Showing 1-${filtered.length} of ${filtered.length} requests`;
   }
 
-  if (list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="table-empty">${(state.allRequests || []).length === 0 ? 'No student document requests recorded yet.' : 'No records match your filter criteria.'}</td></tr>`;
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No document requests found matching filter criteria.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = list
-    .map((req, index) => {
-      const formattedDate = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt);
-      const shortId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || index + 1))));
-      const status = req.status || 'Pending';
-      const statusClass = status.toLowerCase().replace(/\s+/g, '-');
-      const studentName = req.student_name || req.studentName || 'Student';
-      const studentId = req.student_id || req.studentId || '--';
-      const course = req.course || 'BSIT';
-      const docType = req.document_type || req.documentType || 'Official Document';
-      const purpose = req.purpose || 'Official Document';
-      const reqIdentifier = req._id || req.id || req.tracking_number;
+  tbody.innerHTML = filtered.map((req, index) => {
+    const formattedDate = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt);
+    const shortId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || index + 1))));
+    const status = req.status || 'Pending';
+    let statusClass = 'pending';
+    const sUp = status.toUpperCase();
+    if (sUp.includes('APPROV') || sUp.includes('COMPLET')) statusClass = 'approved';
+    else if (sUp.includes('PROCESS')) statusClass = 'processing';
+    else if (sUp.includes('RELEASE')) statusClass = 'for-release';
+    else if (sUp.includes('REJECT')) statusClass = 'rejected';
 
-      return `
-        <tr>
-          <td><code style="font-weight:700;color:#2563EB;background:#EFF6FF;padding:3px 7px;border-radius:5px;font-size:12px;">${escapeHtml(shortId)}</code></td>
-          <td><strong style="color:#0F172A;">${escapeHtml(studentName)}</strong></td>
-          <td><code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:12px;color:#334155;">${escapeHtml(studentId)}</code></td>
-          <td><span style="font-size:0.82rem;color:#475569;font-weight:500;">${escapeHtml(course)}</span></td>
-          <td><span style="font-weight:600;color:#1E293B;">${escapeHtml(docType)}</span></td>
-          <td title="${escapeHtml(purpose)}"><span style="color:#475569;font-size:13px;">${escapeHtml(truncateText(purpose, 24))}</span></td>
-          <td style="color:#64748B;font-size:13px;">${formattedDate}</td>
-          <td>
-            <span class="admin-status-pill status-${statusClass}">
-              <span class="pill-dot"></span>
-              <span>${escapeHtml(status)}</span>
-            </span>
-          </td>
-          <td class="text-center" style="white-space:nowrap;">
-            <div style="display:inline-flex;align-items:center;gap:8px;">
-              <select class="admin-status-dropdown" onchange="handleAdminStatusChange(event, '${reqIdentifier}')">
-                <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
-                <option value="For Release" ${status === 'For Release' ? 'selected' : ''}>For Release</option>
-                <option value="Completed" ${status === 'Completed' || status === 'Approved' ? 'selected' : ''}>Completed</option>
-              </select>
-              <button class="btn-admin-action" onclick="openRequestDetailsModal('${reqIdentifier}')" title="View Details">
-                View &rarr;
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    })
-    .join('');
+    const sName = req.student_name || req.studentName || 'Student';
+    const sId = req.student_id || req.studentId || '--';
+    const docType = req.document_type || req.documentType || 'Official Document';
+    const purpose = req.purpose || 'Official Document Requirement';
+    const reqIdentifier = req._id || req.id || req.tracking_number || shortId;
+
+    return `
+      <tr>
+        <td><code class="ref-req-code">${escapeHtml(shortId)}</code></td>
+        <td><strong>${escapeHtml(sName)}</strong></td>
+        <td><code class="ref-req-code" style="color:#64748B;">${escapeHtml(sId)}</code></td>
+        <td><span style="font-weight:500; color:#1E293B;">${escapeHtml(docType)}</span></td>
+        <td><span style="color:#475569; font-size:13px;">${escapeHtml(purpose)}</span></td>
+        <td style="color:#64748B; font-size:13px;">${escapeHtml(formattedDate)}</td>
+        <td>
+          <span class="admin-status-pill status-${statusClass}">
+            <span class="pill-dot"></span>
+            <span>${escapeHtml(status)}</span>
+          </span>
+        </td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-table-pill" onclick="openRequestDetailsModal('${escapeHtml(reqIdentifier)}')">View</button>
+            <button type="button" class="btn-table-pill" style="padding:4px 8px;" onclick="openAdminStatusMenu('${escapeHtml(reqIdentifier)}')">&bull;&bull;&bull;</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderTableErrors(msg) {
@@ -2272,6 +2450,175 @@ function evalAdminPwStrength(pw) {
 }
 
 function setupAdminRefPortalListeners() {
+
+  // Sync Requests Button on Manage Requests
+  document.getElementById('btnSyncAdminRequests')?.addEventListener('click', async () => {
+    triggerAdminViewLoader();
+    try {
+      const res = await fetch('/api/requests');
+      if (res.ok) {
+        state.allRequests = await res.json();
+      }
+    } catch (e) {}
+    updateAdminDashboard();
+    renderAdminTable();
+    showToast('Database records synchronized successfully!', 'success');
+  });
+
+  // Filter Button on Manage Requests
+  document.getElementById('btnAdminApplyManageFilter')?.addEventListener('click', () => {
+    triggerAdminViewLoader();
+    renderAdminTable();
+  });
+
+  // Filter Button on Manage Students
+  document.getElementById('btnAdminApplyStudentFilter')?.addEventListener('click', () => {
+    triggerAdminViewLoader();
+    renderAdminStudentsTable();
+  });
+
+  // Filter Button on Announcements
+  document.getElementById('btnAdminApplyAnnounceFilter')?.addEventListener('click', () => {
+    triggerAdminViewLoader();
+    renderAdminAnnouncements();
+  });
+
+  // Filter Button on Audit Logs
+  document.getElementById('btnAdminApplyAuditFilter')?.addEventListener('click', () => {
+    triggerAdminViewLoader();
+    renderAdminAuditLogs();
+  });
+
+  // Modal: Add Student
+  const addStudentModal = document.getElementById('modalAdminAddStudent');
+  document.getElementById('btnOpenAddStudentModal')?.addEventListener('click', () => {
+    if (addStudentModal) addStudentModal.style.display = 'flex';
+  });
+  document.getElementById('btnCloseAddStudent')?.addEventListener('click', () => {
+    if (addStudentModal) addStudentModal.style.display = 'none';
+  });
+  document.getElementById('btnCancelAddStudent')?.addEventListener('click', () => {
+    if (addStudentModal) addStudentModal.style.display = 'none';
+  });
+  document.getElementById('backdropAddStudent')?.addEventListener('click', () => {
+    if (addStudentModal) addStudentModal.style.display = 'none';
+  });
+  document.getElementById('formAdminAddStudent')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const studentId = document.getElementById('adminNewStudentId')?.value.trim();
+    const name = document.getElementById('adminNewStudentName')?.value.trim();
+    const course = document.getElementById('adminNewStudentCourse')?.value || 'BSIT';
+    const year = document.getElementById('adminNewStudentYear')?.value || '1st Year';
+
+    if (!studentId || !name) {
+      showToast('Student ID and Name are required.', 'error');
+      return;
+    }
+
+    const newStudent = { studentId, name, course, year, status: 'Active' };
+    try {
+      const existing = JSON.parse(localStorage.getItem('cca_custom_students') || '[]');
+      existing.unshift(newStudent);
+      localStorage.setItem('cca_custom_students', JSON.stringify(existing));
+    } catch (err) {}
+
+    triggerAdminViewLoader();
+    renderAdminStudentsTable();
+    if (addStudentModal) addStudentModal.style.display = 'none';
+    showToast('New student record saved successfully!', 'success');
+  });
+
+  // Modal: Create Announcement
+  const createAnnModal = document.getElementById('modalAdminCreateAnnouncement');
+  document.getElementById('btnAdminCreateAnnouncement')?.addEventListener('click', () => {
+    if (createAnnModal) createAnnModal.style.display = 'flex';
+  });
+  document.getElementById('btnCloseCreateAnnouncement')?.addEventListener('click', () => {
+    if (createAnnModal) createAnnModal.style.display = 'none';
+  });
+  document.getElementById('btnCancelCreateAnnouncement')?.addEventListener('click', () => {
+    if (createAnnModal) createAnnModal.style.display = 'none';
+  });
+  document.getElementById('backdropCreateAnnouncement')?.addEventListener('click', () => {
+    if (createAnnModal) createAnnModal.style.display = 'none';
+  });
+  document.getElementById('formAdminCreateAnnouncement')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const title = document.getElementById('adminNewAnnTitle')?.value.trim();
+    const category = document.getElementById('adminNewAnnCategory')?.value || 'General';
+    const status = document.getElementById('adminNewAnnStatus')?.value || 'Published';
+    const message = document.getElementById('adminNewAnnContent')?.value.trim();
+
+    if (!title || !message) {
+      showToast('Title and message content are required.', 'error');
+      return;
+    }
+
+    const newAnn = {
+      title,
+      category,
+      status,
+      message,
+      timestamp: new Date().toISOString()
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
+      existing.unshift(newAnn);
+      localStorage.setItem('cca_announcements', JSON.stringify(existing));
+    } catch (err) {}
+
+    triggerAdminViewLoader();
+    renderAdminAnnouncements();
+    if (createAnnModal) createAnnModal.style.display = 'none';
+    showToast('Announcement published successfully!', 'success');
+  });
+
+  // Settings Save & Photo upload
+  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', () => {
+    const full = document.getElementById('adminSettingsFullName')?.value.trim();
+    const email = document.getElementById('adminSettingsEmail')?.value.trim();
+    if (full && state.currentUser) {
+      state.currentUser.fullName = full;
+      if (email) state.currentUser.email = email;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      syncAdminProfileInfo();
+    }
+    triggerAdminViewLoader();
+    showToast('Admin account and system preferences saved!', 'success');
+  });
+
+  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', () => {
+    const full = document.getElementById('adminSettingsFullName')?.value.trim();
+    if (full && state.currentUser) {
+      state.currentUser.fullName = full;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      syncAdminProfileInfo();
+    }
+    showToast('Admin profile updated.', 'success');
+  });
+
+  document.getElementById('adminPhotoUploadInput')?.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        openImageCropper(ev.target.result);
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+
+  // Logout Modal Handlers
+  document.getElementById('btnConfirmLogoutModal')?.addEventListener('click', performLogoutWithLoading);
+  document.getElementById('btnCancelLogoutModal')?.addEventListener('click', () => {
+    const m = document.getElementById('modalConfirmLogout');
+    if (m) m.style.display = 'none';
+  });
+  document.getElementById('backdropConfirmLogout')?.addEventListener('click', () => {
+    const m = document.getElementById('modalConfirmLogout');
+    if (m) m.style.display = 'none';
+  });
+
   // 1. Sidebar Nav & Tab Switching
   document.addEventListener('click', (e) => {
     const tabBtn = e.target.closest('[data-admin-tab]');
