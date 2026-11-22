@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+const { initDB, checkHealth } = require('./db');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 
@@ -19,52 +19,21 @@ app.use(express.urlencoded({ extended: true }));
 // Serve frontend static files from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Database Connection Logic
-const MONGODB_URI = process.env.MONGODB_URI;
-
-/**
- * Connect to MongoDB Atlas
- */
-const connectDB = async () => {
-  if (!MONGODB_URI || MONGODB_URI.includes('<username>') || MONGODB_URI.includes('your_mongodb_connection_string')) {
-    console.warn('\n⚠️  WARNING: MONGODB_URI is not properly configured in the .env file.');
-    console.warn('👉 Please update .env with your actual MongoDB Atlas connection string.\n');
-    return;
-  }
-
-  try {
-    console.log('Connecting to MongoDB Atlas...');
-    await mongoose.connect(MONGODB_URI);
-    console.log('✅ Successfully connected to MongoDB Atlas database!');
-  } catch (error) {
-    console.error('❌ MongoDB Atlas connection error:', error.message);
-    console.error('👉 Tip: Check your database username, password, and Network Access IP whitelist (allow 0.0.0.0/0 on Atlas).\n');
-  }
-};
-
-// Mongoose connection event listeners
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️  MongoDB disconnected.');
-});
-
-mongoose.connection.on('reconnected', () => {
-  console.log('🔄 MongoDB reconnected successfully.');
-});
-
 // REST API Health-Check Endpoint
-app.get('/api/health', (req, res) => {
-  const isDbConnected = mongoose.connection.readyState === 1;
+app.get('/api/health', async (req, res) => {
+  const health = await checkHealth();
 
-  res.status(200).json({
-    status: 'UP',
+  res.status(health.connected ? 200 : 503).json({
+    status: health.connected ? 'UP' : 'DOWN',
     service: 'CCA DocTrack API',
     uptime: `${Math.floor(process.uptime())}s`,
     database: {
-      status: isDbConnected ? 'Connected' : 'Disconnected',
-      stateCode: mongoose.connection.readyState,
-      description: isDbConnected
-        ? 'Connected to MongoDB Atlas'
-        : 'Not connected to database. Check MONGODB_URI in .env'
+      status: health.connected ? 'Connected' : 'Disconnected',
+      type: 'Turso Cloud Database (libSQL)',
+      mode: health.mode || 'Offline',
+      description: health.connected
+        ? `Connected to ${health.mode}`
+        : 'Not connected to database. Check TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in .env'
     },
     timestamp: new Date().toISOString()
   });
@@ -100,13 +69,18 @@ app.use((err, req, res, next) => {
 // Start the Express Server
 app.listen(PORT, async () => {
   console.log('========================================================');
-  console.log('🎓 CCA DocTrack - Cloud-Based Student Document Tracking');
+  console.log('🎓 CCA DocTrack - Christ Centered Academy of Lipa City Inc.');
+  console.log('🏛️ Student Document Request Tracking System (Turso Cloud / libSQL)');
   console.log(`🚀 Server running on port: ${PORT}`);
   console.log(`🌐 Local Web App URL:      http://localhost:${PORT}`);
   console.log(`🩺 Health-Check Endpoint:  http://localhost:${PORT}/api/health`);
   console.log(`📦 REST API Base:          http://localhost:${PORT}/api/requests`);
   console.log('========================================================');
 
-  // Attempt database connection
-  await connectDB();
+  // Initialize Turso tables and default records automatically
+  try {
+    await initDB();
+  } catch (error) {
+    console.error('⚠️ Database initialization warning:', error.message);
+  }
 });

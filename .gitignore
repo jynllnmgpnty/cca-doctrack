@@ -3,8 +3,13 @@ node_modules/
 
 # Environment variables (Never commit sensitive credentials!)
 .env
+.env.*
 .env.local
 .env.*.local
+
+# SQLite / libSQL local database files
+*.db
+*.db-journal
 
 # Operating System files
 .DS_Store

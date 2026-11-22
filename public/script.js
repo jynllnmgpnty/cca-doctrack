@@ -561,7 +561,7 @@ function setupNavigationHandlers() {
   elements.btnStudentRefreshHistory?.addEventListener('click', async () => {
     elements.btnStudentRefreshHistory.classList.add('rotating');
     await fetchAllRequests();
-    showToast('Student requests refreshed from MongoDB Atlas', 'info');
+    showToast('Student requests refreshed from database', 'info');
     elements.btnStudentRefreshHistory.classList.remove('rotating');
   });
 
@@ -569,7 +569,7 @@ function setupNavigationHandlers() {
     elements.adminGlobalRefreshBtn.classList.add('rotating');
     await fetchAllRequests();
     await fetchHealthCheck();
-    showToast('Synchronized with MongoDB Atlas!', 'success');
+    showToast('Synchronized with Turso Database!', 'success');
     elements.adminGlobalRefreshBtn.classList.remove('rotating');
   });
 
@@ -635,7 +635,7 @@ function switchAdminSubtab(tabName) {
     },
     system: {
       title: 'Cloud Infrastructure & API Specifications',
-      subtitle: 'MongoDB Atlas connectivity, REST API endpoints, and IT 412 project specs'
+      subtitle: 'Turso Cloud connectivity, REST API endpoints, and IT 412 project specs'
     }
   };
 
@@ -663,15 +663,15 @@ async function fetchHealthCheck() {
     if (elements.landingDbIndicator) {
       elements.landingDbIndicator.className = isConnected ? 'db-indicator connected' : 'db-indicator disconnected';
       elements.landingDbIndicator.querySelector('.label').textContent = isConnected
-        ? 'MongoDB Atlas Connected'
+        ? 'Turso Database Connected'
         : 'Cloud DB Disconnected';
     }
 
     if (elements.adminDbStatus) {
       elements.adminDbStatus.className = isConnected ? 'db-status-badge connected' : 'db-status-badge disconnected';
       elements.adminDbStatus.querySelector('.status-label').textContent = isConnected
-        ? 'Atlas Connected'
-        : 'Atlas Disconnected';
+        ? 'Turso Connected'
+        : 'Turso Disconnected';
     }
 
     if (elements.adminSysHealthBadge) {
@@ -725,7 +725,7 @@ async function submitDocumentRequest(payload) {
     }
 
     showToast('Document request submitted successfully!', 'success');
-    showFormAlert('Your document request has been recorded and saved in MongoDB Atlas.', 'success');
+    showFormAlert('Your document request has been recorded and saved in Turso Database.', 'success');
 
     elements.studentRequestForm.reset();
     populateFormWithProfile();
@@ -949,7 +949,7 @@ function renderStudentTrackingCards() {
 
           <div class="tracking-footer-box">
             <span class="purpose-note"><strong>Stated Purpose:</strong> ${escapeHtml(req.purpose)}</span>
-            <span style="color:#64748B;font-size:0.75rem;">Status live from MongoDB Atlas</span>
+            <span style="color:#64748B;font-size:0.75rem;">Status live from Turso Database</span>
           </div>
         </div>
       `;
@@ -1096,7 +1096,7 @@ function renderAdminRecentTable() {
 
   const recent = state.allRequests.slice(0, 5);
   if (recent.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found in MongoDB Atlas.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found in database.</td></tr>`;
     return;
   }
 

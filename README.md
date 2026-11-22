@@ -1,35 +1,75 @@
-# CCA DocTrack – Cloud-Based Student Document Request Tracking System
+# CCA DocTrack – Student Document Request Tracking System
 
+> **Institution**: Christ Centered Academy of Lipa City Inc. (CCA)  
 > **Course**: IT 412 Platform Technologies  
 > **Project Type**: Final Academic Project  
 > **System Name**: CCA DocTrack  
-> **Author**: Senior Full-Stack Web Development Team  
+> **Database Architecture**: Turso Cloud Database (libSQL / SQLite) via `@libsql/client`  
+> **Cloud Platform**: Render Web Services  
 
 ---
 
 ## 📌 Project Overview
 
-**CCA DocTrack** is a cloud-based web application engineered to streamline the submission, tracking, and management of student academic document requests (e.g., Report Cards, Certificates of Enrollment, Good Moral Certificates, and Transcripts of Records).
+**CCA DocTrack** is a cloud-based web application engineered for **Christ Centered Academy of Lipa City Inc. (CCA)** to streamline the submission, live tracking, and administrative processing of official student academic documents (Report Cards, Certificates of Enrollment, Good Moral Certificates, and Transcripts of Records).
 
-The system addresses the academic criteria of **IT 412 Platform Technologies**:
-1. **Dynamic Web Application Development**: Clean single-page architecture built with HTML5, CSS3, and vanilla JavaScript communicating with an Express.js REST API.
-2. **Cloud Database Integration**: Persistent NoSQL data storage using **MongoDB Atlas** with Mongoose ODM.
-3. **RESTful API Implementation**: Full support for standard HTTP methods (`GET`, `POST`, `PATCH`), appropriate status codes (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `503 Service Unavailable`), and defensive input validation.
-4. **Platform as a Service (PaaS) Deployment**: Designed to deploy natively to **Render Web Services** using standard Node environment variables.
-5. **Version Control**: Modular repository structure ready for GitHub integration.
+The system fulfills all academic specifications of **IT 412 Platform Technologies**:
+1. **Interactive Multi-Portal Frontend**: Institutional single-page application with high-contrast CCA branding (Navy Blue `#002D62`, Golden Yellow `#F59E0B`, Crimson Red `#DC2626`), featuring dedicated Student and Registrar Administrator portals.
+2. **Cloud Database Architecture**: Persistent SQL data storage powered by **Turso Cloud Database (libSQL / SQLite)** using `@libsql/client` with parameterized queries to prevent SQL injection.
+3. **Automated Schema Provisioning**: The server automatically initializes SQL tables (`document_requests`, `users`) on startup and seeds default accounts if they do not exist.
+4. **RESTful API**: Standards-compliant endpoints (`GET`, `POST`, `PATCH`, `GET :id`, `/health`) adhering to strict HTTP status codes (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Internal Server Error`).
+5. **Seamless Local & Cloud Hybrid Support**: Runs effortlessly with remote Turso Cloud credentials or falls back gracefully to a local SQLite database (`file:cca_doctrack.db`) for local testing.
+6. **Deployment-Ready**: Preconfigured for immediate zero-downtime deployment to **Render** with `.env` exclusion safeguards.
 
 ---
 
 ## 🚀 Technology Stack
 
-| Layer | Technology | Purpose |
+| Layer | Technology | Details & Purpose |
 |---|---|---|
-| **Frontend** | HTML5, Modern CSS3, JavaScript (ES6+) | Responsive dashboard, dynamic form validation, real-time status management |
-| **Backend** | Node.js, Express.js | REST API routing, CORS handling, business logic, static file serving |
-| **Database ODM** | Mongoose (v8.x) | Data modeling, schema-level validation, type casting |
-| **Cloud Database** | MongoDB Atlas (M0 Free Tier) | Cloud database cluster for persistent document records |
-| **PaaS Host** | Render | Production cloud hosting |
-| **Version Control**| Git & GitHub | Source code tracking and automated CI/CD deployment |
+| **Frontend** | HTML5, CSS3, Modern JavaScript (ES6+) | Institutional portal UI, dynamic multi-step stepper, live table filtering |
+| **Backend** | Node.js (>=18.0.0), Express.js (v4.x) | Parameterized REST API routing, CORS handling, static serving |
+| **Database** | Turso Cloud Database (libSQL / SQLite) | Distributed cloud SQLite database engine with ultra-low latency |
+| **Database Client**| `@libsql/client` | Official libSQL/SQLite SDK for Node.js |
+| **Authentication** | `bcryptjs` | Salting and hashing for administrative and student user passwords |
+| **Cloud Hosting** | Render Web Services | Production PaaS deployment |
+| **Version Control**| Git & GitHub | Source tracking with sensitive file exclusion (`.gitignore`) |
+
+---
+
+## 🗄️ Database Schema Specification
+
+The application automatically creates the required tables on server launch:
+
+### 1. `document_requests` Table
+```sql
+CREATE TABLE IF NOT EXISTS document_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  student_name TEXT NOT NULL,
+  student_id TEXT NOT NULL,
+  document_type TEXT NOT NULL,
+  purpose TEXT NOT NULL,
+  date_submitted TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'Pending',
+  course TEXT DEFAULT 'BS Information Technology',
+  email TEXT DEFAULT '',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### 2. `users` Table (Authentication & Portals)
+```sql
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  full_name TEXT NOT NULL,
+  student_id TEXT DEFAULT '',
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  course TEXT DEFAULT 'BS Information Technology',
+  role TEXT DEFAULT 'student',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
 
 ---
 
@@ -38,269 +78,253 @@ The system addresses the academic criteria of **IT 412 Platform Technologies**:
 ```text
 cca-doctrack/
 ├── public/
-│   ├── index.html          # Dashboard structure, forms, tables, metric cards
-│   ├── style.css           # Blue, white, light-gray institutional theme & responsive layout
-│   └── script.js           # Client-side API fetch client, state management, validations
-├── models/
-│   └── Request.js          # Mongoose schema for student document requests
+│   ├── index.html              # Multi-portal UI (Landing, Student Portal, Registrar Admin Portal)
+│   ├── style.css               # Official CCA branding (Navy Blue, Yellow, Red) & responsive design
+│   ├── script.js               # Client fetch logic, DOM state, live search, and modal handling
+│   └── logo.png                # Official Christ Centered Academy seal
 ├── routes/
-│   └── requestRoutes.js    # Express REST API routes (GET, POST, PATCH, GET :id)
-├── .env                    # Environment variables (PORT, MONGODB_URI) [Do NOT commit!]
-├── .gitignore              # Ignores node_modules, .env, and sensitive files
-├── package.json            # Project manifest, dependencies, and execution scripts
-├── README.md               # Complete setup, testing, and deployment manual
-└── server.js               # Express application entry point & MongoDB Atlas connector
+│   ├── requestRoutes.js        # Parameterized SQL endpoints for student document requests
+│   └── authRoutes.js           # Parameterized SQL endpoints for authentication & registration
+├── db.js                       # Reusable Turso database connection & auto-migration module
+├── server.js                   # Express application entrypoint, middleware, and health route
+├── test_migration.js           # Verification test suite for database and business logic
+├── test_http_endpoints.js      # Integration test suite for HTTP API status codes and responses
+├── .env                        # Local environment variables (excluded from Git)
+├── .env.example                # Environment configuration template
+├── .gitignore                  # Excludes node_modules, .env, .env.*, *.db
+├── package.json                # Project dependencies (@libsql/client, express, bcryptjs)
+└── README.md                   # Complete system and deployment documentation
 ```
 
 ---
 
-## 🛠️ Installation & Local Setup
+## 🛠️ Turso Cloud Database Setup Guide
 
-### Step 1: Clone or Navigate to the Workspace
-Open your terminal (PowerShell or Bash) and change into the project directory:
-```bash
-cd c:\Users\alyan\cca-doctrack
-```
+Follow these steps to connect your CCA DocTrack system to **Turso Cloud**:
 
-### Step 2: Install Project Dependencies
-Run `npm install` to install Express, Mongoose, Dotenv, and CORS:
+### Option A: Using the Turso CLI
+
+1. **Install the Turso CLI**:
+   - **Windows (PowerShell)**:
+     ```powershell
+     irm https://get.tur.so/install.ps1 | iex
+     ```
+   - **macOS / Linux**:
+     ```bash
+     curl -sSfL https://get.tur.so/install.sh | bash
+     ```
+
+2. **Sign In or Sign Up**:
+   ```bash
+   turso auth signup
+   # or
+   turso auth login
+   ```
+
+3. **Create the Database**:
+   ```bash
+   turso db create cca-doctrack
+   ```
+
+4. **Retrieve Database URL**:
+   ```bash
+   turso db show cca-doctrack --url
+   ```
+   *Example output*: `libsql://cca-doctrack-your-username.turso.io`
+
+5. **Generate an Authentication Token**:
+   ```bash
+   turso db tokens create cca-doctrack
+   ```
+   *Copy the generated JWT token string.*
+
+### Option B: Using the Turso Web Console
+1. Visit [turso.tech](https://turso.tech) and log in.
+2. Click **Create Database** and name it `cca-doctrack`.
+3. Select your closest region (e.g., Tokyo or Singapore).
+4. Under the database details, copy the **Database URL** (`libsql://...`).
+5. Click **Generate Token** and copy the **Auth Token**.
+
+---
+
+## ⚙️ Environment Configuration
+
+1. In the project root, create or edit your `.env` file:
+   ```ini
+   PORT=3000
+
+   # Turso Cloud Database credentials
+   TURSO_DATABASE_URL=libsql://cca-doctrack-your-username.turso.io
+   TURSO_AUTH_TOKEN=your_generated_turso_auth_token_here
+   ```
+
+> [!NOTE]
+> **Offline / Local Fallback**: If `TURSO_DATABASE_URL` is empty, unset, or set to the placeholder string, the application automatically uses a local SQLite database file (`file:cca_doctrack.db`). You can immediately develop and test without creating an external account!
+
+---
+
+## ▶️ Running & Testing the Application Locally
+
+### 1. Install Dependencies
 ```bash
 npm install
 ```
 
----
-
-## ☁️ MongoDB Atlas Configuration Guide
-
-To store requests persistently across browser refreshes, configure a free MongoDB Atlas database cluster:
-
-### 1. Create a Free MongoDB Atlas Account
-1. Visit [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas) and sign up or log in.
-2. Create a new organization or project named **IT412-CCA-DocTrack**.
-
-### 2. Deploy a Free Shared Database Cluster
-1. Click **Create** under Clusters.
-2. Select **M0 Free (Shared)**.
-3. Choose your nearest cloud provider region (e.g., AWS / Singapore or AWS / Tokyo for Southeast Asia).
-4. Name your cluster (e.g., `Cluster0`) and click **Create Deployment**.
-
-### 3. Configure Database User Credentials
-1. In the left navigation menu under **Security**, click **Database Access**.
-2. Click **Add New Database User**.
-3. Choose **Password** authentication method.
-4. Enter a username (e.g., `ccadoctrack_admin`).
-5. Enter a secure password (avoid special characters like `@`, `:`, `/` in the password to prevent URI parsing errors, or URL-encode them).
-6. Under **Database User Privileges**, select **Built-in Role: Read and write to any database**.
-7. Click **Add User**.
-
-### 4. Configure Network Access (IP Whitelist)
-1. In the left navigation menu under **Security**, click **Network Access**.
-2. Click **Add IP Address**.
-3. Choose **Allow Access from Anywhere** (`0.0.0.0/0`) or add your current IP.
-   *(Note: `0.0.0.0/0` is required for Render cloud deployment because Render uses dynamic IP addresses).*
-4. Click **Confirm**.
-
-### 5. Obtain Your MongoDB Connection String
-1. In the left menu, click **Database** (under Deployments).
-2. Click the **Connect** button next to your cluster.
-3. Select **Drivers** (Node.js).
-4. Copy the connection string. It will look like this:
-   ```text
-   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-   ```
-5. Specify the database name by appending `cca_doctrack` right before `?retryWrites=true`:
-   ```text
-   mongodb+srv://ccadoctrack_admin:YourPassword123@cluster0.xxxxx.mongodb.net/cca_doctrack?retryWrites=true&w=majority
-   ```
-
-### 6. Update Your `.env` File
-Open the `.env` file in the root of `cca-doctrack` and paste your actual connection string:
-```ini
-PORT=3000
-MONGODB_URI=mongodb+srv://ccadoctrack_admin:YourPassword123@cluster0.xxxxx.mongodb.net/cca_doctrack?retryWrites=true&w=majority
-```
-
----
-
-## ▶️ Running the Application Locally
-
-### Development Mode (with automatic restart on code change):
+### 2. Run Automated Verification Tests
+Run the comprehensive Turso migration and HTTP API test suites:
 ```bash
-npm run dev
+# Test 1: Verify SQL schema, queries, data persistence, and statistics
+node test_migration.js
+
+# Test 2: Verify full HTTP endpoints, status codes, and error validations
+node test_http_endpoints.js
 ```
 
-### Production Mode:
-```bash
-npm start
-```
+### 3. Start the Server
+- **Development Mode** (auto-reload via nodemon):
+  ```bash
+  npm run dev
+  ```
+- **Production Mode**:
+  ```bash
+  npm start
+  ```
 
-### Accessing the Web Application
-Open your browser and navigate to:
+### 4. Access the Web Application
+Open your browser to:
 ```text
 http://localhost:3000
 ```
-- Observe the **Cloud DB** status badge in the bottom-left sidebar.
-- When successfully connected, the indicator turns **green** and displays **Atlas Connected**.
 
----
-
-## 📡 REST API Specification
-
-### Base URL: `http://localhost:3000/api`
-
-| Endpoint | Method | Status | Description |
+### 5. Default Demonstration Accounts
+| Portal | Email | Password | Role |
 |---|---|---|---|
-| `/health` | `GET` | `200` | Checks API and MongoDB Atlas connection status |
-| `/requests` | `GET` | `200` | Retrieves all student requests sorted by newest first |
-| `/requests` | `POST` | `201`, `400` | Creates a new request (validates required fields) |
-| `/requests/:id` | `GET` | `200`, `404`, `400` | Retrieves a single request by its MongoDB `_id` |
-| `/requests/:id` | `PATCH` | `200`, `404`, `400` | Updates status (`Pending`, `Processing`, `Completed`) |
+| **Registrar Admin Portal** | `admin@cca.edu.ph` | `admin123` | Administrator |
+| **Student Portal** | `jaynellan@cca.edu.ph` | `student123` | Student |
 
 ---
 
-## 🧪 Testing the API Endpoints
+## 📡 REST API Reference
 
-You can verify the backend endpoints using **PowerShell**, **cURL**, or **Postman**.
+All requests and responses use JSON (`Content-Type: application/json`).
 
-### 1. Test Health-Check
-**PowerShell:**
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3000/api/health" -Method Get
-```
+### 1. System Health Check
+- **Endpoint**: `GET /api/health`
+- **Status Codes**: `200 OK` (Healthy), `503 Service Unavailable` (DB offline)
+- **Sample Response**:
+  ```json
+  {
+    "status": "UP",
+    "service": "CCA DocTrack API",
+    "uptime": "42s",
+    "database": {
+      "status": "Connected",
+      "type": "Turso Cloud Database (libSQL)",
+      "mode": "Remote Turso Cloud",
+      "description": "Connected to Remote Turso Cloud"
+    },
+    "timestamp": "2026-11-22T07:45:00.000Z"
+  }
+  ```
 
-**cURL:**
-```bash
-curl -X GET http://localhost:3000/api/health
-```
+### 2. Retrieve Document Requests
+- **Endpoint**: `GET /api/requests`
+- **Query Parameters**: `?studentId=<id>` (optional filter)
+- **Status Codes**: `200 OK`, `500 Internal Server Error`
+- **Sample Response**:
+  ```json
+  {
+    "success": true,
+    "count": 1,
+    "data": [
+      {
+        "_id": "1",
+        "id": 1,
+        "studentName": "Jaynellan Almary O. Magpantay",
+        "studentId": "23-67894",
+        "documentType": "Transcript of Records",
+        "purpose": "Scholarship Application Requirement",
+        "dateSubmitted": "2026-11-20",
+        "status": "Processing",
+        "course": "BS Information Technology",
+        "email": "jaynellan@cca.edu.ph",
+        "createdAt": "2026-11-20 08:00:00"
+      }
+    ]
+  }
+  ```
 
----
-
-### 2. Submit a New Document Request (POST /api/requests)
-**PowerShell:**
-```powershell
-$body = @{
-    studentName = "Juan Dela Cruz"
-    studentId = "2022-00451"
-    documentType = "Certificate of Enrollment"
-    purpose = "CHED Scholarship Application requirement"
-    dateSubmitted = "2026-11-22"
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "http://localhost:3000/api/requests" -Method Post -Body $body -ContentType "application/json"
-```
-
-**cURL:**
-```bash
-curl -X POST http://localhost:3000/api/requests \
-  -H "Content-Type: application/json" \
-  -d '{"studentName":"Juan Dela Cruz","studentId":"2022-00451","documentType":"Certificate of Enrollment","purpose":"CHED Scholarship Application requirement","dateSubmitted":"2026-11-22"}'
-```
-
-**Expected Response (`HTTP 201 Created`):**
-```json
-{
-  "success": true,
-  "message": "Document request created successfully.",
-  "data": {
-    "_id": "6740608fa8...",
-    "studentName": "Juan Dela Cruz",
-    "studentId": "2022-00451",
+### 3. Submit Document Request
+- **Endpoint**: `POST /api/requests`
+- **Status Codes**: `201 Created`, `400 Bad Request`, `500 Internal Server Error`
+- **Payload**:
+  ```json
+  {
+    "studentName": "Maria Santos",
+    "studentId": "23-10045",
+    "course": "BS Information Technology",
     "documentType": "Certificate of Enrollment",
-    "purpose": "CHED Scholarship Application requirement",
-    "status": "Pending",
-    "dateSubmitted": "2026-11-22T00:00:00.000Z"
+    "purpose": "CHED Scholarship Renewal",
+    "dateSubmitted": "2026-11-22",
+    "email": "msantos@cca.edu.ph"
   }
-}
-```
+  ```
 
----
+### 4. Retrieve Single Request by ID
+- **Endpoint**: `GET /api/requests/:id`
+- **Status Codes**: `200 OK`, `400 Bad Request` (invalid ID), `404 Not Found`
 
-### 3. Retrieve All Requests (GET /api/requests)
-**PowerShell:**
-```powershell
-Invoke-RestMethod -Uri "http://localhost:3000/api/requests" -Method Get
-```
-
-**cURL:**
-```bash
-curl -X GET http://localhost:3000/api/requests
-```
-
----
-
-### 4. Update Request Status (PATCH /api/requests/:id)
-Replace `<REQUEST_ID>` with the `_id` returned from the POST request:
-**PowerShell:**
-```powershell
-$patchBody = @{
-    status = "Processing"
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "http://localhost:3000/api/requests/<REQUEST_ID>" -Method Patch -Body $patchBody -ContentType "application/json"
-```
-
-**cURL:**
-```bash
-curl -X PATCH http://localhost:3000/api/requests/<REQUEST_ID> \
-  -H "Content-Type: application/json" \
-  -d '{"status":"Processing"}'
-```
-
-**Expected Response (`HTTP 200 OK`):**
-```json
-{
-  "success": true,
-  "message": "Request status successfully updated to 'Processing'.",
-  "data": {
-    "_id": "<REQUEST_ID>",
-    "status": "Processing"
+### 5. Update Request Status (Admin)
+- **Endpoint**: `PATCH /api/requests/:id`
+- **Status Codes**: `200 OK`, `400 Bad Request` (invalid status), `404 Not Found`
+- **Payload**:
+  ```json
+  {
+    "status": "Completed"
   }
-}
-```
+  ```
+- *Allowed Statuses*: `Pending`, `Processing`, `Completed`
+
+### 6. Authentication Endpoints
+- **Register Account**: `POST /api/auth/register` (`201 Created`, `400 Bad Request`)
+- **Login**: `POST /api/auth/login` (`200 OK`, `401 Unauthorized`, `403 Forbidden`)
 
 ---
 
 ## 🌐 Deploying to Render (PaaS)
 
-When ready to publish for your IT 412 presentation:
+When you are ready to deploy to Render:
 
 ### Step 1: Push Code to GitHub
-1. Initialize git and commit:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit: CCA DocTrack student document tracking system"
-   ```
-2. Create a new repository on your GitHub account (e.g., `cca-doctrack`).
-3. Link and push your repository:
-   ```bash
-   git remote add origin https://github.com/<your-username>/cca-doctrack.git
-   git branch -M main
-   git push -u origin main
-   ```
+```bash
+git add .
+git commit -m "Migrate CCA DocTrack database to Turso Cloud (libSQL)"
+git push origin main
+```
 
-### Step 2: Create Web Service on Render
-1. Log in to [render.com](https://render.com).
-2. Click **New +** and select **Web Service**.
-3. Connect your GitHub account and choose the `cca-doctrack` repository.
-4. Fill in the deployment settings:
+### Step 2: Configure Web Service on Render
+1. Go to [dashboard.render.com](https://dashboard.render.com) and click **New +** &rarr; **Web Service**.
+2. Select your repository `https://github.com/jynllnmgpnty/cca-doctrack`.
+3. Provide the service configuration:
    - **Name**: `cca-doctrack`
    - **Environment**: `Node`
-   - **Region**: Choose the closest region (e.g., Singapore)
+   - **Region**: Closest region (e.g., Singapore)
    - **Branch**: `main`
    - **Build Command**: `npm install`
    - **Start Command**: `node server.js`
-   - **Plan**: `Free`
-5. Click **Advanced** &rarr; **Add Environment Variable**:
-   - `MONGODB_URI`: *Paste your MongoDB Atlas connection string*
-   - `PORT`: `10000` *(Render sets this automatically, but you can leave Express to read `process.env.PORT`)*
-6. Click **Deploy Web Service**.
-7. Render will build and deploy the app. Once active, your live public URL will be displayed (e.g., `https://cca-doctrack.onrender.com`).
+   - **Instance Type**: `Free`
+4. Expand **Environment Variables** and add:
+   - `PORT`: `10000` *(Render provides this dynamically, but `server.js` listens to `process.env.PORT`)*
+   - `TURSO_DATABASE_URL`: `libsql://your-database-name-your-org.turso.io`
+   - `TURSO_AUTH_TOKEN`: `your_turso_auth_token`
+5. Click **Deploy Web Service**.
+6. Once deployed, Render provides your live URL (e.g. `https://cca-doctrack.onrender.com`).
 
 ---
 
-## 🛡️ Academic Compliance Notes
+## 🛡️ Security & Integrity Highlights
 
-- **Data Persistence**: All records reside securely in MongoDB Atlas; reloading the page re-fetches the live collection via `GET /api/requests`.
-- **Validation**: Strict boundary checks enforce student names, valid IDs, recognized document types, and non-empty purposes.
-- **Security**: The `.env` file containing database credentials is excluded from version control via `.gitignore`.
+- **SQL Injection Prevention**: All queries use parameterized inputs (`db.execute({ sql: '...', args: [...] })`).
+- **Credential Protection**: Database URLs and tokens are never hardcoded and are ignored by Git via `.gitignore`.
+- **Password Salting & Hashing**: All user passwords stored in Turso are hashed with bcrypt (10 salt rounds).
+- **Graceful Error Handling**: Full validation for bad status codes and malformed request formats.
