@@ -92,13 +92,63 @@ button {
 
 /* View State Manager */
 .app-view {
-  display: none;
+  display: none !important;
   opacity: 0;
   transition: opacity 0.2s ease-in-out;
 }
 .app-view.active {
-  display: block;
+  display: block !important;
   opacity: 1;
+}
+
+#viewLanding:not(.active),
+#viewStudentPortal:not(.active),
+#viewAdminPortal:not(.active) {
+  display: none !important;
+}
+
+#viewLanding.active {
+  display: block !important;
+}
+
+#viewStudentPortal.active {
+  display: flex !important;
+  flex-direction: column;
+}
+
+#viewAdminPortal.active {
+  display: block !important;
+}
+
+/* Modal Overlays */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 10002;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .hidden {
@@ -2922,8 +2972,6 @@ input:focus, select:focus, textarea:focus {
 #viewStudentPortal {
   background-color: #F8FAFC;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 /* 1. Topbar */
