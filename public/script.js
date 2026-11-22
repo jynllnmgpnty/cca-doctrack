@@ -57,6 +57,7 @@ const elements = {
   regRole: document.getElementById('regRole'),
   regEmail: document.getElementById('regEmail'),
   regPassword: document.getElementById('regPassword'),
+  btnToggleRegPw: document.getElementById('btnToggleRegPw'),
   btnRegisterSubmit: document.getElementById('btnRegisterSubmit'),
   registerSpinner: document.getElementById('registerSpinner'),
   registerBtnLabel: document.getElementById('registerBtnLabel'),
@@ -253,7 +254,30 @@ function setRoleIndicator(role = 'student') {
   }
   const groupStudentId = document.getElementById('groupRegStudentId');
   if (groupStudentId) {
-    groupStudentId.style.display = isStudent ? 'block' : 'none';
+    groupStudentId.style.display = isStudent ? 'flex' : 'none';
+  }
+  const groupCourse = document.getElementById('groupRegCourse');
+  if (groupCourse) {
+    groupCourse.style.display = isStudent ? 'flex' : 'none';
+  }
+  const groupFullName = document.getElementById('groupRegFullName');
+  if (groupFullName) {
+    if (isStudent) {
+      groupFullName.classList.remove('full-width');
+    } else {
+      groupFullName.classList.add('full-width');
+    }
+  }
+  const groupEmail = document.getElementById('groupRegEmail');
+  if (groupEmail) {
+    if (isStudent) {
+      groupEmail.classList.remove('full-width');
+    } else {
+      groupEmail.classList.add('full-width');
+    }
+  }
+  if (elements.registerBtnLabel) {
+    elements.registerBtnLabel.textContent = isStudent ? 'Create Student Account' : 'Create Admin Account';
   }
 }
 
@@ -336,6 +360,11 @@ function setupAuthHandlers() {
     elements.btnToggleLoginPw.textContent = isPw ? 'Hide' : 'Show';
   });
 
+  elements.btnToggleRegPw?.addEventListener('click', () => {
+    const isPw = elements.regPassword.type === 'password';
+    elements.regPassword.type = isPw ? 'text' : 'password';
+  });
+
   // Login Form Submission
   elements.formSignIn?.addEventListener('submit', handleLoginSubmit);
 
@@ -400,11 +429,12 @@ async function handleRegisterSubmit(e) {
   e.preventDefault();
   clearAuthAlert();
 
+  const role = elements.regRole ? elements.regRole.value : state.authTargetPortal;
   const payload = {
     fullName: elements.regFullName.value.trim(),
-    studentId: elements.regStudentId.value.trim(),
-    course: elements.regCourse.value,
-    role: elements.regRole.value,
+    studentId: elements.regStudentId ? elements.regStudentId.value.trim() : '',
+    course: elements.regCourse ? elements.regCourse.value : 'BS Information Technology',
+    role: role,
     email: elements.regEmail.value.trim(),
     password: elements.regPassword.value
   };

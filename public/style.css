@@ -1829,75 +1829,87 @@ input:focus, select:focus, textarea:focus {
 
 .auth-modal {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   background: var(--white);
-  border-radius: var(--radius-xl);
+  border-radius: 16px;
   border: 1px solid var(--slate-200);
   box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.25);
-  padding: 32px;
+  padding: 22px 26px 20px;
   position: relative;
-  max-height: 90vh;
+  max-height: 94vh;
   overflow-y: auto;
 }
 
 .modal-close-btn {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 14px;
+  right: 14px;
   background: var(--slate-100);
   border: none;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  font-size: 18px;
+  font-size: 16px;
   color: var(--slate-500);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: var(--slate-200);
+  color: var(--slate-800);
 }
 
 .auth-modal-header {
   text-align: center;
-  margin-bottom: 24px;
-}
-
-.auth-logo-img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
   margin-bottom: 12px;
 }
 
+.auth-logo-wrapper {
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-logo-wrapper .flowize-brand-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
 .auth-modal-header h2 {
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 800;
   color: var(--slate-900);
+  line-height: 1.2;
 }
 
 .auth-modal-sub {
-  font-size: 13px;
+  font-size: 12px;
   color: var(--slate-500);
 }
 
 .auth-segmented-tabs {
   display: flex;
   background: var(--slate-100);
-  padding: 4px;
-  border-radius: 10px;
-  margin-bottom: 20px;
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .auth-tab-btn {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 8px;
-  font-size: 13.5px;
+  padding: 6px 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--slate-600);
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .auth-tab-btn.active {
@@ -1911,9 +1923,9 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   background: var(--slate-100, #f1f5f9);
   border: 1px solid var(--slate-200, #e2e8f0);
-  padding: 4px;
-  border-radius: 10px;
-  margin-bottom: 16px;
+  padding: 3px;
+  border-radius: 8px;
+  margin-bottom: 12px;
   gap: 4px;
 }
 
@@ -1922,14 +1934,14 @@ input:focus, select:focus, textarea:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 8px 12px;
-  font-size: 13.5px;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--slate-600, #64748b);
   background: transparent;
   border: none;
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -1946,8 +1958,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .role-indicator-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--slate-300, #cbd5e1);
   transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
@@ -1961,6 +1973,71 @@ input:focus, select:focus, textarea:focus {
 
 .role-indicator-title {
   letter-spacing: -0.01em;
+}
+
+/* Compact Registration & Auth Grid in Modal */
+.auth-modal .form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-bottom: 12px;
+}
+
+.auth-modal .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.auth-modal .form-grid .form-group {
+  margin-bottom: 0;
+}
+
+.auth-modal .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.auth-modal label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--slate-700);
+}
+
+.auth-modal input,
+.auth-modal select {
+  height: 36px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  border: 1px solid var(--slate-300);
+  border-radius: 7px;
+  background: var(--white);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-modal input:focus,
+.auth-modal select:focus {
+  border-color: var(--flowize-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  outline: none;
+}
+
+.auth-modal .form-auth-actions {
+  margin-top: 4px;
+}
+
+.auth-modal .btn-block {
+  padding: 9px 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 7px;
+}
+
+.auth-modal .auth-alert {
+  padding: 8px 12px;
+  font-size: 12px;
+  border-radius: 7px;
+  margin-bottom: 10px;
 }
 
 .portal-target-banner {
