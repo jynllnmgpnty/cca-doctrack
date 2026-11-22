@@ -15,7 +15,7 @@ const ALLOWED_STATUSES = ['Pending', 'Processing', 'Completed'];
 
 /**
  * @route   GET /api/requests
- * @desc    Retrieve all student document requests from MongoDB Atlas
+ * @desc    Retrieve student document requests from MongoDB Atlas (supports ?studentId= filter)
  * @access  Public
  */
 router.get('/', async (req, res) => {
@@ -28,8 +28,15 @@ router.get('/', async (req, res) => {
       });
     }
 
-    // Retrieve all records sorted by submission date descending (newest first)
-    const requests = await Request.find().sort({ dateSubmitted: -1, createdAt: -1 });
+    const { studentId } = req.query;
+    const filter = {};
+
+    if (studentId && studentId.trim()) {
+      filter.studentId = studentId.trim();
+    }
+
+    // Retrieve records sorted by submission date descending (newest first)
+    const requests = await Request.find(filter).sort({ dateSubmitted: -1, createdAt: -1 });
 
     return res.status(200).json({
       success: true,
@@ -60,7 +67,7 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const { studentName, studentId, documentType, purpose, dateSubmitted } = req.body;
+    const { studentName, studentId, course, email, documentType, purpose, dateSubmitted } = req.body;
 
     // Field-level validation
     const errors = [];
@@ -94,6 +101,8 @@ router.post('/', async (req, res) => {
     const newRequestData = {
       studentName: studentName.trim(),
       studentId: studentId.trim(),
+      course: course ? course.trim() : 'BS Information Technology',
+      email: email ? email.trim() : '',
       documentType: documentType.trim(),
       purpose: purpose.trim(),
       status: 'Pending'

@@ -18,6 +18,16 @@ const requestSchema = new mongoose.Schema(
       trim: true,
       maxlength: [30, 'Student ID cannot exceed 30 characters.']
     },
+    course: {
+      type: String,
+      trim: true,
+      default: 'Not Specified'
+    },
+    email: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     documentType: {
       type: String,
       required: [true, 'Document type is required.'],
