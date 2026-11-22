@@ -215,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAdminFilters();
   setupMobileDrawers();
   setupStudentRefPortalListeners();
+  setupAdminRefPortalListeners();
 
   // Check Database & Load Initial Data
   fetchHealthCheck();
@@ -697,8 +698,7 @@ function switchView(viewName) {
     switchStudentSubtab(activeTab);
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
-    updateAdminDashboard();
-    renderAdminTable();
+    initAdminRefPortal();
     const activeTab = state.adminActiveTab || localStorage.getItem('cca_admin_active_tab') || 'dashboard';
     switchAdminSubtab(activeTab);
   }
@@ -870,36 +870,28 @@ function switchAdminSubtab(tabName) {
     localStorage.setItem('cca_admin_active_tab', tabName);
   } catch (e) {}
 
-  elements.adminNavItems.forEach((btn) => {
+  triggerAdminViewLoader();
+
+  document.querySelectorAll('[data-admin-tab]').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === tabName);
   });
 
-  elements.adminSubtabs.forEach((pane) => {
+  document.querySelectorAll('.admin-subtab').forEach((pane) => {
     pane.classList.toggle('active', pane.id === `adminSubtab-${tabName}`);
   });
 
-  const titles = {
-    dashboard: {
-      title: 'Dashboard Overview',
-      subtitle: 'Campus-wide student document request tracking & operations'
-    },
-    manage: {
-      title: 'Manage All Document Requests',
-      subtitle: 'Update request processing statuses and review student submissions'
-    },
-    system: {
-      title: 'Cloud Infrastructure & API Specifications',
-      subtitle: 'System connectivity, REST API endpoints, and IT 412 project specs'
-    }
-  };
-
-  if (titles[tabName]) {
-    elements.adminPageTitle.textContent = titles[tabName].title;
-    elements.adminPageSubtitle.textContent = titles[tabName].subtitle;
-  }
-
-  if (tabName === 'manage') {
+  if (tabName === 'dashboard') {
+    updateAdminDashboard();
+  } else if (tabName === 'manage') {
     renderAdminTable();
+  } else if (tabName === 'system') {
+    fetchHealthCheck();
+  } else if (tabName === 'settings') {
+    syncAdminProfileInfo();
+  } else if (tabName === 'change-password') {
+    const pwForm = document.getElementById('adminChangePasswordForm');
+    if (pwForm) pwForm.reset();
+    evalAdminPwStrength('');
   }
 }
 
@@ -925,6 +917,11 @@ async function fetchHealthCheck() {
     if (elements.adminSysHealthBadge) {
       elements.adminSysHealthBadge.textContent = isConnected ? 'Operational' : 'Service Offline';
       elements.adminSysHealthBadge.className = isConnected ? 'badge badge-success' : 'badge badge-error';
+    }
+
+    const sysDbEl = document.getElementById('adminSysDbStatus');
+    if (sysDbEl) {
+      sysDbEl.textContent = isConnected ? 'Operational (Online)' : 'Standby / Offline';
     }
   } catch (err) {
     console.warn('Health check error:', err);
@@ -1559,44 +1556,60 @@ function clearFormAlert() {
 }
 
 // ==========================================
-// Admin Dashboard & Table Logic
+// Admin Dashboard & Modern Table Logic
 // ==========================================
 function updateAdminDashboard() {
-  const reqs = state.allRequests;
+  const reqs = state.allRequests || [];
   const total = reqs.length;
-  const pending = reqs.filter((r) => r.status === 'Pending').length;
-  const processing = reqs.filter((r) => r.status === 'Processing').length;
-  const completed = reqs.filter((r) => r.status === 'Completed').length;
+  const pending = reqs.filter((r) => (r.status || '').toUpperCase() === 'PENDING').length;
+  const processing = reqs.filter((r) => (r.status || '').toUpperCase() === 'PROCESSING').length;
+  const completed = reqs.filter((r) => {
+    const s = (r.status || '').toUpperCase();
+    return s === 'COMPLETED' || s === 'APPROVED' || s === 'FOR RELEASE';
+  }).length;
 
   if (elements.cardTotalCount) elements.cardTotalCount.textContent = total;
   if (elements.cardPendingCount) elements.cardPendingCount.textContent = pending;
   if (elements.cardProcessingCount) elements.cardProcessingCount.textContent = processing;
   if (elements.cardCompletedCount) elements.cardCompletedCount.textContent = completed;
 
+  const badgeEl = document.getElementById('adminTotalBadge');
+  if (badgeEl) badgeEl.textContent = total;
+
   renderAdminRecentTable();
 }
 
 function renderAdminRecentTable() {
-  const tbody = elements.adminRecentTableBody;
+  const tbody = elements.adminRecentTableBody || document.getElementById('adminRecentTableBody');
   if (!tbody) return;
 
-  const recent = state.allRequests.slice(0, 5);
+  const recent = (state.allRequests || []).slice(0, 5);
   if (recent.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No recent document submissions recorded.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = recent
     .map((req) => {
-      const formattedDate = formatDate(req.dateSubmitted || req.createdAt);
+      const formattedDate = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt);
       const status = req.status || 'Pending';
+      const statusClass = status.toLowerCase().replace(/\s+/g, '-');
+      const studentName = req.student_name || req.studentName || 'Student';
+      const studentId = req.student_id || req.studentId || 'REQ-000';
+      const docType = req.document_type || req.documentType || 'Official Document';
+
       return `
         <tr>
-          <td><strong>${escapeHtml(req.studentName)}</strong></td>
-          <td><code>${escapeHtml(req.studentId)}</code></td>
-          <td>${escapeHtml(req.documentType)}</td>
-          <td>${formattedDate}</td>
-          <td><span class="status-badge ${status.toLowerCase()}">${escapeHtml(status)}</span></td>
+          <td><strong>${escapeHtml(studentName)}</strong></td>
+          <td><code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:12px;color:#0F172A;">${escapeHtml(studentId)}</code></td>
+          <td><span style="font-weight:600;color:#1E293B;">${escapeHtml(docType)}</span></td>
+          <td style="color:#64748B;">${formattedDate}</td>
+          <td>
+            <span class="admin-status-pill status-${statusClass}">
+              <span class="pill-dot"></span>
+              <span>${escapeHtml(status)}</span>
+            </span>
+          </td>
         </tr>
       `;
     })
@@ -1612,14 +1625,22 @@ function applyAdminFilters() {
   const search = elements.adminSearchInput ? elements.adminSearchInput.value.toLowerCase().trim() : '';
   const status = elements.adminStatusFilter ? elements.adminStatusFilter.value : 'ALL';
 
-  state.filteredAdminRequests = state.allRequests.filter((req) => {
-    const matchesStatus = status === 'ALL' || req.status === status;
+  state.filteredAdminRequests = (state.allRequests || []).filter((req) => {
+    const s = req.status || 'Pending';
+    const matchesStatus = status === 'ALL' || s === status || (status === 'Completed' && (s === 'Completed' || s === 'Approved'));
+    const sName = (req.student_name || req.studentName || '').toLowerCase();
+    const sId = (req.student_id || req.studentId || '').toLowerCase();
+    const dType = (req.document_type || req.documentType || '').toLowerCase();
+    const purp = (req.purpose || '').toLowerCase();
+    const track = (req.tracking_number || '').toLowerCase();
+
     const matchesSearch =
       !search ||
-      (req.studentName && req.studentName.toLowerCase().includes(search)) ||
-      (req.studentId && req.studentId.toLowerCase().includes(search)) ||
-      (req.documentType && req.documentType.toLowerCase().includes(search)) ||
-      (req.purpose && req.purpose.toLowerCase().includes(search));
+      sName.includes(search) ||
+      sId.includes(search) ||
+      dType.includes(search) ||
+      purp.includes(search) ||
+      track.includes(search);
 
     return matchesStatus && matchesSearch;
   });
@@ -1628,44 +1649,63 @@ function applyAdminFilters() {
 }
 
 function renderAdminTable() {
-  const tbody = elements.adminAllRequestsTableBody;
+  const tbody = elements.adminAllRequestsTableBody || document.getElementById('adminAllRequestsTableBody');
   if (!tbody) return;
 
-  const list = state.filteredAdminRequests.length > 0 || (elements.adminSearchInput && elements.adminSearchInput.value)
+  const list = state.filteredAdminRequests && (state.filteredAdminRequests.length > 0 || (elements.adminSearchInput && elements.adminSearchInput.value))
     ? state.filteredAdminRequests
-    : state.allRequests;
+    : (state.allRequests || []);
 
-  if (elements.adminRecordsCount) {
-    elements.adminRecordsCount.textContent = `Showing ${list.length} of ${state.allRequests.length} total requests`;
+  const countEl = document.getElementById('adminRecordsCount');
+  if (countEl) {
+    countEl.textContent = `Showing ${list.length} of ${(state.allRequests || []).length} total requests`;
   }
 
   if (list.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="9" class="table-empty">${state.allRequests.length === 0 ? 'No student document requests recorded yet.' : 'No records match your filter criteria.'}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="table-empty">${(state.allRequests || []).length === 0 ? 'No student document requests recorded yet.' : 'No records match your filter criteria.'}</td></tr>`;
     return;
   }
 
   tbody.innerHTML = list
     .map((req, index) => {
-      const formattedDate = formatDate(req.dateSubmitted || req.createdAt);
-      const shortId = req._id ? req._id.substring(req._id.length - 6).toUpperCase() : `#${index + 1}`;
+      const formattedDate = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt);
+      const shortId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || index + 1))));
       const status = req.status || 'Pending';
+      const statusClass = status.toLowerCase().replace(/\s+/g, '-');
+      const studentName = req.student_name || req.studentName || 'Student';
+      const studentId = req.student_id || req.studentId || '--';
+      const course = req.course || 'BSIT';
+      const docType = req.document_type || req.documentType || 'Official Document';
+      const purpose = req.purpose || 'Official Document';
+      const reqIdentifier = req._id || req.id || req.tracking_number;
 
       return `
         <tr>
-          <td><code title="${req._id}">${shortId}</code></td>
-          <td><strong>${escapeHtml(req.studentName)}</strong></td>
-          <td><code>${escapeHtml(req.studentId)}</code></td>
-          <td><span style="font-size:0.8rem;color:#475569;">${escapeHtml(req.course || 'BSIT')}</span></td>
-          <td>${escapeHtml(req.documentType)}</td>
-          <td title="${escapeHtml(req.purpose)}">${escapeHtml(truncateText(req.purpose, 28))}</td>
-          <td>${formattedDate}</td>
-          <td><span class="status-badge ${status.toLowerCase()}">${escapeHtml(status)}</span></td>
-          <td class="text-center">
-            <select class="status-select" onchange="handleAdminStatusChange(event, '${req._id}')">
-              <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
-              <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
-            </select>
+          <td><code style="font-weight:700;color:#2563EB;background:#EFF6FF;padding:3px 7px;border-radius:5px;font-size:12px;">${escapeHtml(shortId)}</code></td>
+          <td><strong style="color:#0F172A;">${escapeHtml(studentName)}</strong></td>
+          <td><code style="background:#F1F5F9;padding:2px 6px;border-radius:4px;font-size:12px;color:#334155;">${escapeHtml(studentId)}</code></td>
+          <td><span style="font-size:0.82rem;color:#475569;font-weight:500;">${escapeHtml(course)}</span></td>
+          <td><span style="font-weight:600;color:#1E293B;">${escapeHtml(docType)}</span></td>
+          <td title="${escapeHtml(purpose)}"><span style="color:#475569;font-size:13px;">${escapeHtml(truncateText(purpose, 24))}</span></td>
+          <td style="color:#64748B;font-size:13px;">${formattedDate}</td>
+          <td>
+            <span class="admin-status-pill status-${statusClass}">
+              <span class="pill-dot"></span>
+              <span>${escapeHtml(status)}</span>
+            </span>
+          </td>
+          <td class="text-center" style="white-space:nowrap;">
+            <div style="display:inline-flex;align-items:center;gap:8px;">
+              <select class="admin-status-dropdown" onchange="handleAdminStatusChange(event, '${reqIdentifier}')">
+                <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option value="Processing" ${status === 'Processing' ? 'selected' : ''}>Processing</option>
+                <option value="For Release" ${status === 'For Release' ? 'selected' : ''}>For Release</option>
+                <option value="Completed" ${status === 'Completed' || status === 'Approved' ? 'selected' : ''}>Completed</option>
+              </select>
+              <button class="btn-admin-action" onclick="openRequestDetailsModal('${reqIdentifier}')" title="View Details">
+                View &rarr;
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -1683,6 +1723,342 @@ window.handleAdminStatusChange = function (event, requestId) {
   const newStatus = event.target.value;
   updateRequestStatus(requestId, newStatus);
 };
+
+// ==========================================
+// Admin UI Helpers & Interactive Functionality
+// ==========================================
+
+function triggerAdminViewLoader() {
+  const bar = document.getElementById('adminViewLoader');
+  if (!bar) return;
+  bar.classList.add('loading');
+  setTimeout(() => {
+    bar.classList.remove('loading');
+  }, 450);
+}
+
+function restoreAdminDarkModeState() {
+  const isDark = localStorage.getItem('cca_admin_dark_mode') === 'true' || localStorage.getItem('cca_dark_mode') === 'true';
+  const toggle = document.getElementById('adminDarkModeToggle');
+  if (toggle) toggle.checked = isDark;
+
+  const portal = document.getElementById('viewAdminPortal');
+  if (portal) portal.classList.toggle('student-dark-mode', isDark);
+  document.body.classList.toggle('student-dark-mode', isDark);
+}
+
+function syncAdminProfileInfo() {
+  const user = state.currentUser || {};
+  const adminName = user.fullName || 'Office of the Registrar';
+  const adminEmail = user.email || 'admin@cca.edu.ph';
+  const adminRole = user.role === 'admin' ? 'Registrar Administrator' : (user.role || 'Administrator');
+
+  const hero = document.getElementById('adminHeroName');
+  if (hero) hero.textContent = adminName + '!';
+
+  const sideName = document.getElementById('adminSidebarName');
+  if (sideName) sideName.textContent = adminName;
+
+  const sideMeta = document.getElementById('adminSidebarMeta');
+  if (sideMeta) sideMeta.textContent = adminRole;
+
+  const dropName = document.getElementById('adminDropdownUserName');
+  if (dropName) dropName.textContent = adminName;
+
+  const dropEmail = document.getElementById('adminDropdownUserEmail');
+  if (dropEmail) dropEmail.textContent = adminEmail;
+
+  const inName = document.getElementById('adminInputFullName');
+  if (inName) inName.value = adminName;
+
+  const inEmail = document.getElementById('adminInputEmail');
+  if (inEmail) inEmail.value = adminEmail;
+
+  const inRole = document.getElementById('adminInputRole');
+  if (inRole) inRole.value = adminRole;
+
+  const topAvatar = document.getElementById('adminTopbarAvatar');
+  if (topAvatar) {
+    if (user.fullName) {
+      const parts = user.fullName.trim().split(/\s+/);
+      const initials = parts.length > 1 ? (parts[0][0] + parts[1][0]).toUpperCase() : parts[0].slice(0, 2).toUpperCase();
+      topAvatar.textContent = initials;
+    } else {
+      topAvatar.textContent = 'AD';
+    }
+  }
+}
+
+function initAdminRefPortal() {
+  restoreAdminDarkModeState();
+  syncAdminProfileInfo();
+  updateAdminDashboard();
+  renderAdminTable();
+}
+
+function evalAdminPwStrength(pw) {
+  const isLen = pw.length >= 8 && pw.length <= 12;
+  const isUp = /[A-Z]/.test(pw);
+  const isLow = /[a-z]/.test(pw);
+  const isNumSpec = /[0-9]|[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+
+  document.getElementById('adminReqLength')?.classList.toggle('valid', isLen);
+  document.getElementById('adminReqUpper')?.classList.toggle('valid', isUp);
+  document.getElementById('adminReqLower')?.classList.toggle('valid', isLow);
+  document.getElementById('adminReqNumber')?.classList.toggle('valid', isNumSpec);
+
+  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
+
+  const b1 = document.getElementById('adminStrBar1');
+  const b2 = document.getElementById('adminStrBar2');
+  const b3 = document.getElementById('adminStrBar3');
+  const b4 = document.getElementById('adminStrBar4');
+  const txt = document.getElementById('adminStrText');
+
+  [b1, b2, b3, b4].forEach((b) => {
+    if (b) b.className = 'str-bar';
+  });
+
+  if (!pw) {
+    if (txt) {
+      txt.textContent = '';
+      txt.style.color = '#64748B';
+    }
+    return;
+  }
+
+  if (score <= 1) {
+    if (b1) b1.classList.add('active-red');
+    if (txt) {
+      txt.textContent = 'Weak';
+      txt.style.color = '#DC2626';
+    }
+  } else if (score === 2) {
+    if (b1) b1.classList.add('active-yellow');
+    if (b2) b2.classList.add('active-yellow');
+    if (txt) {
+      txt.textContent = 'Fair';
+      txt.style.color = '#EAB308';
+    }
+  } else if (score === 3) {
+    if (b1) b1.classList.add('active-green');
+    if (b2) b2.classList.add('active-green');
+    if (b3) b3.classList.add('active-green');
+    if (txt) {
+      txt.textContent = 'Good';
+      txt.style.color = '#16A34A';
+    }
+  } else {
+    [b1, b2, b3, b4].forEach((b) => b && b.classList.add('active-green'));
+    if (txt) {
+      txt.textContent = 'Strong';
+      txt.style.color = '#16A34A';
+    }
+  }
+}
+
+function setupAdminRefPortalListeners() {
+  // 1. Sidebar Nav & Tab Switching
+  document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('[data-admin-tab]');
+    if (tabBtn) {
+      const tabName = tabBtn.getAttribute('data-admin-tab');
+      if (tabName) {
+        switchAdminSubtab(tabName);
+        const drop = document.getElementById('adminUserDropdown');
+        if (drop) drop.classList.remove('show');
+      }
+    }
+  });
+
+  // 2. Notification Bell
+  const bellBtn = document.getElementById('btnAdminTopbarBell');
+  const notifDropdown = document.getElementById('adminNotifDropdown');
+  const bellBadge = document.getElementById('adminBellBadge');
+
+  if (bellBtn && notifDropdown) {
+    bellBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (bellBadge) bellBadge.style.display = 'none';
+      notifDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!bellBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+        notifDropdown.classList.remove('show');
+      }
+    });
+
+    document.getElementById('btnClearAdminNotifs')?.addEventListener('click', () => {
+      notifDropdown.querySelectorAll('.notif-item.unread').forEach((item) => item.classList.remove('unread'));
+      showToast('Admin notifications marked as read.', 'info');
+      notifDropdown.classList.remove('show');
+    });
+  }
+
+  // 3. User Chip Dropdown
+  const userChip = document.getElementById('adminUserChip');
+  const userDropdown = document.getElementById('adminUserDropdown');
+  if (userChip && userDropdown) {
+    userChip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!userChip.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.remove('show');
+      }
+    });
+  }
+
+  // Topbar Dropdown Logout
+  document.getElementById('btnAdminDropdownLogout')?.addEventListener('click', () => {
+    handleLogout();
+  });
+
+  // 4. Quick Global Sync Button
+  document.getElementById('adminGlobalRefreshBtn')?.addEventListener('click', async () => {
+    triggerAdminViewLoader();
+    try {
+      await fetchAllRequests();
+      await fetchHealthCheck();
+      updateAdminDashboard();
+      renderAdminTable();
+      showToast('Registrar database synchronized.', 'success');
+    } catch (err) {
+      showToast('Sync error: ' + err.message, 'error');
+    }
+  });
+
+  // 5. Dashboard View All Button
+  document.getElementById('btnAdminViewAll')?.addEventListener('click', () => {
+    switchAdminSubtab('manage');
+  });
+
+  // 6. Settings: Save Administrator Account
+  document.getElementById('btnSaveAdminAccount')?.addEventListener('click', () => {
+    const fullName = document.getElementById('adminInputFullName')?.value.trim();
+    if (!fullName) {
+      showToast('Administrator full name cannot be empty.', 'error');
+      return;
+    }
+
+    triggerAdminViewLoader();
+    if (state.currentUser) {
+      state.currentUser.fullName = fullName;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+    }
+    syncAdminProfileInfo();
+    showToast('Administrator account updated successfully.', 'success');
+  });
+
+  // 7. Settings: Dark Mode Toggle
+  const adminDarkToggle = document.getElementById('adminDarkModeToggle');
+  adminDarkToggle?.addEventListener('change', () => {
+    const isDark = adminDarkToggle.checked;
+    triggerAdminViewLoader();
+    const portal = document.getElementById('viewAdminPortal');
+    if (portal) portal.classList.toggle('student-dark-mode', isDark);
+    document.body.classList.toggle('student-dark-mode', isDark);
+    localStorage.setItem('cca_admin_dark_mode', isDark ? 'true' : 'false');
+    localStorage.setItem('cca_dark_mode', isDark ? 'true' : 'false');
+    showToast(isDark ? 'Dark mode enabled.' : 'Light mode enabled.', 'info');
+  });
+
+  // 8. Settings: Navigate to Change Password
+  document.getElementById('btnAdminGoChangePassword')?.addEventListener('click', () => {
+    switchAdminSubtab('change-password');
+  });
+
+  // 9. Change Password: Input strength & eye toggles & submission
+  const adminNewPw = document.getElementById('adminNewPassword');
+  const adminCurPw = document.getElementById('adminCurrentPassword');
+  const adminConfPw = document.getElementById('adminConfirmNewPassword');
+
+  adminNewPw?.addEventListener('input', () => {
+    evalAdminPwStrength(adminNewPw.value);
+  });
+
+  const togglePwVisibility = (btnId, inputId) => {
+    document.getElementById(btnId)?.addEventListener('click', () => {
+      const inEl = document.getElementById(inputId);
+      if (inEl) {
+        inEl.type = inEl.type === 'password' ? 'text' : 'password';
+      }
+    });
+  };
+
+  togglePwVisibility('btnToggleAdminCurPw', 'adminCurrentPassword');
+  togglePwVisibility('btnToggleAdminNewPw', 'adminNewPassword');
+  togglePwVisibility('btnToggleAdminConfPw', 'adminConfirmNewPassword');
+
+  document.getElementById('btnCancelAdminChangePw')?.addEventListener('click', () => {
+    switchAdminSubtab('settings');
+  });
+
+  const adminPwForm = document.getElementById('adminChangePasswordForm');
+  if (adminPwForm) {
+    adminPwForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const currentPassword = adminCurPw?.value.trim();
+      const newPassword = adminNewPw?.value.trim();
+      const confirmPassword = adminConfPw?.value.trim();
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        showToast('Please fill out all password fields.', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showToast('New passwords do not match.', 'error');
+        return;
+      }
+
+      if (newPassword.length < 8 || newPassword.length > 12) {
+        showToast('Password must be between 8 and 12 characters.', 'error');
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]|[!@#$%^&*]/.test(newPassword))) {
+        showToast('Password must contain upper, lower, and number/special char.', 'error');
+        return;
+      }
+
+      const user = state.currentUser || {};
+      const payload = {
+        identifier: user.email || user.username || 'admin@cca.edu.ph',
+        currentPassword,
+        newPassword
+      };
+
+      try {
+        triggerAdminViewLoader();
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to update administrator password.');
+        }
+
+        showToast('Administrator password updated successfully!', 'success');
+        adminPwForm.reset();
+        evalAdminPwStrength('');
+
+        setTimeout(() => {
+          switchAdminSubtab('settings');
+        }, 1000);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+  }
+}
 
 // ==========================================
 // Mobile Drawers & Utilities
@@ -2108,7 +2484,13 @@ function openRequestDetailsModal(reqId) {
   if (!modal) return;
 
   const all = state.allRequests || [];
-  const req = all.find(r => (r.tracking_number === reqId || ('REQ-00' + (230 + (r.id || 1))) === reqId)) || {
+  const req = all.find(r => (
+    r.tracking_number === reqId ||
+    r._id === reqId ||
+    String(r.id) === String(reqId) ||
+    ('REQ-00' + (230 + (r.id || 1))) === reqId ||
+    (r._id && ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) === reqId)
+  )) || {
     tracking_number: reqId || 'REQ-00234',
     document_type: 'Transcript of Records (TOR)',
     purpose: 'Enrollment Requirement',
@@ -2122,9 +2504,9 @@ function openRequestDetailsModal(reqId) {
   let statusText = 'Approved';
   let isComplete = false;
 
-  if (statusRaw.includes('APPROV')) {
+  if (statusRaw.includes('APPROV') || statusRaw.includes('COMPLET')) {
     badgeClass = 'green';
-    statusText = 'Approved';
+    statusText = statusRaw.includes('COMPLET') ? 'Completed' : 'Approved';
     isComplete = true;
   } else if (statusRaw.includes('RELEASE')) {
     badgeClass = 'purple';
@@ -2138,14 +2520,15 @@ function openRequestDetailsModal(reqId) {
     statusText = 'Pending';
   }
 
-  document.getElementById('detailsModalReqId').textContent = req.tracking_number || reqId;
+  const trackingDisplay = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))));
+  document.getElementById('detailsModalReqId').textContent = trackingDisplay;
   const badgeEl = document.getElementById('detailsModalBadge');
   badgeEl.className = 'badge-status-pill ' + badgeClass;
   badgeEl.innerHTML = '&bull; ' + statusText;
 
-  document.getElementById('detailsModalDocType').textContent = req.document_type || 'Transcript of Records (TOR)';
+  document.getElementById('detailsModalDocType').textContent = req.document_type || req.documentType || 'Transcript of Records (TOR)';
   document.getElementById('detailsModalPurpose').textContent = req.purpose || 'Official Document Requirement';
-  document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || new Date().toISOString()) + ' 10:24 AM';
+  document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt || new Date().toISOString()) + ' 10:24 AM';
   document.getElementById('detailsModalRemarks').textContent = req.remarks || 'None specified';
 
   // When to receive / Pickup Schedule: ONLY show once approved / completed as requested
@@ -2194,6 +2577,8 @@ function openRequestDetailsModal(reqId) {
 
   modal.style.display = 'flex';
 }
+
+window.openRequestDetailsModal = openRequestDetailsModal;
 
 // -------------------------------------------------------------------------
 // IMAGE CROPPING FUNCTIONALITY
