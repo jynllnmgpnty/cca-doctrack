@@ -225,17 +225,56 @@ document.addEventListener('DOMContentLoaded', () => {
 // Authentication Logic (Login & Register)
 // ==========================================
 
+function dismissInitialLoader() {
+  const loader = document.getElementById('appInitialLoader');
+  if (!loader || loader.classList.contains('fade-out')) return;
+  setTimeout(() => {
+    loader.classList.add('fade-out');
+    setTimeout(() => {
+      if (loader.parentNode) loader.style.display = 'none';
+    }, 400);
+  }, 250);
+}
+
 function restoreSession() {
   const savedUser = localStorage.getItem('cca_auth_user');
+  const savedView = localStorage.getItem('cca_current_view');
+  const savedStudentTab = localStorage.getItem('cca_student_active_tab');
+  const savedAdminTab = localStorage.getItem('cca_admin_active_tab');
+
   if (savedUser) {
     try {
       state.currentUser = JSON.parse(savedUser);
       updateLandingAuthUI();
+
+      if (state.currentUser.role === 'admin') {
+        const targetView = (savedView === 'landing') ? 'landing' : 'admin';
+        state.adminActiveTab = savedAdminTab || 'dashboard';
+        switchView(targetView);
+        if (targetView === 'admin') {
+          switchAdminSubtab(state.adminActiveTab);
+        }
+      } else {
+        const targetView = (savedView === 'landing') ? 'landing' : 'student';
+        state.studentActiveTab = savedStudentTab || 'profile';
+        switchView(targetView);
+        if (targetView === 'student') {
+          switchStudentSubtab(state.studentActiveTab);
+        }
+      }
     } catch (e) {
       console.warn('Session parse error:', e);
       state.currentUser = null;
+      switchView('landing');
     }
+  } else {
+    switchView('landing');
   }
+
+  // Dismiss full-screen initial loader
+  dismissInitialLoader();
+  // Fallback safety timeout to guarantee loader never hangs
+  setTimeout(dismissInitialLoader, 1500);
 }
 
 function updateLandingAuthUI() {
@@ -454,8 +493,13 @@ async function handleLoginSubmit(e) {
 
     // Direct to matching portal
     if (result.user.role === 'admin') {
+      localStorage.setItem('cca_current_view', 'admin');
+      localStorage.setItem('cca_admin_active_tab', 'dashboard');
       switchView('admin');
+      switchAdminSubtab('dashboard');
     } else {
+      localStorage.setItem('cca_current_view', 'student');
+      localStorage.setItem('cca_student_active_tab', 'profile');
       switchView('student');
       switchStudentSubtab('profile');
     }
@@ -553,9 +597,15 @@ async function handleRegisterSubmit(e) {
     updateLandingAuthUI();
 
     if (result.user.role === 'admin') {
+      localStorage.setItem('cca_current_view', 'admin');
+      localStorage.setItem('cca_admin_active_tab', 'dashboard');
       switchView('admin');
+      switchAdminSubtab('dashboard');
     } else {
+      localStorage.setItem('cca_current_view', 'student');
+      localStorage.setItem('cca_student_active_tab', 'profile');
       switchView('student');
+      switchStudentSubtab('profile');
     }
 
   } catch (error) {
@@ -569,6 +619,9 @@ function handleLogout() {
   const lastUser = state.currentUser;
   state.currentUser = null;
   localStorage.removeItem('cca_auth_user');
+  localStorage.setItem('cca_current_view', 'landing');
+  localStorage.removeItem('cca_student_active_tab');
+  localStorage.removeItem('cca_admin_active_tab');
   updateLandingAuthUI();
   switchView('landing');
 
@@ -623,6 +676,9 @@ function setAuthLoading(isLoading, mode) {
 // ==========================================
 function switchView(viewName) {
   state.currentView = viewName;
+  try {
+    localStorage.setItem('cca_current_view', viewName);
+  } catch (e) {}
 
   elements.viewLanding.classList.remove('active');
   elements.viewStudentPortal.classList.remove('active');
@@ -636,12 +692,15 @@ function switchView(viewName) {
     elements.viewStudentPortal.classList.add('active');
     syncStudentProfileFromAuth();
     filterStudentRequests();
-    initStudentRefPortal(); switchStudentSubtab(state.studentActiveTab || 'profile');
+    initStudentRefPortal();
+    const activeTab = state.studentActiveTab || localStorage.getItem('cca_student_active_tab') || 'profile';
+    switchStudentSubtab(activeTab);
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
     updateAdminDashboard();
     renderAdminTable();
-    switchAdminSubtab(state.adminActiveTab || 'dashboard');
+    const activeTab = state.adminActiveTab || localStorage.getItem('cca_admin_active_tab') || 'dashboard';
+    switchAdminSubtab(activeTab);
   }
 }
 
@@ -786,6 +845,9 @@ function setupNavigationHandlers() {
 
 function switchStudentSubtab(tabName) {
   state.studentActiveTab = tabName;
+  try {
+    localStorage.setItem('cca_student_active_tab', tabName);
+  } catch (e) {}
   if (typeof triggerStudentViewLoader === 'function') {
     triggerStudentViewLoader();
   }
@@ -821,6 +883,9 @@ function switchStudentSubtab(tabName) {
 
 function switchAdminSubtab(tabName) {
   state.adminActiveTab = tabName;
+  try {
+    localStorage.setItem('cca_admin_active_tab', tabName);
+  } catch (e) {}
 
   elements.adminNavItems.forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-admin-tab') === tabName);

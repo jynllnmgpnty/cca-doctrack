@@ -8,8 +8,32 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    try {
+      if (localStorage.getItem('cca_dark_mode') === 'true') {
+        document.documentElement.classList.add('student-dark-mode');
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
+
+  <!-- Initial Full-Screen App Loader (Shows only loading during reload / startup) -->
+  <div class="app-initial-loader" id="appInitialLoader">
+    <div class="loader-content">
+      <div class="flowize-brand-icon loader-logo-pulse">
+        <svg width="44" height="44" viewBox="0 0 28 28" fill="none">
+          <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+          <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+          <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+          <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+        </svg>
+      </div>
+      <div class="loader-title">CCA DocTrack</div>
+      <div class="loader-spinner-circle"></div>
+      <div class="loader-caption">Loading portal workspace...</div>
+    </div>
+  </div>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>

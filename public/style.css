@@ -5288,3 +5288,92 @@ body.student-dark-mode {
 .student-dark-mode .toggle-row-item {
   border-bottom-color: #334155;
 }
+
+/* ==========================================================================
+   INITIAL APP LOADER (SHOWS ONLY LOADING ON RELOAD / REFRESH)
+   ========================================================================== */
+.app-initial-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #FFFFFF;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s ease;
+}
+
+body.student-dark-mode .app-initial-loader,
+html.student-dark-mode .app-initial-loader {
+  background-color: #0F172A !important;
+}
+
+.loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+}
+
+.loader-logo-pulse {
+  animation: logoPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.loader-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+}
+
+body.student-dark-mode .loader-title,
+html.student-dark-mode .loader-title {
+  color: #F8FAFC !important;
+}
+
+.loader-spinner-circle {
+  width: 32px;
+  height: 32px;
+  border: 3.5px solid #E2E8F0;
+  border-top-color: #2563EB;
+  border-radius: 50%;
+  animation: spinLoader 0.8s linear infinite;
+}
+
+body.student-dark-mode .loader-spinner-circle,
+html.student-dark-mode .loader-spinner-circle {
+  border-color: #334155 !important;
+  border-top-color: #3B82F6 !important;
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+.loader-caption {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 600;
+}
+
+body.student-dark-mode .loader-caption,
+html.student-dark-mode .loader-caption {
+  color: #94A3B8 !important;
+}
+
+.app-initial-loader.fade-out {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
