@@ -526,6 +526,23 @@ function setupNavigationHandlers() {
     switchView('landing');
   });
 
+  document.getElementById('btnHeroGetStarted')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  document.getElementById('cardEnterTracking')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+      switchStudentSubtab('history');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
   elements.btnStudentBackToHome?.addEventListener('click', () => switchView('landing'));
   elements.btnAdminBackToHome?.addEventListener('click', () => switchView('landing'));
 

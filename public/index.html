@@ -125,98 +125,485 @@
   </div>
 
 
-  <!-- VIEW 1: LANDING PAGE -->
+  <!-- VIEW 1: LANDING PAGE (GITBOOK-INSPIRED MODERN SCHOOL DOCUMENT SYSTEM) -->
   <div class="app-view active" id="viewLanding">
-    <!-- Main Navigation Header -->
-    <header class="landing-header">
+    
+    <!-- GitBook Style Dark Header -->
+    <header class="gitbook-header">
       <div class="container header-inner">
         <a href="#" class="brand-group" id="btnLandingBrand">
           <img src="logo.png" alt="Christ Centered Academy Logo" class="cca-logo-img">
           <div class="brand-titles">
             <span class="school-name">CHRIST CENTERED ACADEMY</span>
-            <span class="system-name">CCA DocTrack Portal</span>
+            <span class="system-name">CCA DocTrack</span>
           </div>
         </a>
 
-        <nav class="landing-nav">
-          <a href="#servicesSection" class="nav-link">Available Documents</a>
+        <nav class="gitbook-nav">
+          <a href="#servicesSection" class="nav-link">Services</a>
+          <a href="#showcasePersonal" class="nav-link">Personal Notes</a>
+          <a href="#showcaseKnowledge" class="nav-link">Knowledge Bases</a>
           <a href="#workflowSection" class="nav-link">How it Works</a>
-          <a href="#faqsSection" class="nav-link">FAQs</a>
+        </nav>
+
+        <div class="header-right-actions">
+          <div class="db-indicator connected" id="landingDbIndicator" title="Turso Cloud Status">
+            <span class="dot"></span>
+            <span class="label">Turso Connected</span>
+          </div>
+
           <div class="portal-cta-group" id="landingAuthActions">
-            <button class="btn btn-outline-navy btn-sm" id="btnLandingSignIn">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <button class="btn btn-outline-white btn-sm" id="btnLandingSignIn">
               <span>Sign In</span>
             </button>
-            <button class="btn btn-navy btn-sm" id="btnLandingRegister">
-              <span>Register</span>
+            <button class="btn btn-blue-pill btn-sm" id="btnLandingRegister">
+              <span>Go to Dashboard</span>
             </button>
           </div>
-        </nav>
+        </div>
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="container hero-container">
-        <div class="hero-content">
-          <div class="hero-tag">
-            <span class="tag-dot"></span> Cloud-Based Document Tracking System
-          </div>
-          <h1 class="hero-title">
-            Student Document Requests <br>&amp; Real-Time Tracking
+    <!-- GitBook Style Hero Section with Diagonal Cut -->
+    <section class="gitbook-hero-section">
+      <div class="hero-diagonal-bg"></div>
+      <div class="container hero-split-container">
+        
+        <!-- Left Hero: Dark Midnight Blue Background with Bold Typography -->
+        <div class="hero-left-content">
+          <h1 class="hero-gitbook-title">
+            Document<br>Everything!
           </h1>
-          <p class="hero-subtitle">
-            Submit official academic document requests online, monitor live verification milestones, and track processing progress from submission to release.
+          <p class="hero-gitbook-subtitle">
+            For you, your users and your<br>team.
+          </p>
+          <div class="hero-action-row">
+            <button class="btn-gitbook-pill" id="btnHeroGetStarted">
+              Get Started
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Hero: Layered 3D Isometric Document Graphics -->
+        <div class="hero-right-graphics">
+          <div class="iso-docs-wrapper">
+            
+            <!-- Layer 3: Good Moral Certificate (Back) -->
+            <div class="iso-doc-card sheet-3">
+              <div class="doc-header-strip red-strip"></div>
+              <div class="doc-content-mock">
+                <div class="doc-badge-micro red">Good Moral Certificate</div>
+                <div class="doc-title-micro">OFFICE OF STUDENT AFFAIRS &bull; CLEARANCE</div>
+                <div class="doc-lines-micro">
+                  <div class="d-line w-80"></div>
+                  <div class="d-line w-60"></div>
+                  <div class="d-line w-90"></div>
+                </div>
+                <div class="doc-stamp-micro red-stamp">✓ CONDUCT VERIFIED</div>
+              </div>
+            </div>
+
+            <!-- Layer 2: Certificate of Enrollment (Middle) -->
+            <div class="iso-doc-card sheet-2">
+              <div class="doc-header-strip gold-strip"></div>
+              <div class="doc-content-mock">
+                <div class="doc-badge-micro gold">Certificate of Enrollment</div>
+                <div class="doc-title-micro">ACADEMIC YEAR 2026–2027 &bull; 1ST SEMESTER</div>
+                <div class="doc-meta-grid">
+                  <div class="meta-item-micro"><span>Student:</span> Jaynellan Magpantay</div>
+                  <div class="meta-item-micro"><span>Course:</span> BS Information Technology</div>
+                  <div class="meta-item-micro"><span>Status:</span> Regular Enrolled</div>
+                </div>
+                <div class="doc-stamp-micro gold-stamp">OFFICIAL REGISTRAR COPY</div>
+              </div>
+            </div>
+
+            <!-- Layer 1: Transcript of Records (Front) -->
+            <div class="iso-doc-card sheet-1">
+              <div class="doc-header-strip navy-strip"></div>
+              <div class="doc-content-mock">
+                <div class="doc-seal-badge">
+                  <img src="logo.png" alt="CCA Seal" class="micro-seal">
+                  <div>
+                    <div class="doc-badge-micro navy">Transcript of Records</div>
+                    <div class="doc-title-micro">OFFICIAL SCHOLASTIC RECORD</div>
+                  </div>
+                </div>
+                
+                <div class="doc-table-micro">
+                  <div class="dt-head">
+                    <span>COURSE CODE &amp; TITLE</span>
+                    <span>GRADE</span>
+                    <span>UNITS</span>
+                  </div>
+                  <div class="dt-row">
+                    <span>IT 412 Platform Technologies</span>
+                    <span class="grade-pill">1.25</span>
+                    <span>3.0</span>
+                  </div>
+                  <div class="dt-row">
+                    <span>IT 411 Software Engineering</span>
+                    <span class="grade-pill">1.00</span>
+                    <span>3.0</span>
+                  </div>
+                  <div class="dt-row">
+                    <span>IT 410 Cloud Database (Turso)</span>
+                    <span class="grade-pill">1.25</span>
+                    <span>3.0</span>
+                  </div>
+                  <div class="dt-row">
+                    <span>CS 312 Web Architecture</span>
+                    <span class="grade-pill">1.00</span>
+                    <span>3.0</span>
+                  </div>
+                </div>
+
+                <div class="doc-footer-micro">
+                  <span class="gwa-tag">General Weighted Average: <strong>1.125</strong></span>
+                  <span class="status-chip completed">✓ Released</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating Turso Cloud Status Pill -->
+            <div class="floating-cloud-pill">
+              <span class="pulse-icon">⚡</span>
+              <span>Turso Cloud Verified &bull; libSQL</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3 Floating Feature Selector Cards Bridging the Hero and Content -->
+    <section class="gitbook-cards-section">
+      <div class="container">
+        <div class="gitbook-cards-grid">
+          
+          <!-- Card 1: Personal Notes (Student Portal) -->
+          <div class="gitbook-feature-card" id="cardEnterStudentPortal">
+            <div class="card-icon-illus">
+              <svg viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="8" width="28" height="34" rx="4" fill="#3B82F6" fill-opacity="0.12" stroke="#2563EB" stroke-width="2.2"/>
+                <rect x="14" y="4" width="28" height="34" rx="4" fill="#60A5FA" fill-opacity="0.18" stroke="#1D4ED8" stroke-width="2.2"/>
+                <path d="M20 14h16M20 20h12M20 26h14" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="card-body-text">
+              <h3>Personal Notes</h3>
+              <p>Just for you</p>
+            </div>
+          </div>
+
+          <!-- Card 2: Knowledge Bases (Registrar Portal) -->
+          <div class="gitbook-feature-card" id="cardEnterAdminPortal">
+            <div class="card-icon-illus">
+              <svg viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="10" width="22" height="30" rx="3" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.2"/>
+                <rect x="20" y="6" width="22" height="30" rx="3" fill="#93C5FD" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.2"/>
+                <path d="M11 18h12M11 24h8M25 14h12M25 20h10" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="card-body-text">
+              <h3>Knowledge Bases</h3>
+              <p>For your team</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Product Docs (Live Tracking) -->
+          <div class="gitbook-feature-card" id="cardEnterTracking">
+            <div class="card-icon-illus">
+              <svg viewBox="0 0 48 48" fill="none">
+                <rect x="8" y="8" width="32" height="32" rx="6" fill="#3B82F6" fill-opacity="0.12" stroke="#2563EB" stroke-width="2.2"/>
+                <path d="M16 24l5 5 11-11" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14 14h6M14 34h20" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="card-body-text">
+              <h3>Product Docs</h3>
+              <p>For your users</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUCT SHOWCASE 1: Personal Notes (Student Document Portal) -->
+    <section class="gitbook-showcase-section" id="showcasePersonal">
+      <div class="container showcase-grid">
+        
+        <!-- Left Side: Feature Narrative -->
+        <div class="showcase-text-col">
+          <div class="showcase-icon-header">
+            <svg viewBox="0 0 54 54" fill="none" class="feature-icon-svg">
+              <rect x="6" y="10" width="32" height="36" rx="5" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.5"/>
+              <rect x="16" y="4" width="32" height="36" rx="5" fill="#60A5FA" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.5"/>
+              <path d="M22 16h18M22 22h14M22 28h16" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="showcase-tag">STUDENT PORTAL</span>
+          <h2 class="showcase-title">Personal Notes</h2>
+          <p class="showcase-subtitle">
+            A place to think and track ideas for you &amp; your team
           </p>
 
-          <!-- Portal Access Selection Cards -->
-          <div class="portal-selection-box">
-            <div class="portal-box-label">Choose Your Portal to Continue:</div>
-            <div class="portal-cards-grid">
-              
-              <!-- Student Portal Card -->
-              <div class="portal-card student-card" id="cardEnterStudentPortal">
-                <div class="portal-card-header">
-                  <div class="portal-icon gold-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                  </div>
-                  <div class="portal-meta">
-                    <span class="portal-category gold-tag">STUDENT SERVICES</span>
-                    <h3>Student Portal</h3>
-                    <span class="user-desc">For currently enrolled students &amp; alumni</span>
-                  </div>
-                </div>
-                <ul class="portal-feature-list">
-                  <li><span class="check-icon">✓</span> Request certificates &amp; credentials</li>
-                  <li><span class="check-icon">✓</span> 3-Step interactive progress tracking</li>
-                  <li><span class="check-icon">✓</span> View request history &amp; digital ID</li>
-                </ul>
-                <button class="btn btn-gold btn-block">Access Student Portal &rarr;</button>
+          <div class="showcase-features-grid">
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               </div>
-
-              <!-- Admin Portal Card -->
-              <div class="portal-card admin-card" id="cardEnterAdminPortal">
-                <div class="portal-card-header">
-                  <div class="portal-icon red-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                  </div>
-                  <div class="portal-meta">
-                    <span class="portal-category red-tag">REGISTRAR OPERATIONS</span>
-                    <h3>Registrar Admin Portal</h3>
-                    <span class="user-desc">For authorized College Registrar staff</span>
-                  </div>
-                </div>
-                <ul class="portal-feature-list">
-                  <li><span class="check-icon">✓</span> Review &amp; approve document requests</li>
-                  <li><span class="check-icon">✓</span> Update status (Pending, Processing, Done)</li>
-                  <li><span class="check-icon">✓</span> Real-time Turso Cloud analytics</li>
-                </ul>
-                <button class="btn btn-red btn-block">Access Admin Portal &rarr;</button>
+              <div class="f-text">
+                <h4>WYSIWYG</h4>
+                <p>Submit official document forms in seconds with automatic profile population.</p>
               </div>
+            </div>
 
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>Markdown</h4>
+                <p>Visual 3-step tracking stepper monitoring submission to registrar release.</p>
+              </div>
+            </div>
+
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>Sub-folders</h4>
+                <p>Organize multiple document requests under your permanent Student ID.</p>
+              </div>
+            </div>
+
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>In the Cloud</h4>
+                <p>Zero data loss and live persistence powered by Turso Cloud Database.</p>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Right Side: Clean Application Mockup Window -->
+        <div class="showcase-mockup-col">
+          <div class="mockup-window">
+            <div class="mockup-window-header">
+              <div class="window-dots">
+                <span class="w-dot red"></span>
+                <span class="w-dot yellow"></span>
+                <span class="w-dot green"></span>
+              </div>
+              <div class="window-title-tab">Personal Notes &bull; Document Request Summary</div>
+            </div>
+
+            <div class="mockup-window-body">
+              <!-- Left Sidebar of Window -->
+              <div class="mockup-sidebar">
+                <div class="sidebar-section-title">REQUESTS</div>
+                <ul class="mockup-file-list">
+                  <li class="active"><span class="bullet-dot"></span> To be done soon</li>
+                  <li><span class="bullet-dot"></span> Transcript of Records</li>
+                  <li><span class="bullet-dot"></span> Certificate of Enrollment</li>
+                  <li><span class="bullet-dot"></span> Good Moral Clearance</li>
+                  <li><span class="bullet-dot"></span> Semester Grades</li>
+                </ul>
+              </div>
+
+              <!-- Main Content Area of Window -->
+              <div class="mockup-content">
+                <div class="mockup-doc-header">
+                  <h3>To be done soon 📌</h3>
+                  <div class="mockup-checklist">
+                    <label class="check-item"><input type="checkbox" checked disabled> <span>Student ID: 23-67894 verified against registry</span></label>
+                    <label class="check-item"><input type="checkbox" checked disabled> <span>Academic clearance validated by Registrar Staff</span></label>
+                    <label class="check-item"><input type="checkbox" disabled> <span>Ready for window release &amp; dry-seal</span></label>
+                  </div>
+                </div>
+
+                <div class="mockup-mini-table-box">
+                  <div class="mini-table-label">Active Requests</div>
+                  <table class="mini-table">
+                    <thead>
+                      <tr>
+                        <th>Document</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Transcript of Records</td>
+                        <td>Scholarship Application</td>
+                        <td><span class="mini-badge processing">Processing</span></td>
+                      </tr>
+                      <tr>
+                        <td>Certificate of Enrollment</td>
+                        <td>CHED Subsidy</td>
+                        <td><span class="mini-badge completed">Completed</span></td>
+                      </tr>
+                      <tr>
+                        <td>Good Moral Certificate</td>
+                        <td>Internship Requirement</td>
+                        <td><span class="mini-badge pending">Pending</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Green Circular Action Button (from screenshot) -->
+                <button class="mockup-action-circle" title="Submit Document Request">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PRODUCT SHOWCASE 2: Knowledge Bases (Registrar Operations - Inverted Layout) -->
+    <section class="gitbook-showcase-section bg-surface" id="showcaseKnowledge">
+      <div class="container showcase-grid inverted">
+        
+        <!-- Left Side: Registrar Admin Window Mockup -->
+        <div class="showcase-mockup-col">
+          <div class="mockup-window dark-theme-window">
+            <div class="mockup-window-header">
+              <div class="window-dots">
+                <span class="w-dot red"></span>
+                <span class="w-dot yellow"></span>
+                <span class="w-dot green"></span>
+              </div>
+              <div class="window-title-tab">Knowledge Bases &bull; Registrar Admin Dashboard</div>
+            </div>
+
+            <div class="mockup-window-body">
+              <!-- Dark Sidebar -->
+              <div class="mockup-sidebar dark-sidebar">
+                <div class="admin-brand-sm">
+                  <img src="logo.png" alt="Logo" class="mini-logo">
+                  <span>Registrar</span>
+                </div>
+                <ul class="mockup-file-list dark-list">
+                  <li class="active">📊 Dashboard Overview</li>
+                  <li>📑 All Submissions (3)</li>
+                  <li>⏳ Pending Queue (1)</li>
+                  <li>⚙️ Turso Cloud SQL</li>
+                </ul>
+              </div>
+
+              <!-- Main Admin Mock Content -->
+              <div class="mockup-content">
+                <div class="admin-mini-stats">
+                  <div class="mini-stat-card"><span class="m-num">4</span><span class="m-lbl">Total</span></div>
+                  <div class="mini-stat-card"><span class="m-num" style="color:#D97706;">1</span><span class="m-lbl">Pending</span></div>
+                  <div class="mini-stat-card"><span class="m-num" style="color:#2563EB;">1</span><span class="m-lbl">Processing</span></div>
+                  <div class="mini-stat-card"><span class="m-num" style="color:#10B981;">2</span><span class="m-lbl">Completed</span></div>
+                </div>
+
+                <div class="mockup-mini-table-box">
+                  <table class="mini-table">
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Document</th>
+                        <th>Status Control</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><strong>Jaynellan Magpantay</strong></td>
+                        <td>Transcript of Records</td>
+                        <td><span class="mini-badge processing">Processing ▾</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Juan Dela Cruz</strong></td>
+                        <td>Good Moral Certificate</td>
+                        <td><span class="mini-badge pending">Pending ▾</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Maria Santos</strong></td>
+                        <td>Certificate of Enrollment</td>
+                        <td><span class="mini-badge completed">Completed ▾</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Side: Feature Narrative -->
+        <div class="showcase-text-col">
+          <div class="showcase-icon-header">
+            <svg viewBox="0 0 54 54" fill="none" class="feature-icon-svg">
+              <rect x="6" y="8" width="30" height="38" rx="4" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.5"/>
+              <rect x="18" y="4" width="30" height="38" rx="4" fill="#60A5FA" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.5"/>
+              <path d="M12 18h16M12 24h12M24 14h16M24 20h14" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="showcase-tag">REGISTRAR OPERATIONS</span>
+          <h2 class="showcase-title">Knowledge Bases</h2>
+          <p class="showcase-subtitle">
+            A home for your team, best practices, and official student record issuance
+          </p>
+
+          <div class="showcase-features-grid">
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>Centralized Control</h4>
+                <p>Review, verify, and approve academic credentials from one authoritative console.</p>
+              </div>
+            </div>
+
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>Status Transitions</h4>
+                <p>One-click lifecycle updates immediately reflected in student live tracking.</p>
+              </div>
+            </div>
+
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>Instant Search</h4>
+                <p>Instant student ID, name, and document type search across all database records.</p>
+              </div>
+            </div>
+
+            <div class="feature-subitem">
+              <div class="f-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              </div>
+              <div class="f-text">
+                <h4>SQL Reliability</h4>
+                <p>ACID-compliant relational integrity backed by Turso libSQL cloud architecture.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
