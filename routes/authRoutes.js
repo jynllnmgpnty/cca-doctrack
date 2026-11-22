@@ -214,6 +214,99 @@ router.post('/login', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/auth/change-password
+ * @desc    Change student/admin account password
+ * @access  Public (Authenticated session)
+ */
+router.post('/change-password', async (req, res) => {
+  try {
+    const { identifier, email, studentId, currentPassword, newPassword } = req.body;
+    const targetIdentifier = identifier || email || studentId;
+
+    if (!targetIdentifier || !currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide identifier, current password, and new password.'
+      });
+    }
+
+    const normalizedInput = targetIdentifier.trim().toLowerCase();
+
+    // Find user
+    const userResult = await db.execute({
+      sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
+      args: [normalizedInput, normalizedInput]
+    });
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found.'
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // Verify current password
+    const isCurrentMatch = await bcrypt.compare(currentPassword.trim(), user.password);
+    if (!isCurrentMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Current password is incorrect. Please try again.'
+      });
+    }
+
+    // Validate new password rules: 8-12 characters, uppercase, lowercase, number/special
+    const cleanNewPw = newPassword.trim();
+    if (cleanNewPw.length < 8 || cleanNewPw.length > 12) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must be between 8 and 12 characters long.'
+      });
+    }
+    if (!/[A-Z]/.test(cleanNewPw)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must contain at least one uppercase letter (A-Z).'
+      });
+    }
+    if (!/[a-z]/.test(cleanNewPw)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must contain at least one lowercase letter (a-z).'
+      });
+    }
+    if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(cleanNewPw)) {
+      return res.status(400).json({
+        success: false,
+        message: 'New password must contain at least one number or special character.'
+      });
+    }
+
+    // Hash and update
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(cleanNewPw, salt);
+
+    await db.execute({
+      sql: 'UPDATE users SET password = ? WHERE id = ?',
+      args: [newHash, user.id]
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password updated successfully! Your account is now secured.'
+    });
+  } catch (error) {
+    console.error('Change password error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while updating password.',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/seed
  * @desc    Trigger default accounts seeding
  */

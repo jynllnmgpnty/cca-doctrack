@@ -214,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupStudentForm();
   setupAdminFilters();
   setupMobileDrawers();
+  setupStudentRefPortalListeners();
 
   // Check Database & Load Initial Data
   fetchHealthCheck();
@@ -635,7 +636,7 @@ function switchView(viewName) {
     elements.viewStudentPortal.classList.add('active');
     syncStudentProfileFromAuth();
     filterStudentRequests();
-    switchStudentSubtab(state.studentActiveTab || 'profile');
+    initStudentRefPortal(); switchStudentSubtab(state.studentActiveTab || 'profile');
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
     updateAdminDashboard();
@@ -786,36 +787,32 @@ function setupNavigationHandlers() {
 function switchStudentSubtab(tabName) {
   state.studentActiveTab = tabName;
 
-  elements.studentNavItems.forEach((btn) => {
+  document.querySelectorAll('.ref-nav-item').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-student-tab') === tabName);
   });
 
-  elements.studentSubtabs.forEach((pane) => {
-    pane.classList.toggle('active', pane.id === `studentSubtab-${tabName}`);
+  document.querySelectorAll('.student-subtab-pane').forEach((pane) => {
+    pane.classList.toggle('active', pane.id === 'studentSubtab-' + tabName);
   });
 
-  const titles = {
-    submit: {
-      title: 'Submit Document Request',
-      subtitle: 'Request official school certificates and credentials online'
-    },
-    history: {
-      title: 'My Requests & Live Tracking',
-      subtitle: `Tracking document requests for Student ID: ${getActiveStudentId()}`
-    },
-    profile: {
-      title: 'Student Profile & ID',
-      subtitle: 'Manage your active student credentials, profile photo, and guardian records'
-    }
-  };
+  // Also support legacy subtabs if any
+  document.querySelectorAll('.student-subtab').forEach((pane) => {
+    pane.classList.toggle('active', pane.id === 'studentSubtab-' + tabName);
+  });
 
-  if (titles[tabName]) {
-    elements.studentPageTitle.textContent = titles[tabName].title;
-    elements.studentPageSubtitle.textContent = titles[tabName].subtitle;
-  }
-
-  if (tabName === 'history') {
-    filterStudentRequests();
+  if (tabName === 'dashboard') {
+    renderStudentDashboardData();
+  } else if (tabName === 'profile') {
+    syncStudentRefProfile();
+  } else if (tabName === 'request') {
+    renderStudentHistoryTable();
+  } else if (tabName === 'tracking') {
+    renderStudentTrackingCards();
+  } else if (tabName === 'settings') {
+    syncStudentRefProfile();
+  } else if (tabName === 'change-password') {
+    const pwForm = document.getElementById('refChangePasswordForm');
+    if (pwForm) pwForm.reset();
   }
 }
 
@@ -1686,3 +1683,874 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
+
+
+// ==========================================================================
+// STUDENT PORTAL REFERENCE IMPLEMENTATION (EXACT MATCH FOR 6 REFERENCE IMAGES)
+// ==========================================================================
+
+function initStudentRefPortal() {
+  syncStudentRefProfile();
+  renderStudentDashboardData();
+  renderStudentTrackingCards();
+  renderStudentHistoryTable();
+}
+
+function syncStudentRefProfile() {
+  const user = state.currentUser || {
+    fullName: 'Juan Dela Cruz',
+    studentId: 'REQ-00234',
+    course: 'BSIT – Bachelor of Science in Information Technology',
+    yearLevel: '3rd Year',
+    email: 'juan.delacruz@cca.edu.ph',
+    phone: '0917 123 4567'
+  };
+
+  const storedKey = 'cca_student_profile_' + (user.studentId || 'default');
+  let stored = {};
+  try {
+    const raw = localStorage.getItem(storedKey) || localStorage.getItem('cca_student_profile');
+    if (raw) stored = JSON.parse(raw);
+  } catch (e) {
+    console.warn('Profile parse error:', e);
+  }
+
+  const profile = {
+    fullName: stored.fullName || user.fullName || 'Juan Dela Cruz',
+    studentId: stored.studentId || user.studentId || 'REQ-00234',
+    course: stored.course || user.course || 'BSIT – Bachelor of Science in Information Technology',
+    yearLevel: stored.yearLevel || user.yearLevel || '3rd Year',
+    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph',
+    phone: stored.phone || user.phone || '0917 123 4567',
+    address: stored.address || '123 Mabini St., San Jose, Bulacan',
+    emergency: stored.emergency || 'Maria Dela Cruz (0917 987 6543)',
+    relationship: stored.relationship || 'Mother',
+    dob: stored.dob || 'January 15, 2005',
+    gender: stored.gender || 'Male',
+    nationality: stored.nationality || 'Filipino',
+    section: stored.section || 'BSIT-3A',
+    schoolYear: stored.schoolYear || '2025 – 2026',
+    advisor: stored.advisor || 'Prof. Ana Reyes'
+  };
+
+  // Topbar
+  const topbarName = document.getElementById('dropdownUserName');
+  if (topbarName) topbarName.textContent = profile.fullName;
+  const topbarEmail = document.getElementById('dropdownUserEmail');
+  if (topbarEmail) topbarEmail.textContent = profile.email;
+
+  // Initials for topbar avatar
+  const initials = profile.fullName
+    .split(' ')
+    .filter(Boolean)
+    .map(w => w[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase() || 'JD';
+  const topbarAv = document.getElementById('topbarUserAvatar');
+  if (topbarAv) topbarAv.textContent = initials;
+
+  // Sidebar
+  const sbName = document.getElementById('studentSidebarName');
+  if (sbName) sbName.textContent = profile.fullName;
+  const sbMeta = document.getElementById('studentSidebarMeta');
+  if (sbMeta) sbMeta.textContent = profile.course.includes('BSIT') ? 'BSIT • ' + profile.yearLevel : profile.course + ' • ' + profile.yearLevel;
+
+  // Dashboard Hero
+  const heroName = document.getElementById('heroStudentName');
+  if (heroName) heroName.textContent = profile.fullName + '!';
+
+  // My Profile Overview Card
+  const profName = document.getElementById('profileNameDisplay');
+  if (profName) profName.textContent = profile.fullName;
+  const profId = document.getElementById('profileIdDisplay');
+  if (profId) profId.textContent = profile.studentId;
+  const profProg = document.getElementById('profileProgramDisplay');
+  if (profProg) profProg.textContent = profile.course;
+  const profYear = document.getElementById('profileYearDisplay');
+  if (profYear) profYear.textContent = profile.yearLevel;
+  const profEmail = document.getElementById('profileEmailDisplay');
+  if (profEmail) profEmail.textContent = profile.email;
+  const profContact = document.getElementById('profileContactDisplay');
+  if (profContact) profContact.textContent = profile.phone;
+
+  // Personal Information Card
+  const pName = document.getElementById('personalFullName');
+  if (pName) pName.textContent = profile.fullName;
+  const pAddr = document.getElementById('personalAddress');
+  if (pAddr) pAddr.textContent = profile.address;
+  const pDob = document.getElementById('personalDob');
+  if (pDob) pDob.textContent = profile.dob;
+  const pEm = document.getElementById('personalEmergency');
+  if (pEm) pEm.innerHTML = profile.emergency.replace('(', '<br>(');
+  const pGen = document.getElementById('personalGender');
+  if (pGen) pGen.textContent = profile.gender;
+  const pRel = document.getElementById('personalRelationship');
+  if (pRel) pRel.textContent = profile.relationship;
+  const pNat = document.getElementById('personalNationality');
+  if (pNat) pNat.textContent = profile.nationality;
+
+  // Academic Information Card
+  const aProg = document.getElementById('academicProgram');
+  if (aProg) aProg.textContent = profile.course;
+  const aYear = document.getElementById('academicYear');
+  if (aYear) aYear.textContent = profile.yearLevel;
+  const aSec = document.getElementById('academicSection');
+  if (aSec) aSec.textContent = profile.section;
+  const aSy = document.getElementById('academicSchoolYear');
+  if (aSy) aSy.textContent = profile.schoolYear;
+  const aAdv = document.getElementById('academicAdvisor');
+  if (aAdv) aAdv.textContent = profile.advisor;
+
+  // Settings inputs
+  const setFull = document.getElementById('settingsInputFullName');
+  if (setFull) setFull.value = profile.fullName;
+  const setEmail = document.getElementById('settingsInputEmail');
+  if (setEmail) setEmail.value = profile.email;
+  const setContact = document.getElementById('settingsInputContact');
+  if (setContact) setContact.value = profile.phone;
+
+  // Load avatar if stored
+  const savedAvatar = localStorage.getItem('cca_student_avatar_' + profile.studentId) || localStorage.getItem('cca_student_avatar');
+  if (savedAvatar) {
+    applyAvatarToElements(savedAvatar);
+  }
+}
+
+function applyAvatarToElements(dataUrl) {
+  const ids = ['sidebarProfileAvatar', 'profileMainAvatar', 'settingsAvatarPreview', 'topbarUserAvatar'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.backgroundImage = 'url(' + dataUrl + ')';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      if (id === 'topbarUserAvatar') el.textContent = '';
+      const svg = el.querySelector('svg');
+      if (svg) svg.style.display = 'none';
+    }
+  });
+}
+
+function renderStudentDashboardData() {
+  const all = state.allRequests || [];
+  const total = all.length || 3;
+  const inProcess = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length || 1;
+  const completed = all.filter(r => ['APPROVED', 'RELEASED', 'COMPLETED', 'FOR_RELEASE'].includes((r.status || '').toUpperCase())).length || 2;
+
+  const statTotal = document.getElementById('overviewStatTotal');
+  if (statTotal) statTotal.textContent = total;
+  const statProc = document.getElementById('overviewStatInProcess');
+  if (statProc) statProc.textContent = inProcess;
+  const statComp = document.getElementById('overviewStatCompleted');
+  if (statComp) statComp.textContent = completed;
+
+  // Recent requests list in Dashboard
+  const listEl = document.getElementById('dashboardRecentRequestsList');
+  if (!listEl) return;
+
+  if (all.length > 0) {
+    const recent = all.slice(0, 3);
+    listEl.innerHTML = recent.map(req => {
+      const status = (req.status || 'PENDING').toUpperCase();
+      let badgeClass = 'gray';
+      let statusLabel = 'Pending';
+      if (status.includes('APPROV')) { badgeClass = 'green'; statusLabel = 'Approved'; }
+      else if (status.includes('PROCESS')) { badgeClass = 'blue'; statusLabel = 'Processing'; }
+      else if (status.includes('RELEASE')) { badgeClass = 'purple'; statusLabel = 'Released'; }
+
+      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+
+      return `
+        <div class="recent-req-row">
+          <div class="req-icon-box bg-blue-tint">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="req-main-info">
+            <div class="req-type-title">${escapeHtml(req.document_type || 'Official Document')}</div>
+            <div class="req-id-tag">${escapeHtml(req.tracking_number || 'REQ-' + req.id)} &bull; <span class="badge-status-pill ${badgeClass}">${statusLabel}</span></div>
+          </div>
+          <div class="req-date-text">${dateStr}</div>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function renderStudentTrackingCards() {
+  const all = state.allRequests || [];
+  const container = document.getElementById('trackCardsList');
+  if (!container) return;
+
+  // Update Stats row
+  const total = all.length || 5;
+  const proc = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length || 1;
+  const apprv = all.filter(r => (r.status || '').toUpperCase().includes('APPROV')).length || 2;
+  const forRel = all.filter(r => (r.status || '').toUpperCase().includes('RELEASE')).length || 1;
+  const pend = all.filter(r => (r.status || '').toUpperCase().includes('PENDING')).length || 1;
+
+  const elTot = document.getElementById('trackStatTotal');
+  if (elTot) elTot.textContent = total;
+  const elProc = document.getElementById('trackStatProcessing');
+  if (elProc) elProc.textContent = proc;
+  const elApp = document.getElementById('trackStatApproved');
+  if (elApp) elApp.textContent = apprv;
+  const elRel = document.getElementById('trackStatForRelease');
+  if (elRel) elRel.textContent = forRel;
+  const elPend = document.getElementById('trackStatPending');
+  if (elPend) elPend.textContent = pend;
+
+  // If we have live database requests, render them
+  if (all.length > 0) {
+    container.innerHTML = all.map(req => {
+      const statusRaw = (req.status || 'PENDING').toUpperCase();
+      let statusAttr = 'PENDING';
+      let badgeClass = 'gray';
+      let statusText = 'Pending';
+
+      if (statusRaw.includes('APPROV')) {
+        statusAttr = 'APPROVED';
+        badgeClass = 'green';
+        statusText = 'Approved';
+      } else if (statusRaw.includes('PROCESS')) {
+        statusAttr = 'PROCESSING';
+        badgeClass = 'blue';
+        statusText = 'Processing';
+      } else if (statusRaw.includes('RELEASE')) {
+        statusAttr = 'FOR_RELEASE';
+        badgeClass = 'purple';
+        statusText = 'For Release';
+      }
+
+      const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
+      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+
+      return `
+        <div class="ref-track-card" data-status="${statusAttr}" data-req="${escapeHtml(reqId)}">
+          <div class="track-card-icon-box bg-blue-tint">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div class="track-col-req-info">
+            <div class="track-req-id">${escapeHtml(reqId)}</div>
+            <div class="track-doc-type">${escapeHtml(req.document_type || 'Official Document')}</div>
+            <div class="track-req-date">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              Requested: ${dateStr}
+            </div>
+          </div>
+          <div class="track-col-purpose">
+            <div class="meta-sub-lbl">Purpose:</div>
+            <div class="meta-sub-val">${escapeHtml(req.purpose || 'Official Document')}</div>
+            <div class="meta-sub-lbl">Remarks:</div>
+            <div class="meta-sub-val">${escapeHtml(req.remarks || 'N/A')}</div>
+          </div>
+          <div class="track-col-status">
+            <span class="badge-status-pill ${badgeClass}">&bull; ${statusText}</span>
+            <div class="status-date-time">${dateStr} 02:00 PM</div>
+          </div>
+          <div class="track-col-action">
+            <button class="btn-ref-outline-rounded" data-view-details="${escapeHtml(reqId)}">View Details &rarr;</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Attach click listeners to all "View Details ->" buttons in tracking cards
+  container.querySelectorAll('[data-view-details]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openRequestDetailsModal(btn.getAttribute('data-view-details'));
+    });
+  });
+}
+
+function renderStudentHistoryTable() {
+  const all = state.allRequests || [];
+  const tbody = document.getElementById('studentHistoryTableBody');
+  if (!tbody) return;
+
+  if (all.length > 0) {
+    tbody.innerHTML = all.map(req => {
+      const statusRaw = (req.status || 'PENDING').toUpperCase();
+      let badgeClass = 'gray';
+      let statusText = 'Pending';
+      let statusKey = 'PENDING';
+
+      if (statusRaw.includes('APPROV')) {
+        badgeClass = 'green';
+        statusText = 'Approved';
+        statusKey = 'APPROVED';
+      } else if (statusRaw.includes('PROCESS')) {
+        badgeClass = 'blue';
+        statusText = 'Processing';
+        statusKey = 'PROCESSING';
+      } else if (statusRaw.includes('RELEASE')) {
+        badgeClass = 'purple';
+        statusText = 'For Release';
+        statusKey = 'FOR_RELEASE';
+      }
+
+      const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
+      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+
+      return `
+        <tr data-history-status="${statusKey}">
+          <td><strong>${escapeHtml(reqId)}</strong></td>
+          <td>${escapeHtml(req.document_type || 'Official Document')}</td>
+          <td>${dateStr} 10:24 AM</td>
+          <td><span class="badge-status-pill ${badgeClass}">&bull; ${statusText}</span></td>
+          <td><button class="btn-ref-link" data-req-id="${escapeHtml(reqId)}">View Details &rarr;</button></td>
+        </tr>
+      `;
+    }).join('');
+
+    tbody.querySelectorAll('[data-req-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        openRequestDetailsModal(btn.getAttribute('data-req-id'));
+      });
+    });
+  }
+}
+
+function openRequestDetailsModal(reqId) {
+  const modal = document.getElementById('modalRequestDetails');
+  if (!modal) return;
+
+  const all = state.allRequests || [];
+  const req = all.find(r => (r.tracking_number === reqId || ('REQ-00' + (230 + (r.id || 1))) === reqId)) || {
+    tracking_number: reqId || 'REQ-00234',
+    document_type: 'Transcript of Records (TOR)',
+    purpose: 'Enrollment Requirement',
+    date_submitted: 'May 20, 2025',
+    remarks: 'For enrollment',
+    status: 'Approved'
+  };
+
+  const statusRaw = (req.status || 'PENDING').toUpperCase();
+  let badgeClass = 'green';
+  let statusText = 'Approved';
+  if (statusRaw.includes('APPROV')) { badgeClass = 'green'; statusText = 'Approved'; }
+  else if (statusRaw.includes('PROCESS')) { badgeClass = 'blue'; statusText = 'Processing'; }
+  else if (statusRaw.includes('RELEASE')) { badgeClass = 'purple'; statusText = 'For Release'; }
+  else if (statusRaw.includes('PENDING')) { badgeClass = 'gray'; statusText = 'Pending'; }
+
+  document.getElementById('detailsModalReqId').textContent = req.tracking_number || reqId;
+  const badgeEl = document.getElementById('detailsModalBadge');
+  badgeEl.className = 'badge-status-pill ' + badgeClass;
+  badgeEl.innerHTML = '&bull; ' + statusText;
+
+  document.getElementById('detailsModalDocType').textContent = req.document_type || 'Transcript of Records (TOR)';
+  document.getElementById('detailsModalPurpose').textContent = req.purpose || 'Official Document Requirement';
+  document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || new Date().toISOString()) + ' 10:24 AM';
+  document.getElementById('detailsModalRemarks').textContent = req.remarks || 'None specified';
+
+  // Build timeline steps
+  const tlEl = document.getElementById('detailsModalTimeline');
+  tlEl.innerHTML = `
+    <div class="timeline-step completed">
+      <div class="step-circle">&#10003;</div>
+      <div class="step-desc">
+        <strong>1. Request Submitted</strong>
+        <div class="text-muted">${formatDate(req.date_submitted || new Date().toISOString())} 10:24 AM &bull; Student submission verified</div>
+      </div>
+    </div>
+    <div class="timeline-step ${statusRaw.includes('PROCESS') || statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? 'completed' : 'current'}">
+      <div class="step-circle">${statusRaw.includes('PROCESS') || statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? '&#10003;' : '2'}</div>
+      <div class="step-desc">
+        <strong>2. Under Review &amp; Processing</strong>
+        <div class="text-muted">Office of the Registrar assigned evaluation</div>
+      </div>
+    </div>
+    <div class="timeline-step ${statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? 'completed' : ''}">
+      <div class="step-circle">${statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? '&#10003;' : '3'}</div>
+      <div class="step-desc">
+        <strong>3. Approved for Release</strong>
+        <div class="text-muted">Document prepared with official seal and dry stamp</div>
+      </div>
+    </div>
+    <div class="timeline-step ${statusRaw.includes('RELEASE') ? 'completed' : ''}">
+      <div class="step-circle">${statusRaw.includes('RELEASE') ? '&#10003;' : '4'}</div>
+      <div class="step-desc">
+        <strong>4. Document Released / Claimed</strong>
+        <div class="text-muted">Ready for pickup at Registrar counter Window 2</div>
+      </div>
+    </div>
+  `;
+
+  modal.style.display = 'flex';
+}
+
+function setupStudentRefPortalListeners() {
+  // 1. Sidebar Nav & Tab Switching
+  document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('[data-student-tab]');
+    if (tabBtn) {
+      const tabName = tabBtn.getAttribute('data-student-tab');
+      if (tabName) {
+        switchStudentSubtab(tabName);
+        // Also close dropdown if opened
+        const drop = document.getElementById('studentUserDropdown');
+        if (drop) drop.classList.remove('show');
+      }
+    }
+  });
+
+  // 2. Topbar Dropdown Toggle
+  const userChip = document.getElementById('topbarUserChip');
+  const userDropdown = document.getElementById('studentUserDropdown');
+  if (userChip && userDropdown) {
+    userChip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!userChip.contains(e.target) && !userDropdown.contains(e.target)) {
+        userDropdown.classList.remove('show');
+      }
+    });
+  }
+
+  // Topbar Dropdown Logout
+  document.getElementById('dropdownBtnLogout')?.addEventListener('click', () => {
+    handleLogout();
+  });
+
+  // 3. Document Types "Request ->" buttons
+  document.querySelectorAll('.btn-doc-request').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const targetDoc = btn.getAttribute('data-target-doc');
+      const select = document.getElementById('studentDocTypeSelect');
+      if (select && targetDoc) {
+        select.value = targetDoc;
+      }
+      const section = document.getElementById('requestFormCardSection');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+      document.getElementById('studentDocPurposeSelect')?.focus();
+    });
+  });
+
+  // Document Type Box Click
+  document.querySelectorAll('.doc-type-box').forEach(box => {
+    box.addEventListener('click', () => {
+      const targetDoc = box.getAttribute('data-doctype');
+      const select = document.getElementById('studentDocTypeSelect');
+      if (select && targetDoc) {
+        select.value = targetDoc;
+      }
+      const section = document.getElementById('requestFormCardSection');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  });
+
+  // 4. Request Form Submission
+  const docForm = document.getElementById('studentRefDocForm');
+  if (docForm) {
+    docForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const docType = document.getElementById('studentDocTypeSelect')?.value;
+      const purpose = document.getElementById('studentDocPurposeSelect')?.value;
+      const remarks = document.getElementById('studentDocRemarksInput')?.value || '';
+
+      if (!docType) {
+        showToast('Please select a document type.', 'error');
+        return;
+      }
+      if (!purpose) {
+        showToast('Please select a purpose.', 'error');
+        return;
+      }
+
+      const user = state.currentUser || {};
+      const payload = {
+        studentName: user.fullName || 'Juan Dela Cruz',
+        studentId: user.studentId || 'REQ-00234',
+        course: user.course || 'BSIT',
+        documentType: docType,
+        purpose: purpose,
+        dateSubmitted: new Date().toISOString().split('T')[0],
+        remarks: remarks,
+        email: user.email || 'juan.delacruz@cca.edu.ph'
+      };
+
+      try {
+        const res = await fetch('/api/requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to submit request.');
+        }
+
+        showToast('Document request submitted successfully!', 'success');
+        docForm.reset();
+        await fetchAllRequests();
+        initStudentRefPortal();
+
+        setTimeout(() => {
+          switchStudentSubtab('tracking');
+        }, 1000);
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnStudentFormCancel')?.addEventListener('click', () => {
+      docForm.reset();
+    });
+  }
+
+  // 5. Track Filter & Search
+  const trackSearch = document.getElementById('trackSearchInput');
+  const trackStatus = document.getElementById('trackStatusSelect');
+
+  function filterTrackingCards() {
+    const query = (trackSearch?.value || '').toLowerCase().trim();
+    const statusVal = trackStatus?.value || 'ALL';
+
+    document.querySelectorAll('.ref-track-card').forEach(card => {
+      const cardStatus = card.getAttribute('data-status') || '';
+      const text = card.textContent.toLowerCase();
+
+      const matchesStatus = (statusVal === 'ALL' || cardStatus === statusVal);
+      const matchesQuery = (!query || text.includes(query));
+
+      card.style.display = (matchesStatus && matchesQuery) ? 'flex' : 'none';
+    });
+  }
+
+  trackSearch?.addEventListener('input', filterTrackingCards);
+  trackStatus?.addEventListener('change', filterTrackingCards);
+
+  // History table filter
+  document.getElementById('historyTableFilter')?.addEventListener('change', (e) => {
+    const val = e.target.value;
+    document.querySelectorAll('#studentHistoryTableBody tr').forEach(row => {
+      const rowStatus = row.getAttribute('data-history-status');
+      if (val === 'ALL' || rowStatus === val) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+
+  // 6. Photo upload and preview
+  function handlePhotoUpload(fileInput) {
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const dataUrl = evt.target.result;
+      const user = state.currentUser || {};
+      const id = user.studentId || 'REQ-00234';
+      localStorage.setItem('cca_student_avatar_' + id, dataUrl);
+      localStorage.setItem('cca_student_avatar', dataUrl);
+      applyAvatarToElements(dataUrl);
+      showToast('Profile photo updated successfully!', 'success');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  const fileInputProf = document.getElementById('profilePhotoFileInput');
+  document.getElementById('btnChangeProfilePhoto')?.addEventListener('click', () => {
+    fileInputProf?.click();
+  });
+  fileInputProf?.addEventListener('change', () => handlePhotoUpload(fileInputProf));
+
+  const fileInputSet = document.getElementById('settingsPhotoFileInput');
+  document.getElementById('btnSettingsChangePhoto')?.addEventListener('click', () => {
+    fileInputSet?.click();
+  });
+  fileInputSet?.addEventListener('change', () => handlePhotoUpload(fileInputSet));
+
+  // 7. Modals: Details Modal Close
+  const detailsModal = document.getElementById('modalRequestDetails');
+  document.getElementById('btnCloseRequestDetails')?.addEventListener('click', () => {
+    if (detailsModal) detailsModal.style.display = 'none';
+  });
+  document.getElementById('btnCloseDetailsModalBtn')?.addEventListener('click', () => {
+    if (detailsModal) detailsModal.style.display = 'none';
+  });
+  document.getElementById('backdropRequestDetails')?.addEventListener('click', () => {
+    if (detailsModal) detailsModal.style.display = 'none';
+  });
+
+  // Support Modal
+  const supportModal = document.getElementById('modalSupportTeam');
+  function openSupportModal() {
+    if (supportModal) supportModal.style.display = 'flex';
+  }
+  document.getElementById('btnSidebarHelp')?.addEventListener('click', openSupportModal);
+  document.getElementById('btnDashHelpSupport')?.addEventListener('click', openSupportModal);
+  document.getElementById('btnCloseSupportTeam')?.addEventListener('click', () => {
+    if (supportModal) supportModal.style.display = 'none';
+  });
+  document.getElementById('btnCloseSupportBtn')?.addEventListener('click', () => {
+    if (supportModal) supportModal.style.display = 'none';
+  });
+  document.getElementById('backdropSupportTeam')?.addEventListener('click', () => {
+    if (supportModal) supportModal.style.display = 'none';
+  });
+  document.getElementById('btnSendSupportMessage')?.addEventListener('click', () => {
+    const sub = document.getElementById('supportSubjectInput')?.value.trim();
+    const msg = document.getElementById('supportMessageInput')?.value.trim();
+    if (!sub || !msg) {
+      showToast('Please enter both subject and message.', 'error');
+      return;
+    }
+    showToast('Your message has been sent to the Registrar Support Team.', 'success');
+    if (supportModal) supportModal.style.display = 'none';
+    const sIn = document.getElementById('supportSubjectInput'); if (sIn) sIn.value = '';
+    const mIn = document.getElementById('supportMessageInput'); if (mIn) mIn.value = '';
+  });
+
+  // Edit Personal Information Modal
+  const editModal = document.getElementById('modalEditPersonalInfo');
+  document.getElementById('btnEditPersonalInfo')?.addEventListener('click', () => {
+    if (!editModal) return;
+    const curAddr = document.getElementById('personalAddress')?.textContent || '123 Mabini St., San Jose, Bulacan';
+    const curEmer = document.getElementById('personalEmergency')?.textContent.replace(/\n/g, ' ') || 'Maria Dela Cruz (0917 987 6543)';
+    const curRel = document.getElementById('personalRelationship')?.textContent || 'Mother';
+
+    const inAddr = document.getElementById('modalInputAddress'); if (inAddr) inAddr.value = curAddr;
+    const inEmer = document.getElementById('modalInputEmergency'); if (inEmer) inEmer.value = curEmer;
+    const inRel = document.getElementById('modalInputRelationship'); if (inRel) inRel.value = curRel;
+
+    editModal.style.display = 'flex';
+  });
+
+  document.getElementById('btnCloseEditPersonalInfo')?.addEventListener('click', () => {
+    if (editModal) editModal.style.display = 'none';
+  });
+  document.getElementById('btnCancelEditPersonal')?.addEventListener('click', () => {
+    if (editModal) editModal.style.display = 'none';
+  });
+  document.getElementById('backdropEditPersonalInfo')?.addEventListener('click', () => {
+    if (editModal) editModal.style.display = 'none';
+  });
+
+  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', () => {
+    const addr = document.getElementById('modalInputAddress')?.value.trim();
+    const emer = document.getElementById('modalInputEmergency')?.value.trim();
+    const rel = document.getElementById('modalInputRelationship')?.value.trim();
+
+    if (!addr || !emer || !rel) {
+      showToast('Please fill out all personal info fields.', 'error');
+      return;
+    }
+
+    const user = state.currentUser || {};
+    const key = 'cca_student_profile_' + (user.studentId || 'default');
+    let profile = {};
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) profile = JSON.parse(raw);
+    } catch (e) {}
+
+    profile.address = addr;
+    profile.emergency = emer;
+    profile.relationship = rel;
+    localStorage.setItem(key, JSON.stringify(profile));
+    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+    syncStudentRefProfile();
+    showToast('Personal information updated successfully.', 'success');
+    if (editModal) editModal.style.display = 'none';
+  });
+
+  // 8. Account Settings Save
+  document.getElementById('btnSettingsSave')?.addEventListener('click', () => {
+    const full = document.getElementById('settingsInputFullName')?.value.trim();
+    const email = document.getElementById('settingsInputEmail')?.value.trim();
+    const contact = document.getElementById('settingsInputContact')?.value.trim();
+
+    if (!full || !email) {
+      showToast('Full name and email are required.', 'error');
+      return;
+    }
+
+    if (state.currentUser) {
+      state.currentUser.fullName = full;
+      state.currentUser.email = email;
+      state.currentUser.phone = contact;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+    }
+
+    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
+    let profile = {};
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) profile = JSON.parse(raw);
+    } catch (e) {}
+
+    profile.fullName = full;
+    profile.email = email;
+    profile.phone = contact;
+    localStorage.setItem(key, JSON.stringify(profile));
+    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+    syncStudentRefProfile();
+    showToast('Account settings saved successfully.', 'success');
+  });
+
+  document.getElementById('btnSettingsCancel')?.addEventListener('click', () => {
+    syncStudentRefProfile();
+    showToast('Settings changes reset.', 'info');
+  });
+
+  document.getElementById('btnSettingsToChangePw')?.addEventListener('click', () => {
+    switchStudentSubtab('change-password');
+  });
+
+  // 9. Change Password Form & Live Strength Meter
+  const newPwInput = document.getElementById('inputNewPassword');
+  const curPwInput = document.getElementById('inputCurrentPassword');
+  const confPwInput = document.getElementById('inputConfirmNewPassword');
+
+  function evalPwStrength(pw) {
+    const isLen = pw.length >= 8 && pw.length <= 12;
+    const isUp = /[A-Z]/.test(pw);
+    const isLow = /[a-z]/.test(pw);
+    const isNumSpec = /[0-9]|[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+
+    document.getElementById('reqLen')?.classList.toggle('valid', isLen);
+    document.getElementById('reqUpper')?.classList.toggle('valid', isUp);
+    document.getElementById('reqLower')?.classList.toggle('valid', isLow);
+    document.getElementById('reqNum')?.classList.toggle('valid', isNumSpec);
+
+    const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
+
+    const b1 = document.getElementById('strBar1');
+    const b2 = document.getElementById('strBar2');
+    const b3 = document.getElementById('strBar3');
+    const b4 = document.getElementById('strBar4');
+    const txt = document.getElementById('pwStrengthText');
+
+    [b1, b2, b3, b4].forEach(b => {
+      if (b) b.className = 'str-bar';
+    });
+
+    if (!pw) {
+      if (txt) { txt.textContent = ''; txt.style.color = '#64748B'; }
+      return;
+    }
+
+    if (score <= 1) {
+      if (b1) b1.classList.add('active-red');
+      if (txt) { txt.textContent = 'Weak'; txt.style.color = '#DC2626'; }
+    } else if (score === 2) {
+      if (b1) b1.classList.add('active-yellow');
+      if (b2) b2.classList.add('active-yellow');
+      if (txt) { txt.textContent = 'Fair'; txt.style.color = '#EAB308'; }
+    } else if (score === 3) {
+      if (b1) b1.classList.add('active-green');
+      if (b2) b2.classList.add('active-green');
+      if (b3) b3.classList.add('active-green');
+      if (txt) { txt.textContent = 'Good'; txt.style.color = '#16A34A'; }
+    } else {
+      [b1, b2, b3, b4].forEach(b => b && b.classList.add('active-green'));
+      if (txt) { txt.textContent = 'Strong'; txt.style.color = '#16A34A'; }
+    }
+  }
+
+  newPwInput?.addEventListener('input', () => {
+    evalPwStrength(newPwInput.value);
+  });
+
+  // Eye toggle buttons
+  document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-target');
+      const input = document.getElementById(targetId);
+      if (input) {
+        if (input.type === 'password') {
+          input.type = 'text';
+          btn.style.color = '#2563EB';
+        } else {
+          input.type = 'password';
+          btn.style.color = '#94A3B8';
+        }
+      }
+    });
+  });
+
+  // Change Password Form submit
+  const changePwForm = document.getElementById('refChangePasswordForm');
+  if (changePwForm) {
+    changePwForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const currentPassword = curPwInput?.value.trim();
+      const newPassword = newPwInput?.value.trim();
+      const confirmPassword = confPwInput?.value.trim();
+
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        showToast('Please fill out all password fields.', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showToast('New passwords do not match.', 'error');
+        return;
+      }
+
+      if (newPassword.length < 8 || newPassword.length > 12) {
+        showToast('Password must be between 8 and 12 characters.', 'error');
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]|[!@#$%^&*]/.test(newPassword)) {
+        showToast('Password must contain upper, lower, and number/special char.', 'error');
+        return;
+      }
+
+      const user = state.currentUser || {};
+      const payload = {
+        email: user.email,
+        studentId: user.studentId,
+        currentPassword,
+        newPassword
+      };
+
+      try {
+        const res = await fetch('/api/auth/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+        if (!res.ok) {
+          throw new Error(result.message || 'Failed to update password.');
+        }
+
+        showToast('Password updated successfully!', 'success');
+        changePwForm.reset();
+        evalPwStrength('');
+
+        setTimeout(() => {
+          switchStudentSubtab('settings');
+        }, 1500);
+
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    document.getElementById('btnCancelChangePw')?.addEventListener('click', () => {
+      switchStudentSubtab('settings');
+    });
+  }
+}
+
