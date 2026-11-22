@@ -230,13 +230,8 @@ function updateLandingAuthUI() {
     document.getElementById('btnLandingSignOut')?.addEventListener('click', handleLogout);
   } else {
     elements.landingAuthActions.innerHTML = `
-      <button class="btn btn-outline-navy btn-sm" id="btnLandingSignIn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-        <span>Sign In</span>
-      </button>
-      <button class="btn btn-navy btn-sm" id="btnLandingRegister">
-        <span>Register</span>
-      </button>
+      <button class="flowize-btn-login" id="btnLandingSignIn">Log in</button>
+      <button class="btn btn-flowize-primary" id="btnLandingRegister">Get Started</button>
     `;
 
     document.getElementById('btnLandingSignIn')?.addEventListener('click', () => openAuthModal('signin', 'student'));
@@ -527,6 +522,23 @@ function setupNavigationHandlers() {
   });
 
   document.getElementById('btnHeroGetStarted')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  document.getElementById('btnHeroDemo')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+      switchStudentSubtab('history');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  document.getElementById('heroTabletMockup')?.addEventListener('click', () => {
     if (state.currentUser && state.currentUser.role === 'student') {
       switchView('student');
     } else {
@@ -848,6 +860,8 @@ function syncStudentProfileFromAuth() {
   };
 
   if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = user.fullName;
+  const greetingEl = document.getElementById('studentGreetingName');
+  if (greetingEl) greetingEl.textContent = user.fullName ? user.fullName.split(' ')[0] : 'Student';
   if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${user.studentId}`;
   if (elements.sidebarStudentAvatar) {
     const initials = user.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
