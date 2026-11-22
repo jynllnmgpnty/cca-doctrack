@@ -334,23 +334,6 @@ function setupAuthHandlers() {
     elements.btnToggleLoginPw.textContent = isPw ? '🔒' : '👁';
   });
 
-  // Demo Login Buttons
-  elements.btnDemoLoginStudent?.addEventListener('click', () => {
-    elements.loginEmail.value = 'jaynellan@cca.edu.ph';
-    elements.loginPassword.value = 'student123';
-    state.authTargetPortal = 'student';
-    updatePortalTargetBanner();
-    showAuthAlert('Pre-filled: Jaynellan Almary Magpantay (Student). Click "Sign In"!', 'success');
-  });
-
-  elements.btnDemoLoginAdmin?.addEventListener('click', () => {
-    elements.loginEmail.value = 'admin@cca.edu.ph';
-    elements.loginPassword.value = 'admin123';
-    state.authTargetPortal = 'admin';
-    updatePortalTargetBanner();
-    showAuthAlert('Pre-filled: Registrar Administrator. Click "Sign In"!', 'success');
-  });
-
   // Login Form Submission
   elements.formSignIn?.addEventListener('submit', handleLoginSubmit);
 
