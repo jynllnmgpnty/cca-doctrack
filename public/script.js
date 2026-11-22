@@ -10,10 +10,10 @@ const state = {
   studentActiveTab: 'submit', // 'submit' | 'history' | 'profile'
   adminActiveTab: 'dashboard', // 'dashboard' | 'manage' | 'system'
 
-  // Active Student Profile (Can be configured in Student Portal > Profile)
+  // Active Student Profile (Pre-configured to match student records in Atlas)
   activeStudent: {
-    name: 'Juan Dela Cruz',
-    id: '2023-00123',
+    name: 'Jaynellan Almary O. Magpantay',
+    id: '23-67894',
     course: 'BS Information Technology'
   },
 
