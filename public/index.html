@@ -685,7 +685,11 @@
         </div>
 
         <nav class="sidebar-nav">
-          <button class="nav-item active" data-student-tab="submit">
+          <button class="nav-item active" data-student-tab="profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>My Profile &amp; ID</span>
+          </button>
+          <button class="nav-item" data-student-tab="submit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
             <span>Submit Request</span>
           </button>
@@ -693,10 +697,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             <span>My Requests &amp; Tracking</span>
             <span class="nav-badge gold-badge-num" id="studentMyRequestsBadge">0</span>
-          </button>
-          <button class="nav-item" data-student-tab="profile">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>My Profile</span>
           </button>
         </nav>
 
@@ -720,23 +720,268 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <div>
-              <h2 class="portal-page-title" id="studentPageTitle">Submit Document Request</h2>
-              <span class="portal-page-desc" id="studentPageSubtitle">Request official school certificates and credentials online</span>
+              <h2 class="portal-page-title" id="studentPageTitle">Student Profile &amp; ID</h2>
+              <span class="portal-page-desc" id="studentPageSubtitle">Manage your active student credentials, profile photo, and guardian records</span>
             </div>
           </div>
           <div class="topbar-right">
-            <div class="portal-badge student-badge">Student Mode</div>
-            <button class="btn btn-sm btn-outline-navy" id="btnStudentSwitchAdmin">Switch to Admin</button>
+            <button type="button" class="topbar-profile-chip" id="btnTopbarProfileShortcut" title="View Profile &amp; ID">
+              <div class="topbar-profile-avatar" id="topbarStudentAvatar">U</div>
+              <div class="topbar-profile-info">
+                <span class="topbar-profile-name" id="topbarStudentName">User</span>
+                <span class="topbar-profile-role">Student</span>
+              </div>
+            </button>
           </div>
         </header>
 
         <div class="portal-content">
           <div class="flowize-portal-greeting">
-            <h2 class="portal-greeting-title">Hello, <span id="studentGreetingName">User</span></h2>
-            <p class="portal-greeting-sub">Here's what's happening with your document requests today.</p>
+            <h2 class="portal-greeting-title">Hello, <span id="studentGreetingName">User</span> 👋</h2>
+            <p class="portal-greeting-sub">Welcome to your student credential portal. Manage your profile, requests, and verification.</p>
           </div>
-          <!-- SUB-TAB 1: SUBMIT DOCUMENT REQUEST -->
-          <div class="student-subtab active" id="studentSubtab-submit">
+
+          <!-- SUB-TAB 1: MY PROFILE & CREDENTIAL ID (DEFAULT FRONT PAGE) -->
+          <div class="student-subtab active" id="studentSubtab-profile">
+            <div class="profile-layout">
+              <!-- Column 1: Interactive Digital Student ID Card & Shortcuts -->
+              <div class="profile-left-col">
+                <div class="card student-id-card-visual" id="studentIdCardVisual">
+                  <!-- ID Card Top Banner -->
+                  <div class="id-card-banner">
+                    <div class="id-card-brand">
+                      <div class="flowize-brand-icon">
+                        <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+                          <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                          <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                          <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                          <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                        </svg>
+                      </div>
+                      <div class="id-card-brand-text">
+                        <h4>CCA DocTrack</h4>
+                        <span>OFFICIAL STUDENT IDENTIFICATION</span>
+                      </div>
+                    </div>
+                    <div class="id-chip-tag">
+                      <span class="pulse-dot"></span>
+                      <span>Verified</span>
+                    </div>
+                  </div>
+
+                  <!-- ID Card Body -->
+                  <div class="id-card-content">
+                    <div class="id-photo-container">
+                      <div class="id-photo-box" id="idPhotoBox">
+                        <img id="idCardPhotoImg" class="id-card-photo-img hidden" alt="Student Profile Picture">
+                        <div id="idPhotoPlaceholder" class="id-photo-placeholder">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div class="id-photo-overlay" id="idPhotoOverlay">
+                          <button type="button" class="btn-avatar-action" id="btnUploadPhoto" title="Upload new photo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                          </button>
+                          <button type="button" class="btn-avatar-remove hidden" id="btnRemovePhoto" title="Remove photo">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          </button>
+                        </div>
+                      </div>
+                      <input type="file" id="inputStudentAvatar" accept="image/*" class="hidden">
+                      <button type="button" class="btn-change-photo-link" id="btnChangePhotoTrigger">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        <span>Change Photo</span>
+                      </button>
+                    </div>
+
+                    <div class="id-details">
+                      <h3 id="cardProfileName">User</h3>
+                      <div class="id-number" id="cardProfileId">STUDENT ID: 23-0000</div>
+                      <div class="id-program" id="cardProfileCourse">BS Information Technology</div>
+                      <div class="id-meta-grid">
+                        <div class="id-meta-item">
+                          <span class="meta-title">Year Level:</span>
+                          <span class="meta-data" id="cardProfileYear">4th Year</span>
+                        </div>
+                        <div class="id-meta-item">
+                          <span class="meta-title">Status:</span>
+                          <span class="meta-data tag-enrolled" id="cardProfileStatus">Enrolled</span>
+                        </div>
+                      </div>
+
+                      <!-- Parent / Guardian Emergency Contact Block on Card -->
+                      <div class="id-parent-emergency">
+                        <div class="emergency-badge-label">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                          <span>Guardian &amp; Emergency Contact</span>
+                        </div>
+                        <div class="emergency-name" id="cardParentDetails">Parent / Guardian: Not Specified</div>
+                        <div class="emergency-phone" id="cardParentPhone">Contact: Not Provided</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Digital Barcode Stripe -->
+                  <div class="id-barcode-container">
+                    <div class="id-barcode-lines"></div>
+                    <span class="id-barcode-num" id="cardBarcodeNum">23-0000-CCA-2026</span>
+                  </div>
+
+                  <div class="id-card-footer">
+                    <span>ACADEMIC YEAR 2026–2027 • OFFICIAL REGISTRAR ISSUED</span>
+                  </div>
+                </div>
+
+                <!-- Fast Shortcuts Under ID Card -->
+                <div class="card id-quick-actions-card">
+                  <div class="quick-actions-header">
+                    <h4>Quick Portal Actions</h4>
+                  </div>
+                  <div class="quick-actions-buttons">
+                    <button type="button" class="btn btn-outline-navy btn-sm btn-block" id="btnProfileQuickSubmit">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                      <span>Submit Document Request</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-navy btn-sm btn-block" id="btnProfileQuickTracking">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                      <span>Track My Requests</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Column 2: Profile Settings & Dedicated Parent / Guardian UI Form -->
+              <div class="profile-right-col">
+                <div class="card profile-settings-card">
+                  <div class="card-header border-navy">
+                    <div>
+                      <h3 class="card-title">Student Profile &amp; Guardian Records</h3>
+                      <p class="card-subtitle">Keep your official student information and emergency contact updated in real-time.</p>
+                    </div>
+                  </div>
+
+                  <form id="formStudentProfile" class="profile-form-container" novalidate>
+                    <!-- SECTION 1: Student Academic Information -->
+                    <div class="profile-section-block">
+                      <div class="profile-section-heading">
+                        <div class="section-icon-badge">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>
+                        <div>
+                          <h4>Student Academic Details</h4>
+                          <p>Your official enrolled credentials recognized by the registrar.</p>
+                        </div>
+                      </div>
+
+                      <div class="profile-grid">
+                        <div class="form-group">
+                          <label for="profileInputName">Student Full Name <span class="required">*</span></label>
+                          <input type="text" id="profileInputName" value="User" placeholder="e.g., User" required>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputId">Student ID Number <span class="required">*</span></label>
+                          <input type="text" id="profileInputId" value="23-0000" placeholder="e.g., 23-0000" required>
+                          <small class="helper-text">Updates live request tracking for your ID.</small>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputCourse">Academic Program / Course</label>
+                          <select id="profileInputCourse">
+                            <option value="BS Information Technology">BS Information Technology (BSIT)</option>
+                            <option value="BS Computer Science">BS Computer Science (BSCS)</option>
+                            <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
+                            <option value="BS Business Administration">BS Business Administration (BSBA)</option>
+                            <option value="Bachelor of Elementary Education">Bachelor of Elementary Education (BEEd)</option>
+                            <option value="Bachelor of Secondary Education">Bachelor of Secondary Education (BSEd)</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputYear">Year Level</label>
+                          <select id="profileInputYear">
+                            <option value="1st Year">1st Year</option>
+                            <option value="2nd Year">2nd Year</option>
+                            <option value="3rd Year">3rd Year</option>
+                            <option value="4th Year" selected>4th Year</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputEmail">Institutional Email</label>
+                          <input type="email" id="profileInputEmail" value="user@cca.edu.ph" placeholder="e.g., student@cca.edu.ph">
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputPhone">Student Mobile Number</label>
+                          <input type="tel" id="profileInputPhone" placeholder="e.g., 0917-123-4567">
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- SECTION 2: Dedicated Parent / Guardian Information UI -->
+                    <div class="profile-section-block">
+                      <div class="profile-section-heading">
+                        <div class="section-icon-badge family-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <div>
+                          <h4>Parent / Guardian &amp; Emergency Contact Details</h4>
+                          <p>Emergency contact records registered for your student profile.</p>
+                        </div>
+                      </div>
+
+                      <div class="profile-grid">
+                        <div class="form-group">
+                          <label for="profileInputParentName">Parent / Guardian Full Name</label>
+                          <input type="text" id="profileInputParentName" placeholder="e.g., Maria Dela Cruz">
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputParentRelation">Relationship to Student</label>
+                          <select id="profileInputParentRelation">
+                            <option value="Mother">Mother</option>
+                            <option value="Father">Father</option>
+                            <option value="Legal Guardian">Legal Guardian</option>
+                            <option value="Grandparent">Grandparent</option>
+                            <option value="Sibling / Relative">Sibling / Relative</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputParentPhone">Emergency Contact Number</label>
+                          <input type="tel" id="profileInputParentPhone" placeholder="e.g., 0918-987-6543">
+                        </div>
+
+                        <div class="form-group">
+                          <label for="profileInputParentEmail">Parent / Guardian Email</label>
+                          <input type="email" id="profileInputParentEmail" placeholder="e.g., parent@gmail.com">
+                        </div>
+
+                        <div class="form-group full-width">
+                          <label for="profileInputParentAddress">Permanent Residential Address</label>
+                          <input type="text" id="profileInputParentAddress" placeholder="e.g., Barangay San Jose, City / Province">
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div class="profile-actions-bar">
+                      <div class="profile-status-wrap">
+                        <span class="profile-save-status" id="profileSaveStatus"></span>
+                      </div>
+                      <button type="button" class="btn btn-navy" id="btnSaveStudentProfile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        <span>Save Student Profile</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SUB-TAB 2: SUBMIT DOCUMENT REQUEST -->
+          <div class="student-subtab" id="studentSubtab-submit">
             <div class="form-wrapper">
               <div class="card">
                 <div class="card-header border-navy">
@@ -851,83 +1096,6 @@
 
               <div class="student-requests-container" id="studentRequestsContainer">
                 <div class="empty-state-box">Loading your document requests...</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- SUB-TAB 3: MY PROFILE -->
-          <div class="student-subtab" id="studentSubtab-profile">
-            <div class="profile-layout">
-              <!-- Digital Student ID Card Visual -->
-              <div class="card student-id-card-visual">
-                <div class="id-card-banner">
-                  <div class="flowize-brand-icon">
-                    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
-                      <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
-                      <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
-                      <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
-                      <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4>CCA DOCTRACK</h4>
-                    <span>STUDENT CREDENTIAL IDENTIFICATION</span>
-                  </div>
-                </div>
-                <div class="id-card-content">
-                  <div class="id-photo-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
-                  <div class="id-details">
-                    <h3 id="cardProfileName">User</h3>
-                    <div class="id-number" id="cardProfileId">STUDENT ID: 23-0000</div>
-                    <div class="id-program" id="cardProfileCourse">BS Information Technology</div>
-                    <div class="id-meta-grid">
-                      <div>
-                        <span class="meta-title">Year Level:</span>
-                        <span class="meta-data">4th Year</span>
-                      </div>
-                      <div>
-                        <span class="meta-title">Status:</span>
-                        <span class="meta-data tag-enrolled">Enrolled</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="id-card-footer">
-                  <span>VALID FOR ACADEMIC YEAR 2026–2027</span>
-                </div>
-              </div>
-
-              <!-- Profile Management Settings -->
-              <div class="card profile-settings-card">
-                <div class="card-header border-navy">
-                  <h3 class="card-title">Active Student Profile Settings</h3>
-                  <p class="card-subtitle">Set your Student ID to filter and load your specific document requests.</p>
-                </div>
-                <div class="card-body">
-                  <div class="form-group">
-                    <label for="profileInputName">Student Full Name</label>
-                    <input type="text" id="profileInputName" value="User">
-                  </div>
-                  <div class="form-group">
-                    <label for="profileInputId">Student ID Number</label>
-                    <input type="text" id="profileInputId" value="23-0000">
-                    <small class="helper-text">Changing this updates your active tracking view to show requests submitted under this ID.</small>
-                  </div>
-                  <div class="form-group">
-                    <label for="profileInputCourse">Academic Program</label>
-                    <select id="profileInputCourse">
-                      <option value="BS Information Technology">BS Information Technology (BSIT)</option>
-                      <option value="BS Computer Science">BS Computer Science (BSCS)</option>
-                      <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
-                      <option value="BS Business Administration">BS Business Administration (BSBA)</option>
-                    </select>
-                  </div>
-                  <div class="profile-actions">
-                    <button class="btn btn-navy" id="btnSaveStudentProfile">Save Active Profile</button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

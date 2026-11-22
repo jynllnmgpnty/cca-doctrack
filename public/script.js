@@ -7,7 +7,7 @@
 // Global Application State
 const state = {
   currentView: 'landing', // 'landing' | 'student' | 'admin'
-  studentActiveTab: 'submit', // 'submit' | 'history' | 'profile'
+  studentActiveTab: 'profile', // 'profile' | 'submit' | 'history'
   adminActiveTab: 'dashboard', // 'dashboard' | 'manage' | 'system'
 
   // Current authenticated user session (null when not signed in)
@@ -127,14 +127,40 @@ const elements = {
   btnStudentRefreshHistory: document.getElementById('btnStudentRefreshHistory'),
   studentRequestsContainer: document.getElementById('studentRequestsContainer'),
 
-  // Student Profile Elements
+  // Student Profile, Digital ID Card & Guardian Records
   cardProfileName: document.getElementById('cardProfileName'),
   cardProfileId: document.getElementById('cardProfileId'),
   cardProfileCourse: document.getElementById('cardProfileCourse'),
+  cardProfileYear: document.getElementById('cardProfileYear'),
+  cardProfileStatus: document.getElementById('cardProfileStatus'),
+  cardParentDetails: document.getElementById('cardParentDetails'),
+  cardParentPhone: document.getElementById('cardParentPhone'),
+  cardBarcodeNum: document.getElementById('cardBarcodeNum'),
+  idPhotoBox: document.getElementById('idPhotoBox'),
+  idCardPhotoImg: document.getElementById('idCardPhotoImg'),
+  idPhotoPlaceholder: document.getElementById('idPhotoPlaceholder'),
+  inputStudentAvatar: document.getElementById('inputStudentAvatar'),
+  btnUploadPhoto: document.getElementById('btnUploadPhoto'),
+  btnChangePhotoTrigger: document.getElementById('btnChangePhotoTrigger'),
+  btnRemovePhoto: document.getElementById('btnRemovePhoto'),
+  topbarStudentAvatar: document.getElementById('topbarStudentAvatar'),
+  topbarStudentName: document.getElementById('topbarStudentName'),
+  btnTopbarProfileShortcut: document.getElementById('btnTopbarProfileShortcut'),
+  btnProfileQuickSubmit: document.getElementById('btnProfileQuickSubmit'),
+  btnProfileQuickTracking: document.getElementById('btnProfileQuickTracking'),
   profileInputName: document.getElementById('profileInputName'),
   profileInputId: document.getElementById('profileInputId'),
   profileInputCourse: document.getElementById('profileInputCourse'),
+  profileInputYear: document.getElementById('profileInputYear'),
+  profileInputEmail: document.getElementById('profileInputEmail'),
+  profileInputPhone: document.getElementById('profileInputPhone'),
+  profileInputParentName: document.getElementById('profileInputParentName'),
+  profileInputParentRelation: document.getElementById('profileInputParentRelation'),
+  profileInputParentPhone: document.getElementById('profileInputParentPhone'),
+  profileInputParentEmail: document.getElementById('profileInputParentEmail'),
+  profileInputParentAddress: document.getElementById('profileInputParentAddress'),
   btnSaveStudentProfile: document.getElementById('btnSaveStudentProfile'),
+  profileSaveStatus: document.getElementById('profileSaveStatus'),
 
   // Admin Portal Navigation & Dashboard
   adminNavItems: document.querySelectorAll('[data-admin-tab]'),
@@ -425,6 +451,7 @@ async function handleLoginSubmit(e) {
       switchView('admin');
     } else {
       switchView('student');
+      switchStudentSubtab('profile');
     }
 
   } catch (error) {
@@ -586,7 +613,7 @@ function switchView(viewName) {
     elements.viewStudentPortal.classList.add('active');
     syncStudentProfileFromAuth();
     filterStudentRequests();
-    switchStudentSubtab(state.studentActiveTab || 'submit');
+    switchStudentSubtab(state.studentActiveTab || 'profile');
   } else if (viewName === 'admin') {
     elements.viewAdminPortal.classList.add('active');
     updateAdminDashboard();
@@ -691,14 +718,6 @@ function setupNavigationHandlers() {
   elements.btnStudentBackToHome?.addEventListener('click', () => switchView('landing'));
   elements.btnAdminBackToHome?.addEventListener('click', () => switchView('landing'));
 
-  elements.btnStudentSwitchAdmin?.addEventListener('click', () => {
-    if (state.currentUser && state.currentUser.role === 'admin') {
-      switchView('admin');
-    } else {
-      openAuthModal('signin', 'admin');
-    }
-  });
-
   // Student Subtab Switchers
   elements.studentNavItems.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -707,6 +726,9 @@ function setupNavigationHandlers() {
       closeMobileDrawers();
     });
   });
+
+  // Setup Student Profile, Avatar Upload & Live ID Card Handlers
+  setupProfileHandlers();
 
   // Admin Subtab Switchers
   elements.adminNavItems.forEach((btn) => {
@@ -760,8 +782,8 @@ function switchStudentSubtab(tabName) {
       subtitle: `Tracking document requests for Student ID: ${getActiveStudentId()}`
     },
     profile: {
-      title: 'My Student Profile',
-      subtitle: 'Manage your active student credential identification'
+      title: 'Student Profile & ID',
+      subtitle: 'Manage your active student credentials, profile photo, and guardian records'
     }
   };
 
@@ -922,7 +944,7 @@ async function updateRequestStatus(id, newStatus) {
 }
 
 // ==========================================
-// Student Profile & Tracking Helpers
+// Student Profile, Digital ID & Guardian Records
 // ==========================================
 
 function getActiveStudentId() {
@@ -932,35 +954,232 @@ function getActiveStudentId() {
   return elements.profileInputId?.value || '23-0000';
 }
 
+function setupProfileHandlers() {
+  // Avatar upload trigger buttons
+  elements.btnUploadPhoto?.addEventListener('click', () => elements.inputStudentAvatar?.click());
+  elements.btnChangePhotoTrigger?.addEventListener('click', () => elements.inputStudentAvatar?.click());
+  elements.inputStudentAvatar?.addEventListener('change', handleAvatarFileSelected);
+  elements.btnRemovePhoto?.addEventListener('click', handleAvatarRemove);
+
+  // Two-way interactive live typing on ID Card
+  elements.profileInputName?.addEventListener('input', (e) => {
+    const val = e.target.value.trim() || 'User';
+    if (elements.cardProfileName) elements.cardProfileName.textContent = val;
+    if (elements.topbarStudentName) elements.topbarStudentName.textContent = val;
+    if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = val;
+    const greetingEl = document.getElementById('studentGreetingName');
+    if (greetingEl) greetingEl.textContent = val;
+    renderAvatarImage(localStorage.getItem(`cca_student_avatar_${getActiveStudentId()}`) || localStorage.getItem('cca_student_avatar'), val);
+  });
+
+  elements.profileInputId?.addEventListener('input', (e) => {
+    const val = e.target.value.trim() || '23-0000';
+    if (elements.cardProfileId) elements.cardProfileId.textContent = `STUDENT ID: ${val}`;
+    if (elements.cardBarcodeNum) elements.cardBarcodeNum.textContent = `${val}-CCA-2026`;
+    if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${val}`;
+  });
+
+  elements.profileInputCourse?.addEventListener('change', (e) => {
+    if (elements.cardProfileCourse) elements.cardProfileCourse.textContent = e.target.value;
+  });
+
+  elements.profileInputYear?.addEventListener('change', (e) => {
+    if (elements.cardProfileYear) elements.cardProfileYear.textContent = e.target.value;
+  });
+
+  // Dedicated Parent / Guardian UI live reflection on ID Card
+  const updateCardGuardian = () => {
+    const pName = elements.profileInputParentName ? elements.profileInputParentName.value.trim() : '';
+    const pRel = elements.profileInputParentRelation ? elements.profileInputParentRelation.value : 'Guardian';
+    const pPhone = elements.profileInputParentPhone ? elements.profileInputParentPhone.value.trim() : '';
+    if (elements.cardParentDetails) {
+      elements.cardParentDetails.textContent = pName ? `${pRel}: ${pName}` : 'Parent / Guardian: Not Specified';
+    }
+    if (elements.cardParentPhone) {
+      elements.cardParentPhone.textContent = pPhone ? `Contact: ${pPhone}` : 'Contact: Not Provided';
+    }
+  };
+  elements.profileInputParentName?.addEventListener('input', updateCardGuardian);
+  elements.profileInputParentRelation?.addEventListener('change', updateCardGuardian);
+  elements.profileInputParentPhone?.addEventListener('input', updateCardGuardian);
+
+  // Quick Action Navigation Buttons
+  elements.btnProfileQuickSubmit?.addEventListener('click', () => switchStudentSubtab('submit'));
+  elements.btnProfileQuickTracking?.addEventListener('click', () => switchStudentSubtab('history'));
+  elements.btnTopbarProfileShortcut?.addEventListener('click', () => switchStudentSubtab('profile'));
+
+  // Save Active Student Profile
+  elements.btnSaveStudentProfile?.addEventListener('click', handleSaveProfileManual);
+}
+
+function loadStudentAvatar(studentId, fullName) {
+  const avatarKey = `cca_student_avatar_${studentId || getActiveStudentId()}`;
+  const dataUrl = localStorage.getItem(avatarKey) || localStorage.getItem('cca_student_avatar');
+  renderAvatarImage(dataUrl, fullName);
+}
+
+function renderAvatarImage(dataUrl, fullName) {
+  const effectiveName = fullName || elements.profileInputName?.value || (state.currentUser && state.currentUser.fullName) || 'User';
+  const initials = effectiveName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
+
+  if (dataUrl) {
+    if (elements.idCardPhotoImg) {
+      elements.idCardPhotoImg.src = dataUrl;
+      elements.idCardPhotoImg.classList.remove('hidden');
+    }
+    if (elements.idPhotoPlaceholder) {
+      elements.idPhotoPlaceholder.classList.add('hidden');
+    }
+    if (elements.btnRemovePhoto) {
+      elements.btnRemovePhoto.classList.remove('hidden');
+    }
+    if (elements.sidebarStudentAvatar) {
+      elements.sidebarStudentAvatar.style.backgroundImage = `url("${dataUrl}")`;
+      elements.sidebarStudentAvatar.textContent = '';
+    }
+    if (elements.topbarStudentAvatar) {
+      elements.topbarStudentAvatar.style.backgroundImage = `url("${dataUrl}")`;
+      elements.topbarStudentAvatar.textContent = '';
+    }
+  } else {
+    if (elements.idCardPhotoImg) {
+      elements.idCardPhotoImg.src = '';
+      elements.idCardPhotoImg.classList.add('hidden');
+    }
+    if (elements.idPhotoPlaceholder) {
+      elements.idPhotoPlaceholder.classList.remove('hidden');
+    }
+    if (elements.btnRemovePhoto) {
+      elements.btnRemovePhoto.classList.add('hidden');
+    }
+    if (elements.sidebarStudentAvatar) {
+      elements.sidebarStudentAvatar.style.backgroundImage = 'none';
+      elements.sidebarStudentAvatar.textContent = initials;
+    }
+    if (elements.topbarStudentAvatar) {
+      elements.topbarStudentAvatar.style.backgroundImage = 'none';
+      elements.topbarStudentAvatar.textContent = initials;
+    }
+  }
+}
+
+function handleAvatarFileSelected(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    showToast('Please select a valid image file (PNG, JPG, WEBP).', 'error');
+    return;
+  }
+
+  if (file.size > 3 * 1024 * 1024) {
+    showToast('Image size exceeds 3MB. Please choose a smaller picture.', 'error');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const dataUrl = evt.target.result;
+    const studentId = getActiveStudentId();
+    try {
+      localStorage.setItem(`cca_student_avatar_${studentId}`, dataUrl);
+      localStorage.setItem('cca_student_avatar', dataUrl);
+    } catch (err) {
+      console.warn('Could not persist avatar to localStorage:', err);
+    }
+    renderAvatarImage(dataUrl);
+    showToast('Profile photo updated successfully!', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAvatarRemove() {
+  const studentId = getActiveStudentId();
+  localStorage.removeItem(`cca_student_avatar_${studentId}`);
+  localStorage.removeItem('cca_student_avatar');
+  if (elements.inputStudentAvatar) elements.inputStudentAvatar.value = '';
+  renderAvatarImage(null);
+  showToast('Profile photo removed.', 'info');
+}
+
 function syncStudentProfileFromAuth() {
   const user = state.currentUser || {
     fullName: 'User',
     studentId: '23-0000',
-    course: 'BS Information Technology'
+    course: 'BS Information Technology',
+    email: 'user@cca.edu.ph'
   };
 
-  if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = user.fullName;
-  const greetingEl = document.getElementById('studentGreetingName');
-  if (greetingEl) greetingEl.textContent = user.fullName || 'User';
-  if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${user.studentId}`;
-  if (elements.sidebarStudentAvatar) {
-    const initials = user.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
-    elements.sidebarStudentAvatar.textContent = initials || 'U';
+  const storedProfileKey = `cca_student_profile_${user.studentId || 'default'}`;
+  let storedProfile = {};
+  try {
+    const raw = localStorage.getItem(storedProfileKey) || localStorage.getItem('cca_student_profile');
+    if (raw) storedProfile = JSON.parse(raw);
+  } catch (e) {
+    console.warn('Could not read stored profile:', e);
   }
 
-  if (elements.cardProfileName) elements.cardProfileName.textContent = user.fullName;
-  if (elements.cardProfileId) elements.cardProfileId.textContent = `STUDENT ID: ${user.studentId}`;
-  if (elements.cardProfileCourse) elements.cardProfileCourse.textContent = user.course || 'BS Information Technology';
+  const effectiveProfile = {
+    fullName: storedProfile.fullName || user.fullName || 'User',
+    studentId: storedProfile.studentId || user.studentId || '23-0000',
+    course: storedProfile.course || user.course || 'BS Information Technology',
+    yearLevel: storedProfile.yearLevel || '4th Year',
+    email: storedProfile.email || user.email || 'user@cca.edu.ph',
+    phone: storedProfile.phone || '',
+    parentName: storedProfile.parentName || '',
+    parentRelation: storedProfile.parentRelation || 'Mother',
+    parentPhone: storedProfile.parentPhone || '',
+    parentEmail: storedProfile.parentEmail || '',
+    parentAddress: storedProfile.parentAddress || ''
+  };
 
-  if (elements.profileInputName) elements.profileInputName.value = user.fullName;
-  if (elements.profileInputId) elements.profileInputId.value = user.studentId;
-  if (elements.profileInputCourse && user.course) elements.profileInputCourse.value = user.course;
+  // Topbar and sidebar updates
+  if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = effectiveProfile.fullName;
+  if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${effectiveProfile.studentId}`;
+  if (elements.topbarStudentName) elements.topbarStudentName.textContent = effectiveProfile.fullName;
+  const greetingEl = document.getElementById('studentGreetingName');
+  if (greetingEl) greetingEl.textContent = effectiveProfile.fullName;
 
-  populateFormWithProfile();
+  // Digital ID Card live updates
+  if (elements.cardProfileName) elements.cardProfileName.textContent = effectiveProfile.fullName;
+  if (elements.cardProfileId) elements.cardProfileId.textContent = `STUDENT ID: ${effectiveProfile.studentId}`;
+  if (elements.cardProfileCourse) elements.cardProfileCourse.textContent = effectiveProfile.course;
+  if (elements.cardProfileYear) elements.cardProfileYear.textContent = effectiveProfile.yearLevel;
+  if (elements.cardBarcodeNum) elements.cardBarcodeNum.textContent = `${effectiveProfile.studentId}-CCA-2026`;
+
+  // Guardian Emergency Contact on Card
+  if (elements.cardParentDetails) {
+    elements.cardParentDetails.textContent = effectiveProfile.parentName
+      ? `${effectiveProfile.parentRelation}: ${effectiveProfile.parentName}`
+      : 'Parent / Guardian: Not Specified';
+  }
+  if (elements.cardParentPhone) {
+    elements.cardParentPhone.textContent = effectiveProfile.parentPhone
+      ? `Contact: ${effectiveProfile.parentPhone}`
+      : 'Contact: Not Provided';
+  }
+
+  // Form input field values
+  if (elements.profileInputName) elements.profileInputName.value = effectiveProfile.fullName;
+  if (elements.profileInputId) elements.profileInputId.value = effectiveProfile.studentId;
+  if (elements.profileInputCourse) elements.profileInputCourse.value = effectiveProfile.course;
+  if (elements.profileInputYear) elements.profileInputYear.value = effectiveProfile.yearLevel;
+  if (elements.profileInputEmail) elements.profileInputEmail.value = effectiveProfile.email;
+  if (elements.profileInputPhone) elements.profileInputPhone.value = effectiveProfile.phone;
+  if (elements.profileInputParentName) elements.profileInputParentName.value = effectiveProfile.parentName;
+  if (elements.profileInputParentRelation) elements.profileInputParentRelation.value = effectiveProfile.parentRelation;
+  if (elements.profileInputParentPhone) elements.profileInputParentPhone.value = effectiveProfile.parentPhone;
+  if (elements.profileInputParentEmail) elements.profileInputParentEmail.value = effectiveProfile.parentEmail;
+  if (elements.profileInputParentAddress) elements.profileInputParentAddress.value = effectiveProfile.parentAddress;
+
+  // Load avatar photo
+  loadStudentAvatar(effectiveProfile.studentId, effectiveProfile.fullName);
+
+  populateFormWithProfile(effectiveProfile);
 }
 
-function populateFormWithProfile() {
-  const user = state.currentUser || {
+function populateFormWithProfile(profile) {
+  const user = profile || state.currentUser || {
     fullName: elements.profileInputName?.value || 'User',
     studentId: elements.profileInputId?.value || '23-0000',
     course: elements.profileInputCourse?.value || 'BS Information Technology',
@@ -982,25 +1201,64 @@ function populateFormWithProfile() {
 }
 
 function handleSaveProfileManual() {
-  const name = elements.profileInputName.value.trim();
-  const id = elements.profileInputId.value.trim();
-  const course = elements.profileInputCourse.value;
+  const name = elements.profileInputName ? elements.profileInputName.value.trim() : 'User';
+  const id = elements.profileInputId ? elements.profileInputId.value.trim() : '23-0000';
+  const course = elements.profileInputCourse ? elements.profileInputCourse.value : 'BS Information Technology';
+  const yearLevel = elements.profileInputYear ? elements.profileInputYear.value : '4th Year';
+  const email = elements.profileInputEmail ? elements.profileInputEmail.value.trim() : '';
+  const phone = elements.profileInputPhone ? elements.profileInputPhone.value.trim() : '';
+  const parentName = elements.profileInputParentName ? elements.profileInputParentName.value.trim() : '';
+  const parentRelation = elements.profileInputParentRelation ? elements.profileInputParentRelation.value : 'Mother';
+  const parentPhone = elements.profileInputParentPhone ? elements.profileInputParentPhone.value.trim() : '';
+  const parentEmail = elements.profileInputParentEmail ? elements.profileInputParentEmail.value.trim() : '';
+  const parentAddress = elements.profileInputParentAddress ? elements.profileInputParentAddress.value.trim() : '';
 
   if (!name || !id) {
     showToast('Name and Student ID are required.', 'error');
+    if (elements.profileSaveStatus) {
+      elements.profileSaveStatus.textContent = '⚠ Name and Student ID are required.';
+      elements.profileSaveStatus.classList.add('error');
+    }
     return;
   }
+
+  const profileData = {
+    fullName: name,
+    studentId: id,
+    course,
+    yearLevel,
+    email,
+    phone,
+    parentName,
+    parentRelation,
+    parentPhone,
+    parentEmail,
+    parentAddress
+  };
 
   if (state.currentUser) {
     state.currentUser.fullName = name;
     state.currentUser.studentId = id;
     state.currentUser.course = course;
+    if (email) state.currentUser.email = email;
     localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
   }
 
+  localStorage.setItem(`cca_student_profile_${id}`, JSON.stringify(profileData));
+  localStorage.setItem('cca_student_profile', JSON.stringify(profileData));
+
   syncStudentProfileFromAuth();
   filterStudentRequests();
-  showToast('Student credentials updated in active session!', 'success');
+
+  if (elements.profileSaveStatus) {
+    elements.profileSaveStatus.classList.remove('error');
+    elements.profileSaveStatus.textContent = '✓ Profile & Guardian records saved!';
+    setTimeout(() => {
+      if (elements.profileSaveStatus) elements.profileSaveStatus.textContent = '';
+    }, 4000);
+  }
+
+  showToast('Student credentials and guardian records updated!', 'success');
 }
 
 function filterStudentRequests() {
