@@ -655,6 +655,9 @@
 
   <!-- VIEW 2: STUDENT PORTAL -->
   <div class="app-view" id="viewStudentPortal">
+    <!-- Student Topbar Loading Transition Bar -->
+    <div class="student-view-loader" id="studentViewLoader"></div>
+
     <!-- Student Topbar -->
     <header class="student-ref-topbar">
       <div class="topbar-brand">
@@ -670,14 +673,68 @@
       </div>
 
       <div class="topbar-actions">
-        <button class="topbar-bell-btn" id="btnStudentTopbarBell" title="Notifications" data-student-tab="dashboard">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-          </svg>
-          <span class="topbar-bell-badge">2</span>
-        </button>
+        <!-- Notification Bell with Dropdown & disappearing count badge -->
+        <div class="topbar-bell-wrapper">
+          <button class="topbar-bell-btn" id="btnStudentTopbarBell" title="Notifications" aria-label="View notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="topbar-bell-badge" id="topbarBellBadge">2</span>
+          </button>
 
+          <!-- Notification Dropdown Popover -->
+          <div class="topbar-notif-dropdown" id="topbarNotifDropdown">
+            <div class="notif-dropdown-header">
+              <div class="notif-header-title">Notifications</div>
+              <button class="btn-clear-notifs" id="btnClearNotifs">Mark all as read</button>
+            </div>
+            <div class="notif-dropdown-list">
+              <div class="notif-item unread">
+                <div class="notif-bullet-icon bg-blue-tint">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <div class="notif-text-col">
+                  <strong>System Announcement</strong>
+                  <p>The document request service is now more efficient.</p>
+                  <span class="notif-time-ago">2h ago</span>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-bullet-icon bg-green-tint">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div class="notif-text-col">
+                  <strong>Your Request is Approved</strong>
+                  <p>Your TOR request (REQ-00234) has been approved.</p>
+                  <span class="notif-time-ago">1d ago</span>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-bullet-icon bg-purple-tint">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                </div>
+                <div class="notif-text-col">
+                  <strong>Reminder</strong>
+                  <p>Please keep your account information updated.</p>
+                  <span class="notif-time-ago">2d ago</span>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-bullet-icon bg-blue-tint">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                </div>
+                <div class="notif-text-col">
+                  <strong>Maintenance Notice</strong>
+                  <p>Scheduled maintenance on May 25, 2025, 8:00 PM.</p>
+                  <span class="notif-time-ago">3d ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Chip & Dropdown -->
         <div class="topbar-user-menu-wrapper">
           <button class="topbar-user-chip" id="topbarUserChip" aria-expanded="false" title="Account Menu">
             <div class="user-chip-avatar" id="topbarUserAvatar">JD</div>
@@ -691,6 +748,10 @@
               <div class="dropdown-user-email" id="dropdownUserEmail">juan.delacruz@cca.edu.ph</div>
             </div>
             <div class="dropdown-divider"></div>
+            <button class="dropdown-item" data-student-tab="dashboard">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+              <span>Dashboard</span>
+            </button>
             <button class="dropdown-item" data-student-tab="profile">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               <span>My Profile</span>
@@ -723,7 +784,7 @@
 
     <!-- Student Body Layout -->
     <div class="student-ref-container">
-      <!-- Sidebar -->
+      <!-- Sidebar (Without Need Help Card, First Nav is Dashboard) -->
       <aside class="student-ref-sidebar">
         <div class="student-sidebar-profile">
           <div class="student-avatar-lg-wrap">
@@ -732,14 +793,13 @@
             </div>
           </div>
           <h3 class="student-sidebar-name" id="studentSidebarName">Juan Dela Cruz</h3>
-          <p class="student-sidebar-meta" id="studentSidebarMeta">BSIT • 3rd Year</p>
+          <p class="student-sidebar-meta" id="studentSidebarMeta">BSIT</p>
         </div>
 
         <nav class="student-ref-nav">
           <button class="ref-nav-item active" data-student-tab="dashboard">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Notifications</span>
-            <span class="ref-nav-badge">2</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+            <span>Dashboard</span>
           </button>
           <button class="ref-nav-item" data-student-tab="profile">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -758,30 +818,12 @@
             <span>Settings</span>
           </button>
         </nav>
-
-        <div class="sidebar-help-card">
-          <div class="help-card-illustration">
-            <svg width="72" height="60" viewBox="0 0 100 80" fill="none">
-              <polygon points="50,15 88,28 50,42 12,28" fill="#1E3A8A" />
-              <polygon points="50,15 88,28 50,30 12,28" fill="#2563EB" opacity="0.8" />
-              <rect x="36" y="32" width="28" height="10" rx="3" fill="#1D4ED8" />
-              <path d="M85 30v18c0 2-2 4-4 4s-4-2-4-4V30" stroke="#F59E0B" stroke-width="2.5" fill="none" />
-              <rect x="20" y="44" width="60" height="12" rx="3" fill="#3B82F6" />
-              <rect x="18" y="46" width="64" height="2" fill="#93C5FD" />
-              <rect x="15" y="58" width="70" height="14" rx="3" fill="#60A5FA" />
-              <rect x="13" y="60" width="74" height="2" fill="#DBEAFE" />
-            </svg>
-          </div>
-          <h4 class="help-card-title">Need Help?</h4>
-          <p class="help-card-text">Contact our support team for assistance.</p>
-          <button class="btn-help-support" id="btnSidebarHelp">Get Support &rarr;</button>
-        </div>
       </aside>
 
       <!-- Main Content Area -->
       <main class="student-ref-main">
 
-        <!-- ==================== SUBTAB 1: DASHBOARD / HOME (Image 6) ==================== -->
+        <!-- ==================== SUBTAB 1: DASHBOARD / HOME ==================== -->
         <div class="student-subtab-pane active" id="studentSubtab-dashboard">
           <!-- Hero Banner -->
           <div class="ref-hero-banner">
@@ -796,20 +838,16 @@
             <div class="hero-banner-graphic">
               <!-- 3D Books & Floating ID Illustration -->
               <svg width="240" height="180" viewBox="0 0 240 180" fill="none">
-                <!-- Soft Glow Background -->
                 <circle cx="150" cy="90" r="80" fill="#DBEAFE" opacity="0.6" filter="blur(20px)" />
-                <!-- 3D Stacked Books -->
                 <rect x="70" y="130" width="130" height="24" rx="6" fill="#2563EB" />
                 <rect x="66" y="132" width="138" height="4" fill="#93C5FD" />
                 <rect x="80" y="106" width="115" height="22" rx="5" fill="#3B82F6" />
                 <rect x="76" y="108" width="123" height="4" fill="#BFDBFE" />
-                <!-- Graduation Cap on top of books -->
                 <polygon points="135,55 190,75 135,95 80,75" fill="#1E3A8A" />
                 <polygon points="135,55 190,75 135,78 80,75" fill="#2563EB" opacity="0.8" />
                 <rect x="115" y="80" width="40" height="14" rx="4" fill="#1E40AF" />
                 <path d="M185 78v26c0 3-3 6-6 6" stroke="#F59E0B" stroke-width="3" fill="none" />
                 <circle cx="179" cy="110" r="3" fill="#F59E0B" />
-                <!-- Floating Student ID Card -->
                 <g transform="translate(130, 20) rotate(5)">
                   <rect x="0" y="0" width="100" height="66" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
                   <rect x="8" y="12" width="24" height="28" rx="4" fill="#DBEAFE" />
@@ -820,7 +858,6 @@
                   <rect x="38" y="32" width="44" height="4" rx="2" fill="#E2E8F0" />
                   <rect x="10" y="48" width="78" height="6" rx="2" fill="#F1F5F9" />
                 </g>
-                <!-- Decorative Sparkles -->
                 <path d="M45 40 L47 45 L52 47 L47 49 L45 54 L43 49 L38 47 L43 45 Z" fill="#60A5FA" opacity="0.8" />
                 <path d="M215 90 L216 93 L219 94 L216 95 L215 98 L214 95 L211 94 L214 93 Z" fill="#3B82F6" opacity="0.7" />
               </svg>
@@ -831,10 +868,10 @@
           <div class="ref-quick-grid">
             <div class="ref-quick-card" data-student-tab="dashboard">
               <div class="quick-icon-circle blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
               </div>
-              <h4 class="quick-title">Notifications</h4>
-              <p class="quick-desc">View announcements and updates.</p>
+              <h4 class="quick-title">Dashboard</h4>
+              <p class="quick-desc">Overview of document activities.</p>
               <span class="quick-arrow">&rarr;</span>
             </div>
 
@@ -843,7 +880,7 @@
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
               </div>
               <h4 class="quick-title">My Profile</h4>
-              <p class="quick-desc">View and edit your information.</p>
+              <p class="quick-desc">View and edit your registered information.</p>
               <span class="quick-arrow">&rarr;</span>
             </div>
 
@@ -886,7 +923,6 @@
                   </div>
                   <h3 class="card-ref-title">Notifications</h3>
                 </div>
-                <button class="btn-ref-link" data-student-tab="dashboard">View All &rarr;</button>
               </div>
 
               <div class="notifications-list">
@@ -949,7 +985,6 @@
               </div>
 
               <div class="recent-requests-list" id="dashboardRecentRequestsList">
-                <!-- Dynamically populated or default fallback items -->
                 <div class="recent-req-row">
                   <div class="req-icon-box bg-blue-tint">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -986,10 +1021,9 @@
             </div>
           </div>
 
-          <!-- Bottom Grid: Request Overview & Need Help -->
-          <div class="ref-bottom-grid">
-            <!-- Left: Request Overview Card -->
-            <div class="ref-white-card overview-stat-card">
+          <!-- Bottom Area: Request Overview (Support Card Removed as Requested) -->
+          <div class="ref-bottom-full-card">
+            <div class="ref-white-card overview-stat-card full-width">
               <div class="card-head-row">
                 <div class="card-title-group">
                   <div class="icon-sq blue">
@@ -1043,25 +1077,12 @@
                 </div>
               </div>
             </div>
-
-            <!-- Right: Blue Gradient Need Help Card -->
-            <div class="ref-need-help-gradient-card">
-              <div class="gradient-headset-circle">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
-                  <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
-                </svg>
-              </div>
-              <h3 class="gradient-card-title">Need Help?</h3>
-              <p class="gradient-card-desc">Contact our support team for assistance with your concerns.</p>
-              <button class="btn-gradient-support" id="btnDashHelpSupport">Get Support &rarr;</button>
-            </div>
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 2: MY PROFILE (Image 5) ==================== -->
+        <!-- ==================== SUBTAB 2: MY PROFILE ==================== -->
+        <!-- Only data that exists in registration is kept; unregistered fake data removed -->
         <div class="student-subtab-pane" id="studentSubtab-profile">
-          <!-- Page Header Banner -->
           <div class="ref-page-header">
             <div class="header-left-col">
               <nav class="ref-breadcrumbs">
@@ -1073,11 +1094,10 @@
                 <span class="crumb-active">My Profile</span>
               </nav>
               <h1 class="ref-page-title">My Profile</h1>
-              <p class="ref-page-subtitle">View and manage your personal information.</p>
+              <p class="ref-page-subtitle">View and manage your registered student credentials.</p>
             </div>
 
             <div class="header-right-graphic">
-              <!-- 3D Floating ID Card Graphic -->
               <svg width="180" height="110" viewBox="0 0 180 110" fill="none">
                 <circle cx="120" cy="55" r="45" fill="#DBEAFE" opacity="0.6" filter="blur(15px)" />
                 <g transform="translate(15, 10)">
@@ -1102,7 +1122,7 @@
                 <div class="profile-avatar-circle-large" id="profileMainAvatar">
                   <svg width="72" height="72" viewBox="0 0 24 24" fill="#2563EB"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                 </div>
-                <button class="btn-change-photo" id="btnChangeProfilePhoto">
+                <button class="btn-change-photo" id="btnChangeProfilePhoto" type="button">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   <span>Change Photo</span>
                 </button>
@@ -1131,16 +1151,7 @@
                       Program
                     </span>
                     <span class="meta-colon">:</span>
-                    <strong class="meta-val" id="profileProgramDisplay">BSIT – Bachelor of Science in Information Technology</strong>
-                  </div>
-
-                  <div class="meta-dl-item">
-                    <span class="meta-icon-label">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                      Year Level
-                    </span>
-                    <span class="meta-colon">:</span>
-                    <strong class="meta-val" id="profileYearDisplay">3rd Year</strong>
+                    <strong class="meta-val" id="profileProgramDisplay">BS Information Technology (BSIT)</strong>
                   </div>
 
                   <div class="meta-dl-item">
@@ -1151,115 +1162,60 @@
                     <span class="meta-colon">:</span>
                     <strong class="meta-val" id="profileEmailDisplay">juan.delacruz@cca.edu.ph</strong>
                   </div>
-
-                  <div class="meta-dl-item">
-                    <span class="meta-icon-label">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                      Contact Number
-                    </span>
-                    <span class="meta-colon">:</span>
-                    <strong class="meta-val" id="profileContactDisplay">0917 123 4567</strong>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Two Bottom Details Cards: Personal Information & Academic Information -->
-          <div class="profile-details-grid">
-            <!-- Personal Information Card -->
-            <div class="ref-white-card">
-              <div class="card-head-row">
-                <div class="card-title-group">
-                  <div class="icon-sq blue">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  </div>
-                  <h3 class="card-ref-title">Personal Information</h3>
+          <!-- Registered Student Information Card (Matches Only Register Fields) -->
+          <div class="ref-white-card">
+            <div class="card-head-row">
+              <div class="card-title-group">
+                <div class="icon-sq blue">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
-                <button class="btn-ref-outline-sm" id="btnEditPersonalInfo">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                  <span>Edit</span>
-                </button>
-              </div>
-
-              <div class="two-col-info-layout">
-                <div class="info-item-box">
-                  <div class="info-lbl">Full Name</div>
-                  <div class="info-val-strong" id="personalFullName">Juan Dela Cruz</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Permanent Address</div>
-                  <div class="info-val-strong" id="personalAddress">123 Mabini St., San Jose, Bulacan</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Date of Birth</div>
-                  <div class="info-val-strong" id="personalDob">January 15, 2005</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Emergency Contact</div>
-                  <div class="info-val-strong" id="personalEmergency">Maria Dela Cruz<br>(0917 987 6543)</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Gender</div>
-                  <div class="info-val-strong" id="personalGender">Male</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Relationship</div>
-                  <div class="info-val-strong" id="personalRelationship">Mother</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Nationality</div>
-                  <div class="info-val-strong" id="personalNationality">Filipino</div>
+                <div>
+                  <h3 class="card-ref-title">Registered Account Information</h3>
+                  <p class="card-ref-sub">Information verified with your institutional registration credentials.</p>
                 </div>
               </div>
+              <button class="btn-ref-outline-sm" id="btnEditPersonalInfo" type="button">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span>Edit Profile</span>
+              </button>
             </div>
 
-            <!-- Academic Information Card -->
-            <div class="ref-white-card">
-              <div class="card-head-row">
-                <div class="card-title-group">
-                  <div class="icon-sq blue">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  </div>
-                  <h3 class="card-ref-title">Academic Information</h3>
-                </div>
+            <div class="registered-info-grid">
+              <div class="info-item-box">
+                <div class="info-lbl">Full Name</div>
+                <div class="info-val-strong" id="personalFullName">Juan Dela Cruz</div>
               </div>
-
-              <div class="two-col-info-layout">
-                <div class="info-item-box">
-                  <div class="info-lbl">Program</div>
-                  <div class="info-val-strong" id="academicProgram">BSIT – Bachelor of Science in Information Technology</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Enrollment Status</div>
-                  <div class="info-val-strong">
-                    <span class="badge-status-pill green">Enrolled</span>
-                  </div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Year Level</div>
-                  <div class="info-val-strong" id="academicYear">3rd Year</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">School Year</div>
-                  <div class="info-val-strong" id="academicSchoolYear">2025 – 2026</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Section</div>
-                  <div class="info-val-strong" id="academicSection">BSIT-3A</div>
-                </div>
-                <div class="info-item-box">
-                  <div class="info-lbl">Academic Advisor</div>
-                  <div class="info-val-strong" id="academicAdvisor">Prof. Ana Reyes</div>
-                </div>
+              <div class="info-item-box">
+                <div class="info-lbl">Student ID Number</div>
+                <div class="info-val-strong" id="personalStudentId">REQ-00234</div>
+              </div>
+              <div class="info-item-box">
+                <div class="info-lbl">Institutional Email</div>
+                <div class="info-val-strong" id="personalEmail">juan.delacruz@cca.edu.ph</div>
+              </div>
+              <div class="info-item-box">
+                <div class="info-lbl">Academic Program</div>
+                <div class="info-val-strong" id="personalProgram">BS Information Technology (BSIT)</div>
+              </div>
+              <div class="info-item-box">
+                <div class="info-lbl">Account Role</div>
+                <div class="info-val-strong"><span class="badge-status-pill blue">Student</span></div>
+              </div>
+              <div class="info-item-box">
+                <div class="info-lbl">Registration Status</div>
+                <div class="info-val-strong"><span class="badge-status-pill green">Enrolled &bull; Active</span></div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 3: DOCUMENT REQUEST (Image 4) ==================== -->
+        <!-- ==================== SUBTAB 3: DOCUMENT REQUEST ==================== -->
         <div class="student-subtab-pane" id="studentSubtab-request">
-          <!-- Page Header Banner -->
           <div class="ref-page-header">
             <div class="header-left-col">
               <nav class="ref-breadcrumbs">
@@ -1275,7 +1231,6 @@
             </div>
 
             <div class="header-right-graphic">
-              <!-- 3D Document Sheet & Plus Illustration -->
               <svg width="180" height="110" viewBox="0 0 180 110" fill="none">
                 <circle cx="120" cy="55" r="45" fill="#DBEAFE" opacity="0.6" filter="blur(15px)" />
                 <g transform="translate(30, 8)">
@@ -1293,7 +1248,7 @@
             </div>
           </div>
 
-          <!-- Card 1: Available Document Types -->
+          <!-- Card 1: Available Document Types (Request -> Button Removed as requested) -->
           <div class="ref-white-card">
             <div class="card-head-col">
               <div class="card-title-group">
@@ -1302,60 +1257,55 @@
                 </div>
                 <div>
                   <h3 class="card-ref-title">Available Document Types</h3>
-                  <p class="card-ref-sub">Select the document you want to request.</p>
+                  <p class="card-ref-sub">Click any document type below to auto-select it in the request form.</p>
                 </div>
               </div>
             </div>
 
             <div class="available-doc-grid">
-              <div class="doc-type-box" data-doctype="Transcript of Records (TOR)">
+              <div class="doc-type-box clickable-doc-card" data-doctype="Transcript of Records (TOR)">
                 <div class="doc-icon-circle blue-tint">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
                 </div>
                 <h4 class="doc-card-title">TOR</h4>
                 <p class="doc-card-sub">Transcript of Records</p>
-                <button class="btn-doc-request" data-target-doc="Transcript of Records (TOR)">Request &rarr;</button>
               </div>
 
-              <div class="doc-type-box" data-doctype="Certificate of Enrollment">
+              <div class="doc-type-box clickable-doc-card" data-doctype="Certificate of Enrollment">
                 <div class="doc-icon-circle blue-tint">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                 </div>
                 <h4 class="doc-card-title">Certificate of Enrollment</h4>
                 <p class="doc-card-sub">Enrollment Certificate</p>
-                <button class="btn-doc-request" data-target-doc="Certificate of Enrollment">Request &rarr;</button>
               </div>
 
-              <div class="doc-type-box" data-doctype="Good Moral Certificate">
+              <div class="doc-type-box clickable-doc-card" data-doctype="Good Moral Certificate">
                 <div class="doc-icon-circle blue-tint">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
                 </div>
                 <h4 class="doc-card-title">Good Moral Certificate</h4>
                 <p class="doc-card-sub">Good Moral Certificate</p>
-                <button class="btn-doc-request" data-target-doc="Good Moral Certificate">Request &rarr;</button>
               </div>
 
-              <div class="doc-type-box" data-doctype="Report Card / Form 137">
+              <div class="doc-type-box clickable-doc-card" data-doctype="Report Card / Form 137">
                 <div class="doc-icon-circle blue-tint">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="7" y1="8" x2="17" y2="8"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="7" y1="16" x2="13" y2="16"/></svg>
                 </div>
                 <h4 class="doc-card-title">Report Card</h4>
                 <p class="doc-card-sub">Official Report Card</p>
-                <button class="btn-doc-request" data-target-doc="Report Card / Form 137">Request &rarr;</button>
               </div>
 
-              <div class="doc-type-box" data-doctype="Others">
+              <div class="doc-type-box clickable-doc-card" data-doctype="Others">
                 <div class="doc-icon-circle blue-tint">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><circle cx="10" cy="13" r="1"/><circle cx="14" cy="13" r="1"/></svg>
                 </div>
                 <h4 class="doc-card-title">Others</h4>
                 <p class="doc-card-sub">Other Document Request</p>
-                <button class="btn-doc-request" data-target-doc="Others">Request &rarr;</button>
               </div>
             </div>
           </div>
 
-          <!-- Card 2: Request Form -->
+          <!-- Card 2: Request Form (Purpose changed to input text as requested) -->
           <div class="ref-white-card" id="requestFormCardSection">
             <div class="card-head-col">
               <div class="card-title-group">
@@ -1364,7 +1314,7 @@
                 </div>
                 <div>
                   <h3 class="card-ref-title">Request Form</h3>
-                  <p class="card-ref-sub">Fill out the details below to submit your request.</p>
+                  <p class="card-ref-sub">Fill out the details below to submit your document request.</p>
                 </div>
               </div>
             </div>
@@ -1372,7 +1322,7 @@
             <form class="ref-document-form" id="studentRefDocForm">
               <div class="ref-form-two-col">
                 <div class="ref-input-group">
-                  <label class="ref-field-label" for="studentDocTypeSelect">Document Type</label>
+                  <label class="ref-field-label" for="studentDocTypeSelect">Document Type <span class="required">*</span></label>
                   <select class="ref-select-lg" id="studentDocTypeSelect" required>
                     <option value="" disabled selected>Select Document Type</option>
                     <option value="Transcript of Records (TOR)">Transcript of Records (TOR)</option>
@@ -1386,24 +1336,14 @@
                 </div>
 
                 <div class="ref-input-group">
-                  <label class="ref-field-label" for="studentDocPurposeSelect">Purpose</label>
-                  <select class="ref-select-lg" id="studentDocPurposeSelect" required>
-                    <option value="" disabled selected>Select Purpose</option>
-                    <option value="Enrollment Requirement">Enrollment Requirement</option>
-                    <option value="Scholarship Application">Scholarship Application</option>
-                    <option value="Employment / Job Application">Employment / Job Application</option>
-                    <option value="Transferring / Transfer to Another School">Transferring / Transfer to Another School</option>
-                    <option value="Visa Application">Visa Application</option>
-                    <option value="Board Examination / PRC">Board Examination / PRC</option>
-                    <option value="Personal Record / Copy">Personal Record / Copy</option>
-                    <option value="Others">Others</option>
-                  </select>
+                  <label class="ref-field-label" for="studentDocPurposeInput">Purpose <span class="required">*</span></label>
+                  <input type="text" class="ref-input-box" id="studentDocPurposeInput" placeholder="Type your purpose (e.g. Employment, Scholarship, Transfer, Visa)" required>
                 </div>
               </div>
 
               <div class="ref-input-group" style="margin-top:16px;">
                 <label class="ref-field-label" for="studentDocRemarksInput">Remarks (Optional)</label>
-                <textarea class="ref-textarea-lg" id="studentDocRemarksInput" rows="3" placeholder="Enter any additional details..."></textarea>
+                <textarea class="ref-textarea-lg" id="studentDocRemarksInput" rows="3" placeholder="Enter any additional details or instructions..."></textarea>
               </div>
 
               <div class="ref-form-btn-row">
@@ -1444,48 +1384,20 @@
                     <th>Document Type</th>
                     <th>Date Requested</th>
                     <th>Status</th>
+                    <th>Schedule / Pickup</th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="studentHistoryTableBody">
-                  <!-- Populated dynamically -->
-                  <tr>
-                    <td><strong>REQ-00234</strong></td>
-                    <td>TOR</td>
-                    <td>May 20, 2025 10:24 AM</td>
-                    <td><span class="badge-status-pill green">&bull; Approved</span></td>
-                    <td><button class="btn-ref-link" data-req-id="REQ-00234">View Details &rarr;</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>REQ-00233</strong></td>
-                    <td>Certificate of Enrollment</td>
-                    <td>May 18, 2025 02:15 PM</td>
-                    <td><span class="badge-status-pill blue">&bull; Processing</span></td>
-                    <td><button class="btn-ref-link" data-req-id="REQ-00233">View Details &rarr;</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>REQ-00232</strong></td>
-                    <td>Good Moral Certificate</td>
-                    <td>May 15, 2025 11:30 AM</td>
-                    <td><span class="badge-status-pill purple">&bull; For Release</span></td>
-                    <td><button class="btn-ref-link" data-req-id="REQ-00232">View Details &rarr;</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>REQ-00231</strong></td>
-                    <td>Report Card</td>
-                    <td>May 12, 2025 09:20 AM</td>
-                    <td><span class="badge-status-pill gray">&bull; Pending</span></td>
-                    <td><button class="btn-ref-link" data-req-id="REQ-00231">View Details &rarr;</button></td>
-                  </tr>
+                  <!-- Populated dynamically via JS -->
                 </tbody>
               </table>
             </div>
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 4: TRACK DOCUMENT REQUEST (Image 3) ==================== -->
+        <!-- ==================== SUBTAB 4: TRACK DOCUMENT REQUEST ==================== -->
         <div class="student-subtab-pane" id="studentSubtab-tracking">
-          <!-- Page Header Banner -->
           <div class="ref-page-header">
             <div class="header-left-col">
               <nav class="ref-breadcrumbs">
@@ -1501,11 +1413,9 @@
             </div>
 
             <div class="header-right-graphic">
-              <!-- 3D Checklist & Clock Illustration -->
               <svg width="180" height="110" viewBox="0 0 180 110" fill="none">
                 <circle cx="120" cy="55" r="45" fill="#DBEAFE" opacity="0.6" filter="blur(15px)" />
                 <g transform="translate(30, 8)">
-                  <!-- Clipboard -->
                   <rect x="0" y="8" width="76" height="88" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="drop-shadow(0 8px 12px rgba(0,0,0,0.06))" />
                   <rect x="24" y="2" width="28" height="12" rx="3" fill="#2563EB" />
                   <path d="M12 28l4 4 8-8" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -1514,7 +1424,6 @@
                   <line x1="28" y1="44" x2="58" y2="44" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round" />
                   <path d="M12 60l4 4 8-8" stroke="#2563EB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   <line x1="28" y1="60" x2="52" y2="60" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round" />
-                  <!-- Clock beside clipboard -->
                   <circle cx="78" cy="68" r="18" fill="#2563EB" stroke="#FFFFFF" stroke-width="3" />
                   <polyline points="78 57 78 68 85 73" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" />
                 </g>
@@ -1594,151 +1503,12 @@
 
           <!-- Detailed Request Cards List -->
           <div class="ref-track-cards-list" id="trackCardsList">
-            <!-- Item 1: REQ-00234 -->
-            <div class="ref-track-card" data-status="APPROVED" data-req="REQ-00234">
-              <div class="track-card-icon-box bg-blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="track-col-req-info">
-                <div class="track-req-id">REQ-00234</div>
-                <div class="track-doc-type">TOR</div>
-                <div class="track-req-date">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  Requested: May 20, 2025 10:24 AM
-                </div>
-              </div>
-              <div class="track-col-purpose">
-                <div class="meta-sub-lbl">Purpose:</div>
-                <div class="meta-sub-val">Enrollment Requirement</div>
-                <div class="meta-sub-lbl">Remarks:</div>
-                <div class="meta-sub-val">For enrollment</div>
-              </div>
-              <div class="track-col-status">
-                <span class="badge-status-pill green">&bull; Approved</span>
-                <div class="status-date-time">May 20, 2025 02:15 PM</div>
-              </div>
-              <div class="track-col-action">
-                <button class="btn-ref-outline-rounded" data-view-details="REQ-00234">View Details &rarr;</button>
-              </div>
-            </div>
-
-            <!-- Item 2: REQ-00233 -->
-            <div class="ref-track-card" data-status="PROCESSING" data-req="REQ-00233">
-              <div class="track-card-icon-box bg-blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="track-col-req-info">
-                <div class="track-req-id">REQ-00233</div>
-                <div class="track-doc-type">Certificate of Enrollment</div>
-                <div class="track-req-date">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  Requested: May 18, 2025 02:15 PM
-                </div>
-              </div>
-              <div class="track-col-purpose">
-                <div class="meta-sub-lbl">Purpose:</div>
-                <div class="meta-sub-val">Scholarship Application</div>
-                <div class="meta-sub-lbl">Remarks:</div>
-                <div class="meta-sub-val">N/A</div>
-              </div>
-              <div class="track-col-status">
-                <span class="badge-status-pill blue">&bull; Processing</span>
-                <div class="status-date-time">May 18, 2025 04:30 PM</div>
-              </div>
-              <div class="track-col-action">
-                <button class="btn-ref-outline-rounded" data-view-details="REQ-00233">View Details &rarr;</button>
-              </div>
-            </div>
-
-            <!-- Item 3: REQ-00232 -->
-            <div class="ref-track-card" data-status="FOR_RELEASE" data-req="REQ-00232">
-              <div class="track-card-icon-box bg-blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="track-col-req-info">
-                <div class="track-req-id">REQ-00232</div>
-                <div class="track-doc-type">Good Moral Certificate</div>
-                <div class="track-req-date">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  Requested: May 15, 2025 11:30 AM
-                </div>
-              </div>
-              <div class="track-col-purpose">
-                <div class="meta-sub-lbl">Purpose:</div>
-                <div class="meta-sub-val">Employment</div>
-                <div class="meta-sub-lbl">Remarks:</div>
-                <div class="meta-sub-val">N/A</div>
-              </div>
-              <div class="track-col-status">
-                <span class="badge-status-pill purple">&bull; For Release</span>
-                <div class="status-date-time">May 15, 2025 03:45 PM</div>
-              </div>
-              <div class="track-col-action">
-                <button class="btn-ref-outline-rounded" data-view-details="REQ-00232">View Details &rarr;</button>
-              </div>
-            </div>
-
-            <!-- Item 4: REQ-00231 -->
-            <div class="ref-track-card" data-status="PENDING" data-req="REQ-00231">
-              <div class="track-card-icon-box bg-blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="track-col-req-info">
-                <div class="track-req-id">REQ-00231</div>
-                <div class="track-doc-type">Report Card</div>
-                <div class="track-req-date">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  Requested: May 12, 2025 09:20 AM
-                </div>
-              </div>
-              <div class="track-col-purpose">
-                <div class="meta-sub-lbl">Purpose:</div>
-                <div class="meta-sub-val">Transferring</div>
-                <div class="meta-sub-lbl">Remarks:</div>
-                <div class="meta-sub-val">N/A</div>
-              </div>
-              <div class="track-col-status">
-                <span class="badge-status-pill gray">&bull; Pending</span>
-                <div class="status-date-time">May 12, 2025 09:20 AM</div>
-              </div>
-              <div class="track-col-action">
-                <button class="btn-ref-outline-rounded" data-view-details="REQ-00231">View Details &rarr;</button>
-              </div>
-            </div>
-
-            <!-- Item 5: REQ-00230 -->
-            <div class="ref-track-card" data-status="APPROVED" data-req="REQ-00230">
-              <div class="track-card-icon-box bg-blue-tint">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="track-col-req-info">
-                <div class="track-req-id">REQ-00230</div>
-                <div class="track-doc-type">Others</div>
-                <div class="track-req-date">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                  Requested: May 10, 2025 01:45 PM
-                </div>
-              </div>
-              <div class="track-col-purpose">
-                <div class="meta-sub-lbl">Purpose:</div>
-                <div class="meta-sub-val">Visa Application</div>
-                <div class="meta-sub-lbl">Remarks:</div>
-                <div class="meta-sub-val">N/A</div>
-              </div>
-              <div class="track-col-status">
-                <span class="badge-status-pill green">&bull; Approved</span>
-                <div class="status-date-time">May 10, 2025 04:10 PM</div>
-              </div>
-              <div class="track-col-action">
-                <button class="btn-ref-outline-rounded" data-view-details="REQ-00230">View Details &rarr;</button>
-              </div>
-            </div>
+            <!-- Populated dynamically via JS -->
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 5: SETTINGS (Image 2) ==================== -->
+        <!-- ==================== SUBTAB 5: SETTINGS ==================== -->
         <div class="student-subtab-pane" id="studentSubtab-settings">
-          <!-- Page Header Banner -->
           <div class="ref-page-header">
             <div class="header-left-col">
               <nav class="ref-breadcrumbs">
@@ -1754,18 +1524,15 @@
             </div>
 
             <div class="header-right-graphic">
-              <!-- 3D Gears and Toggle Graphic -->
               <svg width="180" height="110" viewBox="0 0 180 110" fill="none">
                 <circle cx="120" cy="55" r="45" fill="#DBEAFE" opacity="0.6" filter="blur(15px)" />
                 <g transform="translate(45, 10)">
-                  <!-- Blue Gear -->
                   <circle cx="50" cy="45" r="28" fill="#2563EB" />
                   <circle cx="50" cy="45" r="12" fill="#FFFFFF" />
                   <rect x="46" y="10" width="8" height="10" rx="2" fill="#2563EB" />
                   <rect x="46" y="70" width="8" height="10" rx="2" fill="#2563EB" />
                   <rect x="15" y="41" width="10" height="8" rx="2" fill="#2563EB" />
                   <rect x="75" y="41" width="10" height="8" rx="2" fill="#2563EB" />
-                  <!-- Toggle Card in front -->
                   <g transform="translate(30, 35)">
                     <rect x="0" y="0" width="65" height="38" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2" filter="drop-shadow(0 6px 10px rgba(0,0,0,0.08))" />
                     <rect x="10" y="10" width="45" height="18" rx="9" fill="#2563EB" />
@@ -1786,7 +1553,7 @@
                 </div>
                 <div>
                   <h3 class="card-ref-title">Account Settings</h3>
-                  <p class="card-ref-sub">Update your personal information and contact details.</p>
+                  <p class="card-ref-sub">Update your registered student name and contact details.</p>
                 </div>
               </div>
             </div>
@@ -1797,7 +1564,7 @@
                   <svg width="60" height="60" viewBox="0 0 24 24" fill="#2563EB"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
                   <span class="avatar-edit-badge">&#9998;</span>
                 </div>
-                <button class="btn-change-photo" id="btnSettingsChangePhoto">
+                <button class="btn-change-photo" id="btnSettingsChangePhoto" type="button">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                   <span>Change Photo</span>
                 </button>
@@ -1814,8 +1581,15 @@
                   <input type="email" class="ref-input-box" id="settingsInputEmail" value="juan.delacruz@cca.edu.ph">
                 </div>
                 <div class="settings-field-row">
-                  <label class="settings-row-lbl">Contact Number</label>
-                  <input type="text" class="ref-input-box" id="settingsInputContact" value="0917 123 4567">
+                  <label class="settings-row-lbl">Academic Program</label>
+                  <select class="ref-select-lg" id="settingsInputProgram">
+                    <option value="BS Information Technology">BS Information Technology (BSIT)</option>
+                    <option value="BS Computer Science">BS Computer Science (BSCS)</option>
+                    <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
+                    <option value="BS Business Administration">BS Business Administration (BSBA)</option>
+                    <option value="Bachelor of Elementary Education">BEEd</option>
+                    <option value="Bachelor of Secondary Education">BSEd</option>
+                  </select>
                 </div>
 
                 <div class="ref-form-btn-row">
@@ -1937,7 +1711,7 @@
             </div>
           </div>
 
-          <!-- Card 4: Appearance Settings -->
+          <!-- Card 4: Appearance Settings (Dark Mode) -->
           <div class="ref-white-card">
             <div class="card-head-col">
               <div class="card-title-group">
@@ -1971,9 +1745,8 @@
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 6: CHANGE PASSWORD (Image 1) ==================== -->
+        <!-- ==================== SUBTAB 6: CHANGE PASSWORD ==================== -->
         <div class="student-subtab-pane" id="studentSubtab-change-password">
-          <!-- Page Header Banner -->
           <div class="ref-page-header">
             <div class="header-left-col">
               <nav class="ref-breadcrumbs">
@@ -1991,18 +1764,13 @@
             </div>
 
             <div class="header-right-graphic">
-              <!-- 3D Blue Padlock & Shield Graphic -->
               <svg width="180" height="110" viewBox="0 0 180 110" fill="none">
                 <circle cx="120" cy="55" r="45" fill="#DBEAFE" opacity="0.6" filter="blur(15px)" />
                 <g transform="translate(60, 10)">
-                  <!-- 3D Padlock Body -->
                   <path d="M15 40 h45 a6 6 0 0 1 6 6 v30 a6 6 0 0 1 -6 6 h-45 a6 6 0 0 1 -6 -6 v-30 a6 6 0 0 1 6 -6 z" fill="#2563EB" filter="drop-shadow(0 8px 12px rgba(37,99,235,0.25))" />
-                  <!-- Shackle -->
                   <path d="M22 40 v-15 a15 15 0 0 1 30 0 v15" fill="none" stroke="#60A5FA" stroke-width="8" stroke-linecap="round" />
-                  <!-- Keyhole -->
                   <circle cx="37" cy="55" r="4" fill="#FFFFFF" />
                   <polygon points="35,55 39,55 40,68 34,68" fill="#FFFFFF" />
-                  <!-- Check Shield Floating in front -->
                   <g transform="translate(38, 38)">
                     <path d="M12 2 L22 6 V15 C22 22 12 28 12 28 C12 28 2 22 2 15 V6 Z" fill="#3B82F6" stroke="#FFFFFF" stroke-width="2" />
                     <polyline points="7 14 10 18 17 11" stroke="#FFFFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
@@ -2032,7 +1800,7 @@
                 <label class="ref-field-label" for="inputCurrentPassword">Current Password <span class="text-red">*</span></label>
                 <div class="ref-password-input-wrap">
                   <input type="password" class="ref-input-box" id="inputCurrentPassword" placeholder="Enter your current password" required autocomplete="current-password">
-                  <button type="button" class="btn-toggle-eye" data-target="inputCurrentPassword">
+                  <button type="button" class="btn-toggle-eye" data-target="inputCurrentPassword" aria-label="Toggle password visibility">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   </button>
                 </div>
@@ -2042,7 +1810,7 @@
                 <label class="ref-field-label" for="inputNewPassword">New Password <span class="text-red">*</span></label>
                 <div class="ref-password-input-wrap">
                   <input type="password" class="ref-input-box" id="inputNewPassword" placeholder="Enter your new password" required autocomplete="new-password">
-                  <button type="button" class="btn-toggle-eye" data-target="inputNewPassword">
+                  <button type="button" class="btn-toggle-eye" data-target="inputNewPassword" aria-label="Toggle password visibility">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   </button>
                 </div>
@@ -2063,7 +1831,7 @@
                 <label class="ref-field-label" for="inputConfirmNewPassword">Confirm New Password <span class="text-red">*</span></label>
                 <div class="ref-password-input-wrap">
                   <input type="password" class="ref-input-box" id="inputConfirmNewPassword" placeholder="Re-enter your new password" required autocomplete="new-password">
-                  <button type="button" class="btn-toggle-eye" data-target="inputConfirmNewPassword">
+                  <button type="button" class="btn-toggle-eye" data-target="inputConfirmNewPassword" aria-label="Toggle password visibility">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   </button>
                 </div>
@@ -2169,6 +1937,11 @@
           <span class="detail-label">Remarks:</span>
           <span class="detail-value" id="detailsModalRemarks">For enrollment</span>
         </div>
+        <!-- Only shown once completed / approved as requested -->
+        <div class="modal-detail-row claim-info-row" id="detailsModalClaimRow" style="display:none;">
+          <span class="detail-label">When to Receive / Pickup:</span>
+          <span class="detail-value text-green" id="detailsModalClaimDate">May 22, 2025 (Registrar Window 2)</span>
+        </div>
 
         <div class="modal-tracking-timeline">
           <h4 class="timeline-title">Request Progress</h4>
@@ -2183,73 +1956,83 @@
     </div>
   </div>
 
-  <!-- Interactive Modal: Contact Support -->
-  <div class="modal" id="modalSupportTeam" style="display:none;">
-    <div class="modal-backdrop" id="backdropSupportTeam"></div>
-    <div class="modal-dialog ref-dialog-md">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <h3 class="modal-title">Contact Support Team</h3>
-          <p class="modal-subtitle">We are here to help with your document requests.</p>
-        </div>
-        <button class="modal-close" id="btnCloseSupportTeam">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="support-channels-box">
-          <div class="support-ch-item">
-            <strong>Office Hours:</strong> Monday &ndash; Friday, 8:00 AM &ndash; 5:00 PM
-          </div>
-          <div class="support-ch-item">
-            <strong>Registrar Email:</strong> registrar@cca.edu.ph
-          </div>
-          <div class="support-ch-item">
-            <strong>Hotline:</strong> (044) 123-4567 / 0917 123 4567
-          </div>
-        </div>
-        <div class="ref-input-group" style="margin-top:16px;">
-          <label class="ref-field-label">Subject</label>
-          <input type="text" class="ref-input-box" id="supportSubjectInput" placeholder="What do you need assistance with?">
-        </div>
-        <div class="ref-input-group" style="margin-top:12px;">
-          <label class="ref-field-label">Message</label>
-          <textarea class="ref-textarea-lg" id="supportMessageInput" rows="4" placeholder="Describe your concern or document inquiry..."></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-ref-outline" id="btnCloseSupportBtn">Cancel</button>
-        <button class="btn-ref-primary" id="btnSendSupportMessage">Send Message &rarr;</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Interactive Modal: Edit Personal Info -->
+  <!-- Interactive Modal: Edit Profile Information (Only fields in Register) -->
   <div class="modal" id="modalEditPersonalInfo" style="display:none;">
     <div class="modal-backdrop" id="backdropEditPersonalInfo"></div>
     <div class="modal-dialog ref-dialog-md">
       <div class="modal-header">
         <div class="modal-title-group">
-          <h3 class="modal-title">Edit Personal Information</h3>
-          <p class="modal-subtitle">Update your address and emergency contact details.</p>
+          <h3 class="modal-title">Edit Profile Information</h3>
+          <p class="modal-subtitle">Update your registered institutional student details.</p>
         </div>
         <button class="modal-close" id="btnCloseEditPersonalInfo">&times;</button>
       </div>
       <div class="modal-body">
         <div class="ref-input-group">
-          <label class="ref-field-label">Permanent Address</label>
-          <input type="text" class="ref-input-box" id="modalInputAddress" value="123 Mabini St., San Jose, Bulacan">
+          <label class="ref-field-label" for="modalInputFullName">Full Name <span class="required">*</span></label>
+          <input type="text" class="ref-input-box" id="modalInputFullName" value="Juan Dela Cruz" required>
         </div>
         <div class="ref-input-group" style="margin-top:12px;">
-          <label class="ref-field-label">Emergency Contact Name &amp; Phone</label>
-          <input type="text" class="ref-input-box" id="modalInputEmergency" value="Maria Dela Cruz (0917 987 6543)">
+          <label class="ref-field-label" for="modalInputEmail">Institutional Email <span class="required">*</span></label>
+          <input type="email" class="ref-input-box" id="modalInputEmail" value="juan.delacruz@cca.edu.ph" required>
         </div>
         <div class="ref-input-group" style="margin-top:12px;">
-          <label class="ref-field-label">Relationship</label>
-          <input type="text" class="ref-input-box" id="modalInputRelationship" value="Mother">
+          <label class="ref-field-label" for="modalInputProgram">Academic Program</label>
+          <select class="ref-select-lg" id="modalInputProgram">
+            <option value="BS Information Technology">BS Information Technology (BSIT)</option>
+            <option value="BS Computer Science">BS Computer Science (BSCS)</option>
+            <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
+            <option value="BS Business Administration">BS Business Administration (BSBA)</option>
+            <option value="Bachelor of Elementary Education">BEEd</option>
+            <option value="Bachelor of Secondary Education">BSEd</option>
+          </select>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn-ref-outline" id="btnCancelEditPersonal">Cancel</button>
         <button class="btn-ref-primary" id="btnSaveEditPersonal">Save Changes &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Modal: Crop Profile Photo -->
+  <div class="modal" id="modalCropPhoto" style="display:none;">
+    <div class="modal-backdrop" id="backdropCropPhoto"></div>
+    <div class="modal-dialog ref-dialog-crop">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 class="modal-title">Crop Profile Photo</h3>
+          <p class="modal-subtitle">Drag image to position, use the zoom slider, or rotate before applying.</p>
+        </div>
+        <button class="modal-close" id="btnCloseCropPhoto">&times;</button>
+      </div>
+      <div class="modal-body crop-modal-body">
+        <div class="cropper-canvas-container" id="cropperContainer">
+          <canvas id="cropCanvas" width="340" height="340"></canvas>
+          <div class="crop-overlay-circle"></div>
+        </div>
+
+        <div class="cropper-toolbar">
+          <div class="zoom-range-wrapper">
+            <span class="zoom-lbl">Zoom:</span>
+            <input type="range" id="cropZoomRange" min="0.5" max="3" step="0.05" value="1">
+          </div>
+          <button type="button" class="btn-ref-outline-sm" id="btnRotateCropImg">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Rotate 90&deg;
+          </button>
+        </div>
+
+        <div class="crop-live-preview-box">
+          <span class="preview-text">Live Avatar Preview:</span>
+          <canvas id="cropCircularPreview" width="72" height="72"></canvas>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ref-outline" id="btnCancelCropPhoto">Cancel</button>
+        <button class="btn-ref-primary" id="btnApplyCropPhoto">
+          <span>Apply &amp; Save Photo &rarr;</span>
+        </button>
       </div>
     </div>
   </div>

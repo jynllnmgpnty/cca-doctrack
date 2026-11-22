@@ -786,6 +786,9 @@ function setupNavigationHandlers() {
 
 function switchStudentSubtab(tabName) {
   state.studentActiveTab = tabName;
+  if (typeof triggerStudentViewLoader === 'function') {
+    triggerStudentViewLoader();
+  }
 
   document.querySelectorAll('.ref-nav-item').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-student-tab') === tabName);
@@ -1686,24 +1689,55 @@ function escapeHtml(text) {
 
 
 // ==========================================================================
-// STUDENT PORTAL REFERENCE IMPLEMENTATION (EXACT MATCH FOR 6 REFERENCE IMAGES)
+// STUDENT PORTAL REFERENCE IMPLEMENTATION (V2 - FULL INTERACTIVITY & CROPPING)
 // ==========================================================================
 
+// Global cropper state
+const cropperState = {
+  img: null,
+  zoom: 1,
+  rotation: 0,
+  panX: 0,
+  panY: 0,
+  isDragging: false,
+  dragStartX: 0,
+  dragStartY: 0
+};
+
 function initStudentRefPortal() {
+  restoreDarkModeState();
   syncStudentRefProfile();
   renderStudentDashboardData();
   renderStudentTrackingCards();
   renderStudentHistoryTable();
 }
 
+function restoreDarkModeState() {
+  const isDark = localStorage.getItem('cca_dark_mode') === 'true';
+  const toggle = document.getElementById('toggleDarkMode');
+  if (toggle) toggle.checked = isDark;
+
+  const portal = document.getElementById('viewStudentPortal');
+  if (portal) portal.classList.toggle('student-dark-mode', isDark);
+  document.body.classList.toggle('student-dark-mode', isDark);
+}
+
+function triggerStudentViewLoader() {
+  const loader = document.getElementById('studentViewLoader');
+  if (loader) {
+    loader.classList.add('loading');
+    setTimeout(() => {
+      loader.classList.remove('loading');
+    }, 350);
+  }
+}
+
 function syncStudentRefProfile() {
   const user = state.currentUser || {
     fullName: 'Juan Dela Cruz',
     studentId: 'REQ-00234',
-    course: 'BSIT – Bachelor of Science in Information Technology',
-    yearLevel: '3rd Year',
-    email: 'juan.delacruz@cca.edu.ph',
-    phone: '0917 123 4567'
+    course: 'BS Information Technology (BSIT)',
+    email: 'juan.delacruz@cca.edu.ph'
   };
 
   const storedKey = 'cca_student_profile_' + (user.studentId || 'default');
@@ -1718,19 +1752,8 @@ function syncStudentRefProfile() {
   const profile = {
     fullName: stored.fullName || user.fullName || 'Juan Dela Cruz',
     studentId: stored.studentId || user.studentId || 'REQ-00234',
-    course: stored.course || user.course || 'BSIT – Bachelor of Science in Information Technology',
-    yearLevel: stored.yearLevel || user.yearLevel || '3rd Year',
-    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph',
-    phone: stored.phone || user.phone || '0917 123 4567',
-    address: stored.address || '123 Mabini St., San Jose, Bulacan',
-    emergency: stored.emergency || 'Maria Dela Cruz (0917 987 6543)',
-    relationship: stored.relationship || 'Mother',
-    dob: stored.dob || 'January 15, 2005',
-    gender: stored.gender || 'Male',
-    nationality: stored.nationality || 'Filipino',
-    section: stored.section || 'BSIT-3A',
-    schoolYear: stored.schoolYear || '2025 – 2026',
-    advisor: stored.advisor || 'Prof. Ana Reyes'
+    course: stored.course || user.course || 'BS Information Technology (BSIT)',
+    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph'
   };
 
   // Topbar
@@ -1754,7 +1777,7 @@ function syncStudentRefProfile() {
   const sbName = document.getElementById('studentSidebarName');
   if (sbName) sbName.textContent = profile.fullName;
   const sbMeta = document.getElementById('studentSidebarMeta');
-  if (sbMeta) sbMeta.textContent = profile.course.includes('BSIT') ? 'BSIT • ' + profile.yearLevel : profile.course + ' • ' + profile.yearLevel;
+  if (sbMeta) sbMeta.textContent = profile.course;
 
   // Dashboard Hero
   const heroName = document.getElementById('heroStudentName');
@@ -1767,48 +1790,26 @@ function syncStudentRefProfile() {
   if (profId) profId.textContent = profile.studentId;
   const profProg = document.getElementById('profileProgramDisplay');
   if (profProg) profProg.textContent = profile.course;
-  const profYear = document.getElementById('profileYearDisplay');
-  if (profYear) profYear.textContent = profile.yearLevel;
   const profEmail = document.getElementById('profileEmailDisplay');
   if (profEmail) profEmail.textContent = profile.email;
-  const profContact = document.getElementById('profileContactDisplay');
-  if (profContact) profContact.textContent = profile.phone;
 
-  // Personal Information Card
+  // Registered Student Information Card (Matches Register Fields)
   const pName = document.getElementById('personalFullName');
   if (pName) pName.textContent = profile.fullName;
-  const pAddr = document.getElementById('personalAddress');
-  if (pAddr) pAddr.textContent = profile.address;
-  const pDob = document.getElementById('personalDob');
-  if (pDob) pDob.textContent = profile.dob;
-  const pEm = document.getElementById('personalEmergency');
-  if (pEm) pEm.innerHTML = profile.emergency.replace('(', '<br>(');
-  const pGen = document.getElementById('personalGender');
-  if (pGen) pGen.textContent = profile.gender;
-  const pRel = document.getElementById('personalRelationship');
-  if (pRel) pRel.textContent = profile.relationship;
-  const pNat = document.getElementById('personalNationality');
-  if (pNat) pNat.textContent = profile.nationality;
-
-  // Academic Information Card
-  const aProg = document.getElementById('academicProgram');
-  if (aProg) aProg.textContent = profile.course;
-  const aYear = document.getElementById('academicYear');
-  if (aYear) aYear.textContent = profile.yearLevel;
-  const aSec = document.getElementById('academicSection');
-  if (aSec) aSec.textContent = profile.section;
-  const aSy = document.getElementById('academicSchoolYear');
-  if (aSy) aSy.textContent = profile.schoolYear;
-  const aAdv = document.getElementById('academicAdvisor');
-  if (aAdv) aAdv.textContent = profile.advisor;
+  const pId = document.getElementById('personalStudentId');
+  if (pId) pId.textContent = profile.studentId;
+  const pEmail = document.getElementById('personalEmail');
+  if (pEmail) pEmail.textContent = profile.email;
+  const pProg = document.getElementById('personalProgram');
+  if (pProg) pProg.textContent = profile.course;
 
   // Settings inputs
   const setFull = document.getElementById('settingsInputFullName');
   if (setFull) setFull.value = profile.fullName;
   const setEmail = document.getElementById('settingsInputEmail');
   if (setEmail) setEmail.value = profile.email;
-  const setContact = document.getElementById('settingsInputContact');
-  if (setContact) setContact.value = profile.phone;
+  const setProg = document.getElementById('settingsInputProgram');
+  if (setProg) setProg.value = profile.course;
 
   // Load avatar if stored
   const savedAvatar = localStorage.getItem('cca_student_avatar_' + profile.studentId) || localStorage.getItem('cca_student_avatar');
@@ -1882,36 +1883,29 @@ function renderStudentTrackingCards() {
   const container = document.getElementById('trackCardsList');
   if (!container) return;
 
-  // Update Stats row
-  const total = all.length || 5;
-  const proc = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length || 1;
-  const apprv = all.filter(r => (r.status || '').toUpperCase().includes('APPROV')).length || 2;
-  const forRel = all.filter(r => (r.status || '').toUpperCase().includes('RELEASE')).length || 1;
-  const pend = all.filter(r => (r.status || '').toUpperCase().includes('PENDING')).length || 1;
+  // Default fallback mock requests if no db requests
+  const sampleCards = [
+    { id: 'REQ-00234', doc: 'TOR', date: 'May 20, 2025 10:24 AM', purpose: 'Enrollment Requirement', remarks: 'For enrollment', status: 'APPROVED', statusText: 'Approved', statusDate: 'May 20, 2025 02:15 PM', badge: 'green', claimDate: 'May 22, 2025 (Registrar Window 2)' },
+    { id: 'REQ-00233', doc: 'Certificate of Enrollment', date: 'May 18, 2025 02:15 PM', purpose: 'Scholarship Application', remarks: 'N/A', status: 'PROCESSING', statusText: 'Processing', statusDate: 'May 18, 2025 04:30 PM', badge: 'blue' },
+    { id: 'REQ-00232', doc: 'Good Moral Certificate', date: 'May 15, 2025 11:30 AM', purpose: 'Employment', remarks: 'N/A', status: 'FOR_RELEASE', statusText: 'For Release', statusDate: 'May 15, 2025 03:45 PM', badge: 'purple', claimDate: 'May 16, 2025 (Registrar Window 2)' },
+    { id: 'REQ-00231', doc: 'Report Card', date: 'May 12, 2025 09:20 AM', purpose: 'Transferring', remarks: 'N/A', status: 'PENDING', statusText: 'Pending', statusDate: 'May 12, 2025 09:20 AM', badge: 'gray' },
+    { id: 'REQ-00230', doc: 'Others', date: 'May 10, 2025 01:45 PM', purpose: 'Visa Application', remarks: 'N/A', status: 'APPROVED', statusText: 'Approved', statusDate: 'May 10, 2025 04:10 PM', badge: 'green', claimDate: 'May 12, 2025 (Registrar Window 2)' }
+  ];
 
-  const elTot = document.getElementById('trackStatTotal');
-  if (elTot) elTot.textContent = total;
-  const elProc = document.getElementById('trackStatProcessing');
-  if (elProc) elProc.textContent = proc;
-  const elApp = document.getElementById('trackStatApproved');
-  if (elApp) elApp.textContent = apprv;
-  const elRel = document.getElementById('trackStatForRelease');
-  if (elRel) elRel.textContent = forRel;
-  const elPend = document.getElementById('trackStatPending');
-  if (elPend) elPend.textContent = pend;
-
-  // If we have live database requests, render them
+  let itemsToRender = sampleCards;
   if (all.length > 0) {
-    container.innerHTML = all.map(req => {
+    itemsToRender = all.map(req => {
       const statusRaw = (req.status || 'PENDING').toUpperCase();
       let statusAttr = 'PENDING';
       let badgeClass = 'gray';
       let statusText = 'Pending';
+      let claim = null;
 
       if (statusRaw.includes('APPROV')) {
         statusAttr = 'APPROVED';
         badgeClass = 'green';
         statusText = 'Approved';
+        claim = 'May 22, 2025 (Registrar Window 2)';
       } else if (statusRaw.includes('PROCESS')) {
         statusAttr = 'PROCESSING';
         badgeClass = 'blue';
@@ -1920,43 +1914,70 @@ function renderStudentTrackingCards() {
         statusAttr = 'FOR_RELEASE';
         badgeClass = 'purple';
         statusText = 'For Release';
+        claim = 'Ready for Release (Registrar Window 2)';
       }
 
       const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
       const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
 
-      return `
-        <div class="ref-track-card" data-status="${statusAttr}" data-req="${escapeHtml(reqId)}">
-          <div class="track-card-icon-box bg-blue-tint">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <div class="track-col-req-info">
-            <div class="track-req-id">${escapeHtml(reqId)}</div>
-            <div class="track-doc-type">${escapeHtml(req.document_type || 'Official Document')}</div>
-            <div class="track-req-date">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              Requested: ${dateStr}
-            </div>
-          </div>
-          <div class="track-col-purpose">
-            <div class="meta-sub-lbl">Purpose:</div>
-            <div class="meta-sub-val">${escapeHtml(req.purpose || 'Official Document')}</div>
-            <div class="meta-sub-lbl">Remarks:</div>
-            <div class="meta-sub-val">${escapeHtml(req.remarks || 'N/A')}</div>
-          </div>
-          <div class="track-col-status">
-            <span class="badge-status-pill ${badgeClass}">&bull; ${statusText}</span>
-            <div class="status-date-time">${dateStr} 02:00 PM</div>
-          </div>
-          <div class="track-col-action">
-            <button class="btn-ref-outline-rounded" data-view-details="${escapeHtml(reqId)}">View Details &rarr;</button>
-          </div>
-        </div>
-      `;
-    }).join('');
+      return {
+        id: reqId,
+        doc: req.document_type || 'Official Document',
+        date: dateStr + ' 10:24 AM',
+        purpose: req.purpose || 'Official Document Requirement',
+        remarks: req.remarks || 'N/A',
+        status: statusAttr,
+        statusText: statusText,
+        statusDate: dateStr + ' 02:00 PM',
+        badge: badgeClass,
+        claimDate: claim
+      };
+    });
   }
 
-  // Attach click listeners to all "View Details ->" buttons in tracking cards
+  // Update Stats counts
+  const total = itemsToRender.length;
+  const proc = itemsToRender.filter(r => r.status === 'PROCESSING').length;
+  const apprv = itemsToRender.filter(r => r.status === 'APPROVED').length;
+  const forRel = itemsToRender.filter(r => r.status === 'FOR_RELEASE').length;
+  const pend = itemsToRender.filter(r => r.status === 'PENDING').length;
+
+  const elTot = document.getElementById('trackStatTotal'); if (elTot) elTot.textContent = total;
+  const elProc = document.getElementById('trackStatProcessing'); if (elProc) elProc.textContent = proc;
+  const elApp = document.getElementById('trackStatApproved'); if (elApp) elApp.textContent = apprv;
+  const elRel = document.getElementById('trackStatForRelease'); if (elRel) elRel.textContent = forRel;
+  const elPend = document.getElementById('trackStatPending'); if (elPend) elPend.textContent = pend;
+
+  container.innerHTML = itemsToRender.map(card => `
+    <div class="ref-track-card" data-status="${card.status}" data-req="${escapeHtml(card.id)}">
+      <div class="track-card-icon-box bg-blue-tint">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      </div>
+      <div class="track-col-req-info">
+        <div class="track-req-id">${escapeHtml(card.id)}</div>
+        <div class="track-doc-type">${escapeHtml(card.doc)}</div>
+        <div class="track-req-date">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          Requested: ${escapeHtml(card.date)}
+        </div>
+        ${card.claimDate ? `<div class="track-receive-date"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Pickup: <strong>${escapeHtml(card.claimDate)}</strong></div>` : ''}
+      </div>
+      <div class="track-col-purpose">
+        <div class="meta-sub-lbl">Purpose:</div>
+        <div class="meta-sub-val">${escapeHtml(card.purpose)}</div>
+        <div class="meta-sub-lbl">Remarks:</div>
+        <div class="meta-sub-val">${escapeHtml(card.remarks)}</div>
+      </div>
+      <div class="track-col-status">
+        <span class="badge-status-pill ${card.badge}">&bull; ${card.statusText}</span>
+        <div class="status-date-time">${escapeHtml(card.statusDate)}</div>
+      </div>
+      <div class="track-col-action">
+        <button class="btn-ref-outline-rounded" data-view-details="${escapeHtml(card.id)}">View Details &rarr;</button>
+      </div>
+    </div>
+  `).join('');
+
   container.querySelectorAll('[data-view-details]').forEach(btn => {
     btn.addEventListener('click', () => {
       openRequestDetailsModal(btn.getAttribute('data-view-details'));
@@ -1969,17 +1990,27 @@ function renderStudentHistoryTable() {
   const tbody = document.getElementById('studentHistoryTableBody');
   if (!tbody) return;
 
+  const defaultRows = [
+    { id: 'REQ-00234', doc: 'TOR', date: 'May 20, 2025 10:24 AM', status: 'APPROVED', statusText: 'Approved', badge: 'green', claim: 'May 22, 2025 (Window 2)' },
+    { id: 'REQ-00233', doc: 'Certificate of Enrollment', date: 'May 18, 2025 02:15 PM', status: 'PROCESSING', statusText: 'Processing', badge: 'blue', claim: null },
+    { id: 'REQ-00232', doc: 'Good Moral Certificate', date: 'May 15, 2025 11:30 AM', status: 'FOR_RELEASE', statusText: 'For Release', badge: 'purple', claim: 'May 16, 2025 (Window 2)' },
+    { id: 'REQ-00231', doc: 'Report Card', date: 'May 12, 2025 09:20 AM', status: 'PENDING', statusText: 'Pending', badge: 'gray', claim: null }
+  ];
+
+  let rowsToRender = defaultRows;
   if (all.length > 0) {
-    tbody.innerHTML = all.map(req => {
+    rowsToRender = all.map(req => {
       const statusRaw = (req.status || 'PENDING').toUpperCase();
       let badgeClass = 'gray';
       let statusText = 'Pending';
       let statusKey = 'PENDING';
+      let claim = null;
 
       if (statusRaw.includes('APPROV')) {
         badgeClass = 'green';
         statusText = 'Approved';
         statusKey = 'APPROVED';
+        claim = 'May 22, 2025 (Window 2)';
       } else if (statusRaw.includes('PROCESS')) {
         badgeClass = 'blue';
         statusText = 'Processing';
@@ -1988,28 +2019,40 @@ function renderStudentHistoryTable() {
         badgeClass = 'purple';
         statusText = 'For Release';
         statusKey = 'FOR_RELEASE';
+        claim = 'May 16, 2025 (Window 2)';
       }
 
       const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
       const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
 
-      return `
-        <tr data-history-status="${statusKey}">
-          <td><strong>${escapeHtml(reqId)}</strong></td>
-          <td>${escapeHtml(req.document_type || 'Official Document')}</td>
-          <td>${dateStr} 10:24 AM</td>
-          <td><span class="badge-status-pill ${badgeClass}">&bull; ${statusText}</span></td>
-          <td><button class="btn-ref-link" data-req-id="${escapeHtml(reqId)}">View Details &rarr;</button></td>
-        </tr>
-      `;
-    }).join('');
-
-    tbody.querySelectorAll('[data-req-id]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        openRequestDetailsModal(btn.getAttribute('data-req-id'));
-      });
+      return {
+        id: reqId,
+        doc: req.document_type || 'Official Document',
+        date: dateStr + ' 10:24 AM',
+        status: statusKey,
+        statusText: statusText,
+        badge: badgeClass,
+        claim: claim
+      };
     });
   }
+
+  tbody.innerHTML = rowsToRender.map(row => `
+    <tr data-history-status="${row.status}">
+      <td><strong>${escapeHtml(row.id)}</strong></td>
+      <td>${escapeHtml(row.doc)}</td>
+      <td>${escapeHtml(row.date)}</td>
+      <td><span class="badge-status-pill ${row.badge}">&bull; ${row.statusText}</span></td>
+      <td>${row.claim ? `<span class="badge-status-pill green">${escapeHtml(row.claim)}</span>` : '<span class="text-muted">--</span>'}</td>
+      <td><button class="btn-ref-link" data-req-id="${escapeHtml(row.id)}">View Details &rarr;</button></td>
+    </tr>
+  `).join('');
+
+  tbody.querySelectorAll('[data-req-id]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openRequestDetailsModal(btn.getAttribute('data-req-id'));
+    });
+  });
 }
 
 function openRequestDetailsModal(reqId) {
@@ -2029,10 +2072,23 @@ function openRequestDetailsModal(reqId) {
   const statusRaw = (req.status || 'PENDING').toUpperCase();
   let badgeClass = 'green';
   let statusText = 'Approved';
-  if (statusRaw.includes('APPROV')) { badgeClass = 'green'; statusText = 'Approved'; }
-  else if (statusRaw.includes('PROCESS')) { badgeClass = 'blue'; statusText = 'Processing'; }
-  else if (statusRaw.includes('RELEASE')) { badgeClass = 'purple'; statusText = 'For Release'; }
-  else if (statusRaw.includes('PENDING')) { badgeClass = 'gray'; statusText = 'Pending'; }
+  let isComplete = false;
+
+  if (statusRaw.includes('APPROV')) {
+    badgeClass = 'green';
+    statusText = 'Approved';
+    isComplete = true;
+  } else if (statusRaw.includes('RELEASE')) {
+    badgeClass = 'purple';
+    statusText = 'For Release';
+    isComplete = true;
+  } else if (statusRaw.includes('PROCESS')) {
+    badgeClass = 'blue';
+    statusText = 'Processing';
+  } else if (statusRaw.includes('PENDING')) {
+    badgeClass = 'gray';
+    statusText = 'Pending';
+  }
 
   document.getElementById('detailsModalReqId').textContent = req.tracking_number || reqId;
   const badgeEl = document.getElementById('detailsModalBadge');
@@ -2044,6 +2100,17 @@ function openRequestDetailsModal(reqId) {
   document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || new Date().toISOString()) + ' 10:24 AM';
   document.getElementById('detailsModalRemarks').textContent = req.remarks || 'None specified';
 
+  // When to receive / Pickup Schedule: ONLY show once approved / completed as requested
+  const claimRow = document.getElementById('detailsModalClaimRow');
+  if (claimRow) {
+    if (isComplete) {
+      claimRow.style.display = 'flex';
+      document.getElementById('detailsModalClaimDate').textContent = 'May 22, 2025 (Registrar Window 2)';
+    } else {
+      claimRow.style.display = 'none';
+    }
+  }
+
   // Build timeline steps
   const tlEl = document.getElementById('detailsModalTimeline');
   tlEl.innerHTML = `
@@ -2054,15 +2121,15 @@ function openRequestDetailsModal(reqId) {
         <div class="text-muted">${formatDate(req.date_submitted || new Date().toISOString())} 10:24 AM &bull; Student submission verified</div>
       </div>
     </div>
-    <div class="timeline-step ${statusRaw.includes('PROCESS') || statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? 'completed' : 'current'}">
-      <div class="step-circle">${statusRaw.includes('PROCESS') || statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? '&#10003;' : '2'}</div>
+    <div class="timeline-step ${statusRaw.includes('PROCESS') || isComplete ? 'completed' : 'current'}">
+      <div class="step-circle">${statusRaw.includes('PROCESS') || isComplete ? '&#10003;' : '2'}</div>
       <div class="step-desc">
         <strong>2. Under Review &amp; Processing</strong>
         <div class="text-muted">Office of the Registrar assigned evaluation</div>
       </div>
     </div>
-    <div class="timeline-step ${statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? 'completed' : ''}">
-      <div class="step-circle">${statusRaw.includes('APPROV') || statusRaw.includes('RELEASE') ? '&#10003;' : '3'}</div>
+    <div class="timeline-step ${isComplete ? 'completed' : ''}">
+      <div class="step-circle">${isComplete ? '&#10003;' : '3'}</div>
       <div class="step-desc">
         <strong>3. Approved for Release</strong>
         <div class="text-muted">Document prepared with official seal and dry stamp</div>
@@ -2072,7 +2139,7 @@ function openRequestDetailsModal(reqId) {
       <div class="step-circle">${statusRaw.includes('RELEASE') ? '&#10003;' : '4'}</div>
       <div class="step-desc">
         <strong>4. Document Released / Claimed</strong>
-        <div class="text-muted">Ready for pickup at Registrar counter Window 2</div>
+        <div class="text-muted">Claimed at Registrar Counter Window 2</div>
       </div>
     </div>
   `;
@@ -2080,22 +2147,224 @@ function openRequestDetailsModal(reqId) {
   modal.style.display = 'flex';
 }
 
+// -------------------------------------------------------------------------
+// IMAGE CROPPING FUNCTIONALITY
+// -------------------------------------------------------------------------
+
+function openImageCropper(imageSource) {
+  const modal = document.getElementById('modalCropPhoto');
+  if (!modal) return;
+
+  const canvas = document.getElementById('cropCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const img = new Image();
+  img.onload = () => {
+    cropperState.img = img;
+    cropperState.zoom = 1;
+    cropperState.rotation = 0;
+    cropperState.panX = 0;
+    cropperState.panY = 0;
+
+    const zoomSlider = document.getElementById('cropZoomRange');
+    if (zoomSlider) zoomSlider.value = 1;
+
+    renderCropCanvas();
+    modal.style.display = 'flex';
+  };
+  img.src = imageSource;
+}
+
+function renderCropCanvas() {
+  const canvas = document.getElementById('cropCanvas');
+  if (!canvas || !cropperState.img) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.save();
+
+  // Move origin to center of canvas
+  ctx.translate(w / 2 + cropperState.panX, h / 2 + cropperState.panY);
+  ctx.rotate((cropperState.rotation * Math.PI) / 180);
+  ctx.scale(cropperState.zoom, cropperState.zoom);
+
+  // Draw image centered
+  const imgW = cropperState.img.width;
+  const imgH = cropperState.img.height;
+  const scale = Math.max(w / imgW, h / imgH);
+  const dw = imgW * scale;
+  const dh = imgH * scale;
+
+  ctx.drawImage(cropperState.img, -dw / 2, -dh / 2, dw, dh);
+  ctx.restore();
+
+  renderCropPreview();
+}
+
+function renderCropPreview() {
+  const previewCanvas = document.getElementById('cropCircularPreview');
+  const sourceCanvas = document.getElementById('cropCanvas');
+  if (!previewCanvas || !sourceCanvas) return;
+
+  const pCtx = previewCanvas.getContext('2d');
+  pCtx.clearRect(0, 0, 72, 72);
+
+  pCtx.save();
+  pCtx.beginPath();
+  pCtx.arc(36, 36, 36, 0, Math.PI * 2);
+  pCtx.clip();
+
+  // Sample the 240px circle from the center of sourceCanvas (w:340, h:340 -> center box [50, 50, 240, 240])
+  pCtx.drawImage(sourceCanvas, 50, 50, 240, 240, 0, 0, 72, 72);
+  pCtx.restore();
+}
+
+function getCroppedDataUrl() {
+  const sourceCanvas = document.getElementById('cropCanvas');
+  if (!sourceCanvas) return null;
+
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = 256;
+  exportCanvas.height = 256;
+  const eCtx = exportCanvas.getContext('2d');
+
+  eCtx.save();
+  eCtx.beginPath();
+  eCtx.arc(128, 128, 128, 0, Math.PI * 2);
+  eCtx.clip();
+  eCtx.drawImage(sourceCanvas, 50, 50, 240, 240, 0, 0, 256, 256);
+  eCtx.restore();
+
+  return exportCanvas.toDataURL('image/jpeg', 0.92);
+}
+
+function setupImageCropperListeners() {
+  const container = document.getElementById('cropperContainer');
+  const zoomSlider = document.getElementById('cropZoomRange');
+  const rotateBtn = document.getElementById('btnRotateCropImg');
+  const cancelBtn = document.getElementById('btnCancelCropPhoto');
+  const closeBtn = document.getElementById('btnCloseCropPhoto');
+  const applyBtn = document.getElementById('btnApplyCropPhoto');
+  const modal = document.getElementById('modalCropPhoto');
+
+  // Mouse Drag / Touch Drag
+  if (container) {
+    container.addEventListener('mousedown', (e) => {
+      cropperState.isDragging = true;
+      cropperState.dragStartX = e.clientX - cropperState.panX;
+      cropperState.dragStartY = e.clientY - cropperState.panY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!cropperState.isDragging) return;
+      cropperState.panX = e.clientX - cropperState.dragStartX;
+      cropperState.panY = e.clientY - cropperState.dragStartY;
+      renderCropCanvas();
+    });
+
+    window.addEventListener('mouseup', () => {
+      cropperState.isDragging = false;
+    });
+
+    // Mouse wheel zoom
+    container.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.08 : -0.08;
+      cropperState.zoom = Math.max(0.5, Math.min(3, cropperState.zoom + delta));
+      if (zoomSlider) zoomSlider.value = cropperState.zoom;
+      renderCropCanvas();
+    }, { passive: false });
+  }
+
+  // Zoom range slider
+  zoomSlider?.addEventListener('input', (e) => {
+    cropperState.zoom = parseFloat(e.target.value);
+    renderCropCanvas();
+  });
+
+  // Rotate 90 degrees
+  rotateBtn?.addEventListener('click', () => {
+    cropperState.rotation = (cropperState.rotation + 90) % 360;
+    renderCropCanvas();
+  });
+
+  // Close / Cancel
+  cancelBtn?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+  closeBtn?.addEventListener('click', () => {
+    if (modal) modal.style.display = 'none';
+  });
+
+  // Apply & Save
+  applyBtn?.addEventListener('click', () => {
+    const croppedUrl = getCroppedDataUrl();
+    if (!croppedUrl) return;
+
+    const user = state.currentUser || {};
+    const id = user.studentId || 'REQ-00234';
+
+    localStorage.setItem('cca_student_avatar_' + id, croppedUrl);
+    localStorage.setItem('cca_student_avatar', croppedUrl);
+
+    applyAvatarToElements(croppedUrl);
+    triggerStudentViewLoader();
+
+    if (modal) modal.style.display = 'none';
+    showToast('Profile photo cropped and saved successfully!', 'success');
+  });
+}
+
+// -------------------------------------------------------------------------
+// EVENT LISTENERS SETUP
+// -------------------------------------------------------------------------
+
 function setupStudentRefPortalListeners() {
+  setupImageCropperListeners();
+
   // 1. Sidebar Nav & Tab Switching
   document.addEventListener('click', (e) => {
     const tabBtn = e.target.closest('[data-student-tab]');
     if (tabBtn) {
       const tabName = tabBtn.getAttribute('data-student-tab');
       if (tabName) {
+        triggerStudentViewLoader();
         switchStudentSubtab(tabName);
-        // Also close dropdown if opened
         const drop = document.getElementById('studentUserDropdown');
         if (drop) drop.classList.remove('show');
       }
     }
   });
 
-  // 2. Topbar Dropdown Toggle
+  // 2. Notification Bell: Clicking toggles dropdown AND disappears the notification count badge!
+  const bellBtn = document.getElementById('btnStudentTopbarBell');
+  const notifDropdown = document.getElementById('topbarNotifDropdown');
+  const bellBadge = document.getElementById('topbarBellBadge');
+
+  if (bellBtn && notifDropdown) {
+    bellBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Hide badge count as requested
+      if (bellBadge) bellBadge.style.display = 'none';
+      notifDropdown.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!bellBtn.contains(e.target) && !notifDropdown.contains(e.target)) {
+        notifDropdown.classList.remove('show');
+      }
+    });
+
+    document.getElementById('btnClearNotifs')?.addEventListener('click', () => {
+      document.querySelectorAll('.notif-item.unread').forEach(item => item.classList.remove('unread'));
+      showToast('Notifications marked as read.', 'info');
+      notifDropdown.classList.remove('show');
+    });
+  }
+
+  // 3. Topbar User Chip Dropdown Toggle
   const userChip = document.getElementById('topbarUserChip');
   const userDropdown = document.getElementById('studentUserDropdown');
   if (userChip && userDropdown) {
@@ -2116,24 +2385,7 @@ function setupStudentRefPortalListeners() {
     handleLogout();
   });
 
-  // 3. Document Types "Request ->" buttons
-  document.querySelectorAll('.btn-doc-request').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const targetDoc = btn.getAttribute('data-target-doc');
-      const select = document.getElementById('studentDocTypeSelect');
-      if (select && targetDoc) {
-        select.value = targetDoc;
-      }
-      const section = document.getElementById('requestFormCardSection');
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth' });
-      }
-      document.getElementById('studentDocPurposeSelect')?.focus();
-    });
-  });
-
-  // Document Type Box Click
+  // 4. Clickable Document Type Cards (Auto-selects in form & scrolls)
   document.querySelectorAll('.doc-type-box').forEach(box => {
     box.addEventListener('click', () => {
       const targetDoc = box.getAttribute('data-doctype');
@@ -2145,17 +2397,18 @@ function setupStudentRefPortalListeners() {
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
       }
+      document.getElementById('studentDocPurposeInput')?.focus();
     });
   });
 
-  // 4. Request Form Submission
+  // 5. Request Form Submission (With Purpose as Text Input)
   const docForm = document.getElementById('studentRefDocForm');
   if (docForm) {
     docForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const docType = document.getElementById('studentDocTypeSelect')?.value;
-      const purpose = document.getElementById('studentDocPurposeSelect')?.value;
+      const purpose = document.getElementById('studentDocPurposeInput')?.value.trim();
       const remarks = document.getElementById('studentDocRemarksInput')?.value || '';
 
       if (!docType) {
@@ -2163,7 +2416,7 @@ function setupStudentRefPortalListeners() {
         return;
       }
       if (!purpose) {
-        showToast('Please select a purpose.', 'error');
+        showToast('Please enter the purpose of your request.', 'error');
         return;
       }
 
@@ -2171,7 +2424,7 @@ function setupStudentRefPortalListeners() {
       const payload = {
         studentName: user.fullName || 'Juan Dela Cruz',
         studentId: user.studentId || 'REQ-00234',
-        course: user.course || 'BSIT',
+        course: user.course || 'BS Information Technology',
         documentType: docType,
         purpose: purpose,
         dateSubmitted: new Date().toISOString().split('T')[0],
@@ -2180,6 +2433,7 @@ function setupStudentRefPortalListeners() {
       };
 
       try {
+        triggerStudentViewLoader();
         const res = await fetch('/api/requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2198,7 +2452,7 @@ function setupStudentRefPortalListeners() {
 
         setTimeout(() => {
           switchStudentSubtab('tracking');
-        }, 1000);
+        }, 800);
 
       } catch (err) {
         showToast(err.message, 'error');
@@ -2210,7 +2464,7 @@ function setupStudentRefPortalListeners() {
     });
   }
 
-  // 5. Track Filter & Search
+  // 6. Track Filter & Search
   const trackSearch = document.getElementById('trackSearchInput');
   const trackStatus = document.getElementById('trackStatusSelect');
 
@@ -2245,19 +2499,14 @@ function setupStudentRefPortalListeners() {
     });
   });
 
-  // 6. Photo upload and preview
-  function handlePhotoUpload(fileInput) {
+  // 7. Photo upload triggering the interactive cropper
+  function handleFileSelect(fileInput) {
     if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
     const file = fileInput.files[0];
     const reader = new FileReader();
-    reader.onload = function(evt) {
-      const dataUrl = evt.target.result;
-      const user = state.currentUser || {};
-      const id = user.studentId || 'REQ-00234';
-      localStorage.setItem('cca_student_avatar_' + id, dataUrl);
-      localStorage.setItem('cca_student_avatar', dataUrl);
-      applyAvatarToElements(dataUrl);
-      showToast('Profile photo updated successfully!', 'success');
+    reader.onload = (e) => {
+      openImageCropper(e.target.result);
+      fileInput.value = '';
     };
     reader.readAsDataURL(file);
   }
@@ -2266,15 +2515,15 @@ function setupStudentRefPortalListeners() {
   document.getElementById('btnChangeProfilePhoto')?.addEventListener('click', () => {
     fileInputProf?.click();
   });
-  fileInputProf?.addEventListener('change', () => handlePhotoUpload(fileInputProf));
+  fileInputProf?.addEventListener('change', () => handleFileSelect(fileInputProf));
 
   const fileInputSet = document.getElementById('settingsPhotoFileInput');
   document.getElementById('btnSettingsChangePhoto')?.addEventListener('click', () => {
     fileInputSet?.click();
   });
-  fileInputSet?.addEventListener('change', () => handlePhotoUpload(fileInputSet));
+  fileInputSet?.addEventListener('change', () => handleFileSelect(fileInputSet));
 
-  // 7. Modals: Details Modal Close
+  // 8. Details Modal Close
   const detailsModal = document.getElementById('modalRequestDetails');
   document.getElementById('btnCloseRequestDetails')?.addEventListener('click', () => {
     if (detailsModal) detailsModal.style.display = 'none';
@@ -2286,46 +2535,25 @@ function setupStudentRefPortalListeners() {
     if (detailsModal) detailsModal.style.display = 'none';
   });
 
-  // Support Modal
-  const supportModal = document.getElementById('modalSupportTeam');
-  function openSupportModal() {
-    if (supportModal) supportModal.style.display = 'flex';
-  }
-  document.getElementById('btnSidebarHelp')?.addEventListener('click', openSupportModal);
-  document.getElementById('btnDashHelpSupport')?.addEventListener('click', openSupportModal);
-  document.getElementById('btnCloseSupportTeam')?.addEventListener('click', () => {
-    if (supportModal) supportModal.style.display = 'none';
-  });
-  document.getElementById('btnCloseSupportBtn')?.addEventListener('click', () => {
-    if (supportModal) supportModal.style.display = 'none';
-  });
-  document.getElementById('backdropSupportTeam')?.addEventListener('click', () => {
-    if (supportModal) supportModal.style.display = 'none';
-  });
-  document.getElementById('btnSendSupportMessage')?.addEventListener('click', () => {
-    const sub = document.getElementById('supportSubjectInput')?.value.trim();
-    const msg = document.getElementById('supportMessageInput')?.value.trim();
-    if (!sub || !msg) {
-      showToast('Please enter both subject and message.', 'error');
-      return;
-    }
-    showToast('Your message has been sent to the Registrar Support Team.', 'success');
-    if (supportModal) supportModal.style.display = 'none';
-    const sIn = document.getElementById('supportSubjectInput'); if (sIn) sIn.value = '';
-    const mIn = document.getElementById('supportMessageInput'); if (mIn) mIn.value = '';
-  });
-
-  // Edit Personal Information Modal
+  // 9. Edit Registered Profile Modal (Works smoothly with only register fields)
   const editModal = document.getElementById('modalEditPersonalInfo');
   document.getElementById('btnEditPersonalInfo')?.addEventListener('click', () => {
     if (!editModal) return;
-    const curAddr = document.getElementById('personalAddress')?.textContent || '123 Mabini St., San Jose, Bulacan';
-    const curEmer = document.getElementById('personalEmergency')?.textContent.replace(/\n/g, ' ') || 'Maria Dela Cruz (0917 987 6543)';
-    const curRel = document.getElementById('personalRelationship')?.textContent || 'Mother';
+    const curName = document.getElementById('personalFullName')?.textContent || '';
+    const curEmail = document.getElementById('personalEmail')?.textContent || '';
+    const curProg = document.getElementById('personalProgram')?.textContent || '';
 
-    const inAddr = document.getElementById('modalInputAddress'); if (inAddr) inAddr.value = curAddr;
-    const inEmer = document.getElementById('modalInputEmergency'); if (inEmer) inEmer.value = curEmer;
-    const inRel = document.getElementById('modalInputRelationship'); if (inRel) inRel.value = curRel;
+    const inName = document.getElementById('modalInputFullName'); if (inName) inName.value = curName;
+    const inEmail = document.getElementById('modalInputEmail'); if (inEmail) inEmail.value = curEmail;
+    const inProg = document.getElementById('modalInputProgram');
+    if (inProg) {
+      for (let i = 0; i < inProg.options.length; i++) {
+        if (curProg.includes(inProg.options[i].value) || inProg.options[i].text.includes(curProg)) {
+          inProg.selectedIndex = i;
+          break;
+        }
+      }
+    }
 
     editModal.style.display = 'flex';
   });
@@ -2341,49 +2569,59 @@ function setupStudentRefPortalListeners() {
   });
 
   document.getElementById('btnSaveEditPersonal')?.addEventListener('click', () => {
-    const addr = document.getElementById('modalInputAddress')?.value.trim();
-    const emer = document.getElementById('modalInputEmergency')?.value.trim();
-    const rel = document.getElementById('modalInputRelationship')?.value.trim();
+    const name = document.getElementById('modalInputFullName')?.value.trim();
+    const email = document.getElementById('modalInputEmail')?.value.trim();
+    const prog = document.getElementById('modalInputProgram')?.value;
 
-    if (!addr || !emer || !rel) {
-      showToast('Please fill out all personal info fields.', 'error');
+    if (!name || !email) {
+      showToast('Name and Email are required.', 'error');
       return;
     }
 
-    const user = state.currentUser || {};
-    const key = 'cca_student_profile_' + (user.studentId || 'default');
+    triggerStudentViewLoader();
+
+    if (state.currentUser) {
+      state.currentUser.fullName = name;
+      state.currentUser.email = email;
+      state.currentUser.course = prog;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+    }
+
+    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
     let profile = {};
     try {
       const raw = localStorage.getItem(key);
       if (raw) profile = JSON.parse(raw);
     } catch (e) {}
 
-    profile.address = addr;
-    profile.emergency = emer;
-    profile.relationship = rel;
+    profile.fullName = name;
+    profile.email = email;
+    profile.course = prog;
     localStorage.setItem(key, JSON.stringify(profile));
     localStorage.setItem('cca_student_profile', JSON.stringify(profile));
 
     syncStudentRefProfile();
-    showToast('Personal information updated successfully.', 'success');
+    showToast('Profile information updated successfully!', 'success');
     if (editModal) editModal.style.display = 'none';
   });
 
-  // 8. Account Settings Save
+  // 10. Account Settings Save
   document.getElementById('btnSettingsSave')?.addEventListener('click', () => {
     const full = document.getElementById('settingsInputFullName')?.value.trim();
     const email = document.getElementById('settingsInputEmail')?.value.trim();
-    const contact = document.getElementById('settingsInputContact')?.value.trim();
+    const prog = document.getElementById('settingsInputProgram')?.value;
 
     if (!full || !email) {
       showToast('Full name and email are required.', 'error');
       return;
     }
 
+    triggerStudentViewLoader();
+
     if (state.currentUser) {
       state.currentUser.fullName = full;
       state.currentUser.email = email;
-      state.currentUser.phone = contact;
+      state.currentUser.course = prog;
       localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
     }
 
@@ -2396,12 +2634,12 @@ function setupStudentRefPortalListeners() {
 
     profile.fullName = full;
     profile.email = email;
-    profile.phone = contact;
+    profile.course = prog;
     localStorage.setItem(key, JSON.stringify(profile));
     localStorage.setItem('cca_student_profile', JSON.stringify(profile));
 
     syncStudentRefProfile();
-    showToast('Account settings saved successfully.', 'success');
+    showToast('Account settings saved successfully!', 'success');
   });
 
   document.getElementById('btnSettingsCancel')?.addEventListener('click', () => {
@@ -2413,7 +2651,18 @@ function setupStudentRefPortalListeners() {
     switchStudentSubtab('change-password');
   });
 
-  // 9. Change Password Form & Live Strength Meter
+  // 11. Dark Mode Toggle
+  const darkToggle = document.getElementById('toggleDarkMode');
+  darkToggle?.addEventListener('change', () => {
+    const isDark = darkToggle.checked;
+    triggerStudentViewLoader();
+    document.getElementById('viewStudentPortal')?.classList.toggle('student-dark-mode', isDark);
+    document.body.classList.toggle('student-dark-mode', isDark);
+    localStorage.setItem('cca_dark_mode', isDark ? 'true' : 'false');
+    showToast(isDark ? 'Dark mode enabled.' : 'Light mode enabled.', 'info');
+  });
+
+  // 12. Change Password Form & Live Strength Meter
   const newPwInput = document.getElementById('inputNewPassword');
   const curPwInput = document.getElementById('inputCurrentPassword');
   const confPwInput = document.getElementById('inputConfirmNewPassword');
@@ -2517,13 +2766,13 @@ function setupStudentRefPortalListeners() {
 
       const user = state.currentUser || {};
       const payload = {
-        email: user.email,
-        studentId: user.studentId,
+        identifier: user.email || user.studentId,
         currentPassword,
         newPassword
       };
 
       try {
+        triggerStudentViewLoader();
         const res = await fetch('/api/auth/change-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2541,7 +2790,7 @@ function setupStudentRefPortalListeners() {
 
         setTimeout(() => {
           switchStudentSubtab('settings');
-        }, 1500);
+        }, 1200);
 
       } catch (err) {
         showToast(err.message, 'error');
@@ -2553,4 +2802,3 @@ function setupStudentRefPortalListeners() {
     });
   }
 }
-

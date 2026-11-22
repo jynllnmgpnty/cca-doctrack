@@ -4745,3 +4745,546 @@ input:focus, select:focus, textarea:focus {
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   STUDENT PORTAL ENHANCEMENTS V2
+   - Notification Dropdown Popover & Disappearing Badge
+   - Loading Transition Bar
+   - Clickable Available Document Cards
+   - Registered Profile Grid (Matches Register Fields)
+   - When to Receive / Pickup Claim Date
+   - Interactive Image Cropper Modal
+   - Dark Mode Implementation
+   ========================================================================== */
+
+/* 1. Loading Transition Bar */
+.student-view-loader {
+  height: 3px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: linear-gradient(90deg, #2563EB, #60A5FA, #2563EB);
+  background-size: 200% 100%;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.student-view-loader.loading {
+  opacity: 1;
+  animation: moveLoader 1s infinite linear;
+}
+
+@keyframes moveLoader {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 2. Notification Popover */
+.topbar-bell-wrapper {
+  position: relative;
+}
+
+.topbar-notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -50px;
+  width: 320px;
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  display: none;
+  z-index: 110;
+  overflow: hidden;
+}
+
+.topbar-notif-dropdown.show {
+  display: block;
+  animation: fadeInDown 0.15s ease-out;
+}
+
+.notif-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.notif-header-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.btn-clear-notifs {
+  background: none;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #2563EB;
+  cursor: pointer;
+}
+
+.btn-clear-notifs:hover {
+  text-decoration: underline;
+}
+
+.notif-dropdown-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #F8FAFC;
+  transition: background-color 0.15s ease;
+}
+
+.notif-item:hover {
+  background-color: #F8FAFC;
+}
+
+.notif-item.unread {
+  background-color: #F0F7FF;
+}
+
+.notif-text-col {
+  flex: 1;
+}
+
+.notif-text-col strong {
+  font-size: 12.5px;
+  color: #0F172A;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.notif-text-col p {
+  font-size: 11.5px;
+  color: #64748B;
+  margin: 0 0 4px;
+  line-height: 1.35;
+}
+
+.notif-time-ago {
+  font-size: 10.5px;
+  color: #94A3B8;
+}
+
+/* 3. Clickable Available Document Cards (No buttons) */
+.clickable-doc-card {
+  cursor: pointer;
+  padding: 22px 16px 20px;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clickable-doc-card:hover {
+  transform: translateY(-4px);
+  border-color: #2563EB;
+  box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.18);
+  background-color: #F8FAFC;
+}
+
+.clickable-doc-card:active {
+  transform: translateY(-1px);
+}
+
+/* 4. Registered Account Info Grid */
+.registered-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 24px;
+  padding-top: 8px;
+}
+
+@media (max-width: 900px) {
+  .registered-info-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .registered-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 5. Full Width Overview Card */
+.ref-bottom-full-card {
+  width: 100%;
+}
+
+.overview-stat-card.full-width {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+/* 6. When to Receive & Pickup Info */
+.track-receive-date {
+  font-size: 12px;
+  color: #15803D;
+  background-color: #DCFCE7;
+  border-radius: 8px;
+  padding: 4px 10px;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.claim-info-row {
+  background-color: #F0FDF4;
+  border: 1px solid #BBF7D0;
+  border-radius: 8px;
+  padding: 8px 12px !important;
+  margin-top: 10px;
+}
+
+.text-green {
+  color: #15803D;
+  font-weight: 700;
+}
+
+/* 7. Interactive Crop Modal */
+.ref-dialog-crop {
+  max-width: 440px;
+  width: 90%;
+  background-color: #FFFFFF;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.crop-modal-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cropper-canvas-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  background-color: #0F172A;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.cropper-canvas-container:active {
+  cursor: grabbing;
+}
+
+#cropCanvas {
+  display: block;
+  user-select: none;
+}
+
+.crop-overlay-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65);
+  border: 2px dashed rgba(255, 255, 255, 0.85);
+  pointer-events: none;
+}
+
+.cropper-toolbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.zoom-range-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.zoom-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.zoom-range-wrapper input[type="range"] {
+  flex: 1;
+  accent-color: #2563EB;
+}
+
+.crop-live-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 8px 16px;
+  width: 100%;
+}
+
+.preview-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748B;
+}
+
+#cropCircularPreview {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid #2563EB;
+  display: block;
+}
+
+/* ==========================================================================
+   8. DARK MODE STYLES
+   ========================================================================== */
+#viewStudentPortal.student-dark-mode,
+body.student-dark-mode {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+.student-dark-mode .student-ref-topbar {
+  background-color: #1E293B;
+  border-bottom-color: #334155;
+}
+
+.student-dark-mode .student-ref-topbar .topbar-brand-title {
+  color: #F8FAFC;
+}
+
+.student-dark-mode .topbar-bell-btn,
+.student-dark-mode .topbar-user-chip {
+  background-color: #1E293B;
+  border-color: #334155;
+  color: #CBD5E1;
+}
+
+.student-dark-mode .topbar-bell-btn:hover,
+.student-dark-mode .topbar-user-chip:hover {
+  background-color: #334155;
+  border-color: #475569;
+}
+
+.student-dark-mode .student-user-dropdown,
+.student-dark-mode .topbar-notif-dropdown {
+  background-color: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+.student-dark-mode .dropdown-user-name,
+.student-dark-mode .notif-header-title {
+  color: #F8FAFC;
+}
+
+.student-dark-mode .dropdown-divider,
+.student-dark-mode .notif-dropdown-header {
+  border-color: #334155;
+  background-color: #1E293B;
+}
+
+.student-dark-mode .dropdown-item {
+  color: #CBD5E1;
+}
+
+.student-dark-mode .dropdown-item:hover {
+  background-color: #334155;
+  color: #60A5FA;
+}
+
+.student-dark-mode .notif-item {
+  border-bottom-color: #334155;
+}
+
+.student-dark-mode .notif-item:hover {
+  background-color: #334155;
+}
+
+.student-dark-mode .notif-item.unread {
+  background-color: #1E3A8A22;
+}
+
+.student-dark-mode .notif-text-col strong {
+  color: #F8FAFC;
+}
+
+.student-dark-mode .student-ref-sidebar {
+  background-color: #1E293B;
+  border-right-color: #334155;
+}
+
+.student-dark-mode .student-sidebar-name {
+  color: #F8FAFC;
+}
+
+.student-dark-mode .ref-nav-item {
+  color: #94A3B8;
+}
+
+.student-dark-mode .ref-nav-item:hover {
+  background-color: #334155;
+  color: #F8FAFC;
+}
+
+.student-dark-mode .ref-nav-item.active {
+  background-color: #1E3A8A;
+  color: #93C5FD;
+}
+
+.student-dark-mode .student-ref-main {
+  background-color: #0F172A;
+}
+
+.student-dark-mode .ref-white-card {
+  background-color: #1E293B;
+  border-color: #334155;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.student-dark-mode .card-ref-title,
+.student-dark-mode .ref-page-title,
+.student-dark-mode .hero-title,
+.student-dark-mode .profile-full-name,
+.student-dark-mode .doc-card-title,
+.student-dark-mode .track-stat-num,
+.student-dark-mode .track-req-id,
+.student-dark-mode .overview-num,
+.student-dark-mode .info-val-strong,
+.student-dark-mode .meta-val,
+.student-dark-mode .ref-field-label,
+.student-dark-mode .settings-row-lbl,
+.student-dark-mode .toggle-item-title,
+.student-dark-mode .modal-title {
+  color: #F8FAFC !important;
+}
+
+.student-dark-mode .card-ref-sub,
+.student-dark-mode .ref-page-subtitle,
+.student-dark-mode .hero-subtitle,
+.student-dark-mode .crumb-link,
+.student-dark-mode .crumb-active,
+.student-dark-mode .meta-icon-label,
+.student-dark-mode .info-lbl,
+.student-dark-mode .doc-card-sub,
+.student-dark-mode .track-stat-lbl,
+.student-dark-mode .track-doc-type,
+.student-dark-mode .overview-lbl,
+.student-dark-mode .toggle-item-sub,
+.student-dark-mode .modal-subtitle {
+  color: #94A3B8 !important;
+}
+
+.student-dark-mode .ref-hero-banner {
+  background: linear-gradient(135deg, #1E3A8A 0%, #1E293B 100%);
+  border-color: #2563EB;
+}
+
+.student-dark-mode .ref-quick-card,
+.student-dark-mode .doc-type-box,
+.student-dark-mode .track-stat-card,
+.student-dark-mode .ref-track-card {
+  background-color: #1E293B;
+  border-color: #334155;
+}
+
+.student-dark-mode .ref-quick-card:hover,
+.student-dark-mode .doc-type-box:hover,
+.student-dark-mode .ref-track-card:hover {
+  background-color: #334155;
+  border-color: #60A5FA;
+}
+
+.student-dark-mode .ref-input-box,
+.student-dark-mode .ref-select-lg,
+.student-dark-mode .ref-textarea-lg,
+.student-dark-mode .ref-select-control,
+.student-dark-mode .ref-search-input,
+.student-dark-mode .ref-select-sm {
+  background-color: #0F172A;
+  border-color: #334155;
+  color: #F8FAFC;
+}
+
+.student-dark-mode .ref-history-table th {
+  background-color: #0F172A;
+  color: #94A3B8;
+  border-bottom-color: #334155;
+}
+
+.student-dark-mode .ref-history-table td {
+  border-bottom-color: #334155;
+  color: #CBD5E1;
+}
+
+.student-dark-mode .ref-dialog-md,
+.student-dark-mode .ref-dialog-crop {
+  background-color: #1E293B;
+  border: 1px solid #334155;
+  color: #F8FAFC;
+}
+
+.student-dark-mode .btn-ref-outline,
+.student-dark-mode .btn-ref-outline-sm,
+.student-dark-mode .btn-ref-outline-rounded,
+.student-dark-mode .btn-change-photo {
+  background-color: #1E293B;
+  border-color: #475569;
+  color: #CBD5E1;
+}
+
+.student-dark-mode .btn-ref-outline:hover,
+.student-dark-mode .btn-ref-outline-sm:hover,
+.student-dark-mode .btn-ref-outline-rounded:hover,
+.student-dark-mode .btn-change-photo:hover {
+  background-color: #334155;
+  color: #FFFFFF;
+}
+
+.student-dark-mode .student-ref-footer {
+  border-top-color: #334155;
+}
+
+.student-dark-mode .footer-brand-title {
+  color: #F8FAFC;
+}
+
+.student-dark-mode .footer-brand-sub,
+.student-dark-mode .footer-right-copy {
+  color: #64748B;
+}
+
+.student-dark-mode .ref-pw-requirements-card,
+.student-dark-mode .crop-live-preview-box {
+  background-color: #0F172A;
+  border-color: #334155;
+}
+
+.student-dark-mode .modal-detail-row,
+.student-dark-mode .notif-row-item,
+.student-dark-mode .recent-req-row,
+.student-dark-mode .toggle-row-item {
+  border-bottom-color: #334155;
+}
