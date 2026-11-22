@@ -6159,3 +6159,18 @@ html.student-dark-mode .loader-caption {
 .student-dark-mode .bar-col-label {
   color: #94A3B8;
 }
+
+.portal-sidebar-footer {
+  margin-top: auto;
+  padding: 16px 14px;
+  border-top: 1px solid #E2E8F0;
+  text-align: center;
+}
+
+.student-dark-mode .portal-sidebar-footer {
+  border-top-color: #334155;
+}
+
+.student-dark-mode .portal-sidebar-footer div {
+  color: #94A3B8 !important;
+}
