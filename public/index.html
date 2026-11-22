@@ -125,636 +125,539 @@
   </div>
 
 
-  <!-- VIEW 1: LANDING PAGE (GITBOOK-INSPIRED MODERN SCHOOL DOCUMENT SYSTEM) -->
+  <!-- VIEW 1: LANDING PAGE (NEW LIGHT BLUE RADIANT SAAS DESIGN) -->
   <div class="app-view active" id="viewLanding">
     
-    <!-- GitBook Style Dark Header -->
-    <header class="gitbook-header">
-      <div class="container header-inner">
-        <a href="#" class="brand-group" id="btnLandingBrand">
-          <img src="logo.png" alt="Christ Centered Academy Logo" class="cca-logo-img">
-          <div class="brand-titles">
-            <span class="school-name">CHRIST CENTERED ACADEMY</span>
-            <span class="system-name">CCA DocTrack</span>
-          </div>
-        </a>
+    <!-- Outer Wrapper for Framed Hero Design -->
+    <div class="canvas-wrapper">
+      
+      <!-- HERO CONTAINER CARD (ROUNDED, BLUE GRADIENT, FLOATING CARDS) -->
+      <section class="hero-canvas-card">
+        
+        <!-- Header / Navbar inside Hero -->
+        <header class="hero-top-nav">
+          <a href="#" class="brand-group" id="btnLandingBrand">
+            <img src="logo.png" alt="Christ Centered Academy Logo" class="cca-logo-img">
+            <div class="brand-titles">
+              <span class="school-name">CHRIST CENTERED ACADEMY</span>
+              <span class="system-name-white">CCA DocTrack</span>
+            </div>
+          </a>
 
-        <nav class="gitbook-nav">
-          <a href="#servicesSection" class="nav-link">Services</a>
-          <a href="#showcasePersonal" class="nav-link">Personal Notes</a>
-          <a href="#showcaseKnowledge" class="nav-link">Knowledge Bases</a>
-          <a href="#workflowSection" class="nav-link">How it Works</a>
-        </nav>
+          <nav class="hero-center-nav">
+            <a href="#servicesSection" class="nav-pill-link">Documents</a>
+            <a href="#powerfulPortalSection" class="nav-pill-link">Portals</a>
+            <a href="#trackingSection" class="nav-pill-link">Tracking</a>
+            <a href="#securitySection" class="nav-pill-link">Security</a>
+          </nav>
 
-        <div class="header-right-actions">
-          <div class="db-indicator connected" id="landingDbIndicator" title="Turso Cloud Status">
-            <span class="dot"></span>
-            <span class="label">Turso Connected</span>
-          </div>
-
-          <div class="portal-cta-group" id="landingAuthActions">
-            <button class="btn btn-outline-white btn-sm" id="btnLandingSignIn">
+          <div class="hero-right-nav" id="landingAuthActions">
+            <button class="btn btn-glass-white btn-sm" id="btnLandingSignIn">
               <span>Sign In</span>
             </button>
-            <button class="btn btn-blue-pill btn-sm" id="btnLandingRegister">
-              <span>Go to Dashboard</span>
+            <button class="btn btn-dark-pill btn-sm" id="btnLandingRegister">
+              <span>Register</span>
             </button>
           </div>
-        </div>
-      </div>
-    </header>
+        </header>
 
-    <!-- GitBook Style Hero Section with Diagonal Cut -->
-    <section class="gitbook-hero-section">
-      <div class="hero-diagonal-bg"></div>
-      <div class="container hero-split-container">
-        
-        <!-- Left Hero: Dark Midnight Blue Background with Bold Typography -->
-        <div class="hero-left-content">
-          <h1 class="hero-gitbook-title">
-            Document<br>Everything!
+        <!-- Hero Center Content -->
+        <div class="hero-card-body">
+          <div class="hero-badge-pill">
+            <span class="badge-sparkle">✨</span>
+            <span>Official Student Document Portal</span>
+          </div>
+
+          <h1 class="hero-main-headline">
+            Make Your Document Requests Fast<br>and Secure, with CCA DocTrack
           </h1>
-          <p class="hero-gitbook-subtitle">
-            For you, your users and your<br>team.
-          </p>
-          <div class="hero-action-row">
-            <button class="btn-gitbook-pill" id="btnHeroGetStarted">
-              Get Started
+
+          <!-- Central Search / Action Bar (Pill) -->
+          <div class="hero-search-action-bar">
+            <div class="bar-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
+            <input type="text" id="heroStudentIdInput" placeholder="Enter your Student ID to track (e.g. 23-67894)...">
+            <button class="btn btn-dark-action-pill" id="btnHeroTrack">
+              <span>Get Started</span>
+              <span class="btn-arrow">&rarr;</span>
             </button>
           </div>
-        </div>
 
-        <!-- Right Hero: Layered 3D Isometric Document Graphics -->
-        <div class="hero-right-graphics">
-          <div class="iso-docs-wrapper">
+          <!-- Bottom 3 Floating Cards Emerging from Hero -->
+          <div class="hero-bottom-floating-cards">
             
-            <!-- Layer 3: Good Moral Certificate (Back) -->
-            <div class="iso-doc-card sheet-3">
-              <div class="doc-header-strip red-strip"></div>
-              <div class="doc-content-mock">
-                <div class="doc-badge-micro red">Good Moral Certificate</div>
-                <div class="doc-title-micro">OFFICE OF STUDENT AFFAIRS &bull; CLEARANCE</div>
-                <div class="doc-lines-micro">
-                  <div class="d-line w-80"></div>
-                  <div class="d-line w-60"></div>
-                  <div class="d-line w-90"></div>
-                </div>
-                <div class="doc-stamp-micro red-stamp">✓ CONDUCT VERIFIED</div>
+            <!-- Left Card: Stats -->
+            <div class="hero-float-card card-left">
+              <div class="float-metric-row">
+                <span class="f-num">1,250+</span>
+                <span class="f-badge-soft">Released</span>
               </div>
+              <div class="float-card-title">Student Credentials Issued</div>
+              <div class="float-card-sub">BSIT &bull; BSCS &bull; BSHM &bull; BSBA</div>
+              <div class="float-tag-pill green-pill">✓ 99.8% On-Time Turnaround</div>
             </div>
 
-            <!-- Layer 2: Certificate of Enrollment (Middle) -->
-            <div class="iso-doc-card sheet-2">
-              <div class="doc-header-strip gold-strip"></div>
-              <div class="doc-content-mock">
-                <div class="doc-badge-micro gold">Certificate of Enrollment</div>
-                <div class="doc-title-micro">ACADEMIC YEAR 2026–2027 &bull; 1ST SEMESTER</div>
-                <div class="doc-meta-grid">
-                  <div class="meta-item-micro"><span>Student:</span> Jaynellan Magpantay</div>
-                  <div class="meta-item-micro"><span>Course:</span> BS Information Technology</div>
-                  <div class="meta-item-micro"><span>Status:</span> Regular Enrolled</div>
+            <!-- Center Card: Prominent Request Preview (Glowing Highlight) -->
+            <div class="hero-float-card card-center-glow" id="cardHeroCenterHighlight">
+              <div class="glow-card-header">
+                <div class="glow-doc-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
-                <div class="doc-stamp-micro gold-stamp">OFFICIAL REGISTRAR COPY</div>
+                <div class="glow-header-text">
+                  <span class="glow-label">Official Document Request</span>
+                  <span class="glow-val">Office of the Registrar</span>
+                </div>
+                <span class="glow-status-tag">Certified</span>
               </div>
-            </div>
 
-            <!-- Layer 1: Transcript of Records (Front) -->
-            <div class="iso-doc-card sheet-1">
-              <div class="doc-header-strip navy-strip"></div>
-              <div class="doc-content-mock">
-                <div class="doc-seal-badge">
-                  <img src="logo.png" alt="CCA Seal" class="micro-seal">
-                  <div>
-                    <div class="doc-badge-micro navy">Transcript of Records</div>
-                    <div class="doc-title-micro">OFFICIAL SCHOLASTIC RECORD</div>
-                  </div>
+              <div class="glow-card-body">
+                <div class="glow-doc-name">Transcript of Records (TOR)</div>
+                <div class="glow-doc-meta">
+                  <span>Fee: <strong>Free (CHED Subsidized)</strong></span>
+                  <span>&bull;</span>
+                  <span>Est: <strong>2–3 Working Days</strong></span>
                 </div>
-                
-                <div class="doc-table-micro">
-                  <div class="dt-head">
-                    <span>COURSE CODE &amp; TITLE</span>
-                    <span>GRADE</span>
-                    <span>UNITS</span>
-                  </div>
-                  <div class="dt-row">
-                    <span>IT 412 Platform Technologies</span>
-                    <span class="grade-pill">1.25</span>
-                    <span>3.0</span>
-                  </div>
-                  <div class="dt-row">
-                    <span>IT 411 Software Engineering</span>
-                    <span class="grade-pill">1.00</span>
-                    <span>3.0</span>
-                  </div>
-                  <div class="dt-row">
-                    <span>IT 410 Cloud Database (Turso)</span>
-                    <span class="grade-pill">1.25</span>
-                    <span>3.0</span>
-                  </div>
-                  <div class="dt-row">
-                    <span>CS 312 Web Architecture</span>
-                    <span class="grade-pill">1.00</span>
-                    <span>3.0</span>
-                  </div>
-                </div>
+              </div>
 
-                <div class="doc-footer-micro">
-                  <span class="gwa-tag">General Weighted Average: <strong>1.125</strong></span>
-                  <span class="status-chip completed">✓ Released</span>
+              <div class="glow-card-footer">
+                <div class="glow-mini-steps">
+                  <span class="mini-step done">✓ Submitted</span>
+                  <span class="mini-step done">✓ Registrar Verified</span>
+                  <span class="mini-step active">⏳ Window Release</span>
                 </div>
               </div>
             </div>
 
-            <!-- Floating Turso Cloud Status Pill -->
-            <div class="floating-cloud-pill">
-              <span class="pulse-icon">⚡</span>
-              <span>Turso Cloud Verified &bull; libSQL</span>
+            <!-- Right Card: Active Student Credential -->
+            <div class="hero-float-card card-right">
+              <div class="student-float-user">
+                <div class="user-avatar-sm">JM</div>
+                <div class="user-text-sm">
+                  <strong>Jaynellan Magpantay</strong>
+                  <span>Student ID: 23-67894</span>
+                </div>
+              </div>
+              <div class="float-card-title" style="margin-top:10px;">BS Information Technology</div>
+              <div class="float-tag-pill blue-pill">✓ Enrolled &bull; Cleared for Release</div>
             </div>
 
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- 3 Floating Feature Selector Cards Bridging the Hero and Content -->
-    <section class="gitbook-cards-section">
-      <div class="container">
-        <div class="gitbook-cards-grid">
-          
-          <!-- Card 1: Personal Notes (Student Portal) -->
-          <div class="gitbook-feature-card" id="cardEnterStudentPortal">
-            <div class="card-icon-illus">
-              <svg viewBox="0 0 48 48" fill="none">
-                <rect x="6" y="8" width="28" height="34" rx="4" fill="#3B82F6" fill-opacity="0.12" stroke="#2563EB" stroke-width="2.2"/>
-                <rect x="14" y="4" width="28" height="34" rx="4" fill="#60A5FA" fill-opacity="0.18" stroke="#1D4ED8" stroke-width="2.2"/>
-                <path d="M20 14h16M20 20h12M20 26h14" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="card-body-text">
-              <h3>Personal Notes</h3>
-              <p>Just for you</p>
-            </div>
-          </div>
-
-          <!-- Card 2: Knowledge Bases (Registrar Portal) -->
-          <div class="gitbook-feature-card" id="cardEnterAdminPortal">
-            <div class="card-icon-illus">
-              <svg viewBox="0 0 48 48" fill="none">
-                <rect x="6" y="10" width="22" height="30" rx="3" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.2"/>
-                <rect x="20" y="6" width="22" height="30" rx="3" fill="#93C5FD" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.2"/>
-                <path d="M11 18h12M11 24h8M25 14h12M25 20h10" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="card-body-text">
-              <h3>Knowledge Bases</h3>
-              <p>For your team</p>
-            </div>
-          </div>
-
-          <!-- Card 3: Product Docs (Live Tracking) -->
-          <div class="gitbook-feature-card" id="cardEnterTracking">
-            <div class="card-icon-illus">
-              <svg viewBox="0 0 48 48" fill="none">
-                <rect x="8" y="8" width="32" height="32" rx="6" fill="#3B82F6" fill-opacity="0.12" stroke="#2563EB" stroke-width="2.2"/>
-                <path d="M16 24l5 5 11-11" stroke="#10B981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14 14h6M14 34h20" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </div>
-            <div class="card-body-text">
-              <h3>Product Docs</h3>
-              <p>For your users</p>
-            </div>
           </div>
 
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- PRODUCT SHOWCASE 1: Personal Notes (Student Document Portal) -->
-    <section class="gitbook-showcase-section" id="showcasePersonal">
-      <div class="container showcase-grid">
-        
-        <!-- Left Side: Feature Narrative -->
-        <div class="showcase-text-col">
-          <div class="showcase-icon-header">
-            <svg viewBox="0 0 54 54" fill="none" class="feature-icon-svg">
-              <rect x="6" y="10" width="32" height="36" rx="5" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.5"/>
-              <rect x="16" y="4" width="32" height="36" rx="5" fill="#60A5FA" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.5"/>
-              <path d="M22 16h18M22 22h14M22 28h16" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="showcase-tag">STUDENT PORTAL</span>
-          <h2 class="showcase-title">Personal Notes</h2>
-          <p class="showcase-subtitle">
-            A place to think and track ideas for you &amp; your team
-          </p>
-
-          <div class="showcase-features-grid">
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              </div>
-              <div class="f-text">
-                <h4>WYSIWYG</h4>
-                <p>Submit official document forms in seconds with automatic profile population.</p>
-              </div>
+      <!-- TRUST & DEPARTMENTS BANNER -->
+      <section class="trust-banner-section">
+        <div class="container text-center">
+          <p class="trust-title">Trusted By More Than <strong>+10,000</strong> Students &amp; Alumni</p>
+          <div class="trust-badges-row">
+            <div class="trust-badge-item">
+              <span class="t-icon">🏛️</span>
+              <span>Office of the Registrar</span>
             </div>
-
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-              </div>
-              <div class="f-text">
-                <h4>Markdown</h4>
-                <p>Visual 3-step tracking stepper monitoring submission to registrar release.</p>
-              </div>
+            <div class="trust-badge-item">
+              <span class="t-icon">💻</span>
+              <span>College of Computer Studies</span>
             </div>
-
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-              </div>
-              <div class="f-text">
-                <h4>Sub-folders</h4>
-                <p>Organize multiple document requests under your permanent Student ID.</p>
-              </div>
+            <div class="trust-badge-item">
+              <span class="t-icon">🎓</span>
+              <span>Commission on Higher Education</span>
             </div>
-
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-              </div>
-              <div class="f-text">
-                <h4>In the Cloud</h4>
-                <p>Zero data loss and live persistence powered by Turso Cloud Database.</p>
-              </div>
+            <div class="trust-badge-item">
+              <span class="t-icon">🤝</span>
+              <span>Office of Student Affairs</span>
+            </div>
+            <div class="trust-badge-item">
+              <span class="t-icon">📜</span>
+              <span>Academic Affairs Council</span>
             </div>
           </div>
         </div>
+      </section>
 
-        <!-- Right Side: Clean Application Mockup Window -->
-        <div class="showcase-mockup-col">
-          <div class="mockup-window">
-            <div class="mockup-window-header">
-              <div class="window-dots">
-                <span class="w-dot red"></span>
-                <span class="w-dot yellow"></span>
-                <span class="w-dot green"></span>
-              </div>
-              <div class="window-title-tab">Personal Notes &bull; Document Request Summary</div>
-            </div>
+      <!-- SECTION 1: GET THE MOST POWERFUL AND EASY TO USE DOCUMENT PORTAL -->
+      <section class="feature-suite-section" id="powerfulPortalSection">
+        <div class="container text-center">
+          <div class="section-pill-tag">Easy &bull; Transparent &bull; Fast</div>
+          <h2 class="suite-main-heading">
+            Get The Most Powerful and<br>
+            <span class="gradient-text-blue">Easy to Use</span> Document Portal
+          </h2>
 
-            <div class="mockup-window-body">
-              <!-- Left Sidebar of Window -->
-              <div class="mockup-sidebar">
-                <div class="sidebar-section-title">REQUESTS</div>
-                <ul class="mockup-file-list">
-                  <li class="active"><span class="bullet-dot"></span> To be done soon</li>
-                  <li><span class="bullet-dot"></span> Transcript of Records</li>
-                  <li><span class="bullet-dot"></span> Certificate of Enrollment</li>
-                  <li><span class="bullet-dot"></span> Good Moral Clearance</li>
-                  <li><span class="bullet-dot"></span> Semester Grades</li>
-                </ul>
-              </div>
-
-              <!-- Main Content Area of Window -->
-              <div class="mockup-content">
-                <div class="mockup-doc-header">
-                  <h3>To be done soon 📌</h3>
-                  <div class="mockup-checklist">
-                    <label class="check-item"><input type="checkbox" checked disabled> <span>Student ID: 23-67894 verified against registry</span></label>
-                    <label class="check-item"><input type="checkbox" checked disabled> <span>Academic clearance validated by Registrar Staff</span></label>
-                    <label class="check-item"><input type="checkbox" disabled> <span>Ready for window release &amp; dry-seal</span></label>
-                  </div>
-                </div>
-
-                <div class="mockup-mini-table-box">
-                  <div class="mini-table-label">Active Requests</div>
-                  <table class="mini-table">
-                    <thead>
-                      <tr>
-                        <th>Document</th>
-                        <th>Purpose</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Transcript of Records</td>
-                        <td>Scholarship Application</td>
-                        <td><span class="mini-badge processing">Processing</span></td>
-                      </tr>
-                      <tr>
-                        <td>Certificate of Enrollment</td>
-                        <td>CHED Subsidy</td>
-                        <td><span class="mini-badge completed">Completed</span></td>
-                      </tr>
-                      <tr>
-                        <td>Good Moral Certificate</td>
-                        <td>Internship Requirement</td>
-                        <td><span class="mini-badge pending">Pending</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Green Circular Action Button (from screenshot) -->
-                <button class="mockup-action-circle" title="Submit Document Request">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                </button>
-              </div>
-            </div>
-
+          <!-- 3 Segmented Portal Buttons -->
+          <div class="segmented-portal-pills">
+            <button type="button" class="seg-pill active" id="btnSegStudent">Enrolled Students</button>
+            <button type="button" class="seg-pill" id="btnSegAdmin">Registrar Staff</button>
+            <button type="button" class="seg-pill" id="btnSegAlumni">Alumni Services</button>
           </div>
-        </div>
 
-      </div>
-    </section>
-
-    <!-- PRODUCT SHOWCASE 2: Knowledge Bases (Registrar Operations - Inverted Layout) -->
-    <section class="gitbook-showcase-section bg-surface" id="showcaseKnowledge">
-      <div class="container showcase-grid inverted">
-        
-        <!-- Left Side: Registrar Admin Window Mockup -->
-        <div class="showcase-mockup-col">
-          <div class="mockup-window dark-theme-window">
-            <div class="mockup-window-header">
-              <div class="window-dots">
-                <span class="w-dot red"></span>
-                <span class="w-dot yellow"></span>
-                <span class="w-dot green"></span>
-              </div>
-              <div class="window-title-tab">Knowledge Bases &bull; Registrar Admin Dashboard</div>
-            </div>
-
-            <div class="mockup-window-body">
-              <!-- Dark Sidebar -->
-              <div class="mockup-sidebar dark-sidebar">
-                <div class="admin-brand-sm">
-                  <img src="logo.png" alt="Logo" class="mini-logo">
-                  <span>Registrar</span>
-                </div>
-                <ul class="mockup-file-list dark-list">
-                  <li class="active">📊 Dashboard Overview</li>
-                  <li>📑 All Submissions (3)</li>
-                  <li>⏳ Pending Queue (1)</li>
-                  <li>⚙️ Turso Cloud SQL</li>
-                </ul>
-              </div>
-
-              <!-- Main Admin Mock Content -->
-              <div class="mockup-content">
-                <div class="admin-mini-stats">
-                  <div class="mini-stat-card"><span class="m-num">4</span><span class="m-lbl">Total</span></div>
-                  <div class="mini-stat-card"><span class="m-num" style="color:#D97706;">1</span><span class="m-lbl">Pending</span></div>
-                  <div class="mini-stat-card"><span class="m-num" style="color:#2563EB;">1</span><span class="m-lbl">Processing</span></div>
-                  <div class="mini-stat-card"><span class="m-num" style="color:#10B981;">2</span><span class="m-lbl">Completed</span></div>
-                </div>
-
-                <div class="mockup-mini-table-box">
-                  <table class="mini-table">
-                    <thead>
-                      <tr>
-                        <th>Student</th>
-                        <th>Document</th>
-                        <th>Status Control</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>Jaynellan Magpantay</strong></td>
-                        <td>Transcript of Records</td>
-                        <td><span class="mini-badge processing">Processing ▾</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Juan Dela Cruz</strong></td>
-                        <td>Good Moral Certificate</td>
-                        <td><span class="mini-badge pending">Pending ▾</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Maria Santos</strong></td>
-                        <td>Certificate of Enrollment</td>
-                        <td><span class="mini-badge completed">Completed ▾</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Right Side: Feature Narrative -->
-        <div class="showcase-text-col">
-          <div class="showcase-icon-header">
-            <svg viewBox="0 0 54 54" fill="none" class="feature-icon-svg">
-              <rect x="6" y="8" width="30" height="38" rx="4" fill="#3B82F6" fill-opacity="0.15" stroke="#2563EB" stroke-width="2.5"/>
-              <rect x="18" y="4" width="30" height="38" rx="4" fill="#60A5FA" fill-opacity="0.25" stroke="#1D4ED8" stroke-width="2.5"/>
-              <path d="M12 18h16M12 24h12M24 14h16M24 20h14" stroke="#1D4ED8" stroke-width="2.2" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <span class="showcase-tag">REGISTRAR OPERATIONS</span>
-          <h2 class="showcase-title">Knowledge Bases</h2>
-          <p class="showcase-subtitle">
-            A home for your team, best practices, and official student record issuance
-          </p>
-
-          <div class="showcase-features-grid">
-            <div class="feature-subitem">
-              <div class="f-icon">
+          <!-- 3 Cards Layout with Center Card Highlighted in Radiant Blue -->
+          <div class="portal-cards-showcase">
+            
+            <!-- Left Card: Start-ups / Fast Submissions -->
+            <div class="showcase-card side-card" id="cardDirectSubmissions">
+              <div class="sc-icon-wrap blue-soft">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
-              <div class="f-text">
-                <h4>Centralized Control</h4>
-                <p>Review, verify, and approve academic credentials from one authoritative console.</p>
+              <h3>Direct Submissions</h3>
+              <p>Request official credentials, transcripts, and clearances directly with zero paperwork.</p>
+              <div class="sc-meta-tag">⚡ 2–3 Days Turnaround</div>
+              <button class="btn btn-outline-navy btn-sm btn-block" style="margin-top:16px;" id="btnCardSubmitQuick">
+                Request Document &rarr;
+              </button>
+            </div>
+
+            <!-- Center Card: Student Portal (Glowing Radiant Blue Hero Card) -->
+            <div class="showcase-card center-hero-card" id="cardEnterStudentPortal">
+              <div class="center-badge-top">Recommended for Students</div>
+              <div class="sc-icon-wrap center-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              </div>
+              <h3 class="white-text">Student Portal</h3>
+              <p class="light-blue-text">
+                Submit document requests online, monitor live verification milestones, and track processing progress from submission to release.
+              </p>
+              <div class="center-action-btn">
+                <span>Access Student Portal</span>
+                <span class="btn-arrow">&rarr;</span>
               </div>
             </div>
 
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            <!-- Right Card: Registrar Operations -->
+            <div class="showcase-card side-card" id="cardEnterAdminPortal">
+              <div class="sc-icon-wrap red-soft">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               </div>
-              <div class="f-text">
-                <h4>Status Transitions</h4>
-                <p>One-click lifecycle updates immediately reflected in student live tracking.</p>
+              <h3>Registrar Operations</h3>
+              <p>Review student submissions, verify clearances, update processing stages, and issue dry-sealed documents.</p>
+              <div class="sc-meta-tag red-meta">🔒 Administrative Access</div>
+              <button class="btn btn-outline-navy btn-sm btn-block" style="margin-top:16px;">
+                Access Admin Portal &rarr;
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: TRANSPARENT REAL-TIME TRACKING (INVOICE-STYLE CARD) -->
+      <section class="invoice-feature-section" id="trackingSection">
+        <div class="container text-center">
+          <div class="section-pill-tag">Live Milestone Tracking</div>
+          <h2 class="suite-main-heading">
+            Tracking That is Completely<br>
+            <span class="gradient-text-blue">Transparent</span> For Every Request
+          </h2>
+          <p class="suite-sub-desc">
+            No more guessing or queuing up at the registrar counter just to ask for status updates.
+          </p>
+
+          <!-- Centered Modern Invoice-Style Request Card (matching reference image) -->
+          <div class="invoice-preview-card" id="cardEnterTracking">
+            <div class="inv-card-header">
+              <div class="inv-header-left">
+                <div class="inv-logo-circle">
+                  <img src="logo.png" alt="CCA Seal" class="inv-seal-img">
+                </div>
+                <div>
+                  <h4>Document Request #REQ-00234</h4>
+                  <span class="inv-date">Filed: Nov 22, 2026 &bull; Regular Term</span>
+                </div>
+              </div>
+              <div class="inv-header-right">
+                <span class="inv-status-pill processing">Processing</span>
               </div>
             </div>
 
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <div class="inv-card-grid">
+              <div class="inv-field">
+                <label>Student Name</label>
+                <strong>Jaynellan Almary O. Magpantay</strong>
               </div>
-              <div class="f-text">
-                <h4>Instant Search</h4>
-                <p>Instant student ID, name, and document type search across all database records.</p>
+              <div class="inv-field">
+                <label>Student ID Number</label>
+                <code>23-67894</code>
+              </div>
+              <div class="inv-field">
+                <label>Document Requested</label>
+                <strong>Transcript of Records (TOR)</strong>
+              </div>
+              <div class="inv-field">
+                <label>Stated Purpose</label>
+                <span>Scholarship Application Requirement</span>
               </div>
             </div>
 
-            <div class="feature-subitem">
-              <div class="f-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <!-- Stepper inside Invoice Card -->
+            <div class="inv-stepper-wrap">
+              <div class="inv-step-node done">
+                <span class="node-circle">✓</span>
+                <span class="node-text">1. Request Submitted<br><small>Nov 22, 2026</small></span>
               </div>
-              <div class="f-text">
-                <h4>SQL Reliability</h4>
-                <p>ACID-compliant relational integrity backed by Turso libSQL cloud architecture.</p>
+              <div class="inv-step-line done"></div>
+              <div class="inv-step-node active">
+                <span class="node-circle">⏳</span>
+                <span class="node-text">2. Registrar Review<br><small>Under Evaluation</small></span>
+              </div>
+              <div class="inv-step-line"></div>
+              <div class="inv-step-node">
+                <span class="node-circle">3</span>
+                <span class="node-text">3. Ready for Release<br><small>Registrar Window</small></span>
+              </div>
+            </div>
+
+            <button class="btn btn-blue-pill btn-block btn-lg" style="margin-top:20px;">
+              Track Live Request Status &rarr;
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: KEEP YOUR ACADEMIC RECORDS SECURE ALWAYS (NETWORK GRAPH) -->
+      <section class="security-network-section" id="securitySection">
+        <div class="container text-center">
+          <div class="section-pill-tag">Campus-Wide Security</div>
+          <h2 class="suite-main-heading">
+            Keep Your Academic Records Secure <span class="gradient-text-blue">Always</span>
+          </h2>
+          <p class="suite-sub-desc">
+            Protected student confidentiality, strict role authorization, and tamper-resistant credentials.
+          </p>
+
+          <!-- Visual Node Network Diagram in CSS -->
+          <div class="security-diagram-wrapper">
+            <div class="diagram-node node-student-1">
+              <span class="d-avatar">👩‍🎓</span>
+              <span>Student (23-67894)</span>
+              <span class="d-chip green">Verified</span>
+            </div>
+
+            <div class="diagram-node node-student-2">
+              <span class="d-avatar">👨‍🎓</span>
+              <span>Student (23-10021)</span>
+              <span class="d-chip green">Verified</span>
+            </div>
+
+            <!-- Central Shield Credential Card -->
+            <div class="diagram-center-vault">
+              <div class="vault-icon-circle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h4>CCA Credential Vault</h4>
+              <p>Official Registrar Dry-Seal Verification</p>
+              <div class="vault-tag">Encrypted &bull; Audit Cleared</div>
+            </div>
+
+            <div class="diagram-node node-registrar">
+              <span class="d-avatar">🏛️</span>
+              <span>Registrar Staff</span>
+              <span class="d-chip blue">Authorized</span>
+            </div>
+
+            <div class="diagram-node node-dean">
+              <span class="d-avatar">📋</span>
+              <span>College Dean</span>
+              <span class="d-chip blue">Clearance</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: COLLECT ALL DOCUMENTS WITHIN DAYS (2-COLUMN) -->
+      <section class="collect-section">
+        <div class="container collect-grid">
+          <div class="collect-text-col">
+            <div class="section-pill-tag">Official Release</div>
+            <h2 class="suite-main-heading text-left">
+              Collect All Documents<br>
+              Within <span class="gradient-text-blue">Days</span>
+            </h2>
+            <p class="suite-sub-desc text-left">
+              Experience seamless, stress-free academic credential issuance. Fully validated by the Office of the Registrar and sealed with the official college seal.
+            </p>
+
+            <div class="collect-tags-grid">
+              <div class="collect-tag-item"><span>⚡</span> Fast Turnaround</div>
+              <div class="collect-tag-item"><span>📋</span> Complete Records</div>
+              <div class="collect-tag-item"><span>🏫</span> In-Campus Release</div>
+              <div class="collect-tag-item"><span>🔐</span> Official Dry Seal</div>
+            </div>
+          </div>
+
+          <div class="collect-card-col">
+            <div class="digital-doc-card">
+              <div class="dd-header">
+                <img src="logo.png" alt="CCA Seal" class="dd-seal">
+                <div>
+                  <h4>Christ Centered Academy</h4>
+                  <span>Office of the College Registrar</span>
+                </div>
+              </div>
+              <div class="dd-body">
+                <div class="dd-badge">OFFICIAL CERTIFICATE</div>
+                <h3>Transcript of Records</h3>
+                <p>This certifies that the academic records have been verified, signed by the college registrar, and prepared for official release.</p>
+                <div class="dd-status-banner">
+                  <span class="check-green">✓</span>
+                  <span>Document Prepared &amp; Sealed Successfully</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
+      </section>
 
-      </div>
-    </section>
+      <!-- AVAILABLE DOCUMENTS CATALOG -->
+      <section class="landing-section" id="servicesSection">
+        <div class="container">
+          <div class="section-heading">
+            <span class="section-tag">Official Credentials</span>
+            <h2 class="section-title">Available School Documents</h2>
+            <p class="section-desc">Submit your official request for any of the following registrar-certified documents.</p>
+          </div>
 
-    <!-- Available Documents Catalog -->
-    <section class="landing-section" id="servicesSection">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-tag">Official Credentials</span>
-          <h2 class="section-title">Available School Documents</h2>
-          <p class="section-desc">Submit your official request for any of the following registrar-certified documents.</p>
-        </div>
-
-        <div class="doc-catalog-grid">
-          <div class="doc-item-card">
-            <div class="doc-item-icon navy">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <div class="doc-catalog-grid">
+            <div class="doc-item-card">
+              <div class="doc-item-icon navy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              </div>
+              <div class="doc-item-body">
+                <span class="doc-badge-pill gold">Semester Grades</span>
+                <h3>Report Card</h3>
+                <p>Official summary of semester grades and academic evaluation required for scholarship renewals or prerequisite clearances.</p>
+                <div class="doc-meta-row">
+                  <span class="meta-label">Est. Turnaround:</span>
+                  <span class="meta-val">2–3 Working Days</span>
+                </div>
+              </div>
             </div>
-            <div class="doc-item-body">
-              <span class="doc-badge-pill gold">Semester Grades</span>
-              <h3>Report Card</h3>
-              <p>Official summary of semester grades and academic evaluation required for scholarship renewals or prerequisite clearances.</p>
-              <div class="doc-meta-row">
-                <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">2–3 Working Days</span>
+
+            <div class="doc-item-card">
+              <div class="doc-item-icon gold">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="doc-item-body">
+                <span class="doc-badge-pill navy">Enrollment Proof</span>
+                <h3>Certificate of Enrollment</h3>
+                <p>Certified registrar document confirming legitimate, active student status for the current academic term.</p>
+                <div class="doc-meta-row">
+                  <span class="meta-label">Est. Turnaround:</span>
+                  <span class="meta-val">1–2 Working Days</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-item-card">
+              <div class="doc-item-icon red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              </div>
+              <div class="doc-item-body">
+                <span class="doc-badge-pill red">Character Record</span>
+                <h3>Good Moral Certificate</h3>
+                <p>Official character certificate issued in coordination with Student Affairs attesting to commendable student conduct.</p>
+                <div class="doc-meta-row">
+                  <span class="meta-label">Est. Turnaround:</span>
+                  <span class="meta-val">2–3 Working Days</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-item-card">
+              <div class="doc-item-icon navy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="doc-item-body">
+                <span class="doc-badge-pill gold">Academic Record</span>
+                <h3>Transcript of Records (TOR)</h3>
+                <p>Comprehensive transcript documenting all completed subjects, semester units, and general weighted average (GWA).</p>
+                <div class="doc-meta-row">
+                  <span class="meta-label">Est. Turnaround:</span>
+                  <span class="meta-val">5–7 Working Days</span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div class="doc-item-card">
-            <div class="doc-item-icon gold">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <div class="doc-item-body">
-              <span class="doc-badge-pill navy">Enrollment Proof</span>
-              <h3>Certificate of Enrollment</h3>
-              <p>Certified registrar document confirming legitimate, active student status for the current academic term.</p>
-              <div class="doc-meta-row">
-                <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">1–2 Working Days</span>
-              </div>
-            </div>
+      <!-- HOW IT WORKS 4-STEP PIPELINE -->
+      <section class="landing-section bg-alt" id="workflowSection">
+        <div class="container">
+          <div class="section-heading">
+            <span class="section-tag red-tag">Procedures</span>
+            <h2 class="section-title">How Document Requesting Works</h2>
+            <p class="section-desc">Our streamlined 4-step workflow ensures transparency and speed.</p>
           </div>
 
-          <div class="doc-item-card">
-            <div class="doc-item-icon red">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <div class="steps-container">
+            <div class="step-card">
+              <div class="step-num navy">1</div>
+              <h4>Submit Request</h4>
+              <p>Log in to your Student Portal, select your document, and state your purpose of request.</p>
             </div>
-            <div class="doc-item-body">
-              <span class="doc-badge-pill red">Character Record</span>
-              <h3>Good Moral Certificate</h3>
-              <p>Official character certificate issued in coordination with Student Affairs attesting to commendable student conduct.</p>
-              <div class="doc-meta-row">
-                <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">2–3 Working Days</span>
-              </div>
+            <div class="step-card">
+              <div class="step-num gold">2</div>
+              <h4>Registrar Review</h4>
+              <p>The Registrar Office verifies your student status, clearance, and enrollment validity.</p>
             </div>
-          </div>
-
-          <div class="doc-item-card">
-            <div class="doc-item-icon navy">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div class="step-card">
+              <div class="step-num red">3</div>
+              <h4>Processing &amp; Seal</h4>
+              <p>The document is prepared, signed by college authorities, and dry-sealed with the CCA official seal.</p>
             </div>
-            <div class="doc-item-body">
-              <span class="doc-badge-pill gold">Academic Record</span>
-              <h3>Transcript of Records (TOR)</h3>
-              <p>Comprehensive transcript documenting all completed subjects, semester units, and general weighted average (GWA).</p>
-              <div class="doc-meta-row">
-                <span class="meta-label">Est. Turnaround:</span>
-                <span class="meta-val">5–7 Working Days</span>
-              </div>
+            <div class="step-card">
+              <div class="step-num navy">4</div>
+              <h4>Claim &amp; Release</h4>
+              <p>Once marked "Completed", present your Student ID at the Registrar Window to claim your document.</p>
             </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- How It Works Section -->
-    <section class="landing-section bg-alt" id="workflowSection">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-tag red-tag">Procedures</span>
-          <h2 class="section-title">How Document Requesting Works</h2>
-          <p class="section-desc">Our streamlined 4-step workflow ensures transparency and speed.</p>
-        </div>
+      <!-- FAQS -->
+      <section class="landing-section" id="faqsSection">
+        <div class="container">
+          <div class="section-heading">
+            <span class="section-tag">Student Assistance</span>
+            <h2 class="section-title">Frequently Asked Questions</h2>
+          </div>
 
-        <div class="steps-container">
-          <div class="step-card">
-            <div class="step-num navy">1</div>
-            <h4>Submit Request</h4>
-            <p>Log in to your Student Portal, select your document, and state your purpose of request.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num gold">2</div>
-            <h4>Registrar Review</h4>
-            <p>The Registrar Office verifies your student status, clearance, and enrollment validity.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num red">3</div>
-            <h4>Processing &amp; Seal</h4>
-            <p>The document is prepared, signed by college authorities, and dry-sealed with the CCA official seal.</p>
-          </div>
-          <div class="step-card">
-            <div class="step-num navy">4</div>
-            <h4>Claim &amp; Release</h4>
-            <p>Once marked "Completed", present your Student ID at the Registrar Window to claim your document.</p>
+          <div class="faqs-grid">
+            <div class="faq-card">
+              <h4>How do I track the status of my request?</h4>
+              <p>Log in to the <strong>Student Portal</strong> and open <strong>My Requests &amp; Tracking</strong>. Your submissions display a live 3-step progress stepper.</p>
+            </div>
+            <div class="faq-card">
+              <h4>Can I request multiple documents?</h4>
+              <p>Yes. You can submit separate requests for each document type as required. All requests will remain tracked under your Student ID.</p>
+            </div>
+            <div class="faq-card">
+              <h4>What does "Processing" status indicate?</h4>
+              <p>"Processing" indicates that the Registrar has approved your submission and is preparing, validating, and sealing your document.</p>
+            </div>
+            <div class="faq-card">
+              <h4>Where do I claim my completed document?</h4>
+              <p>Visit the <strong>Office of the Registrar, Christ Centered Academy of Lipa City Inc.</strong></p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- FAQs Section -->
-    <section class="landing-section" id="faqsSection">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-tag">Student Assistance</span>
-          <h2 class="section-title">Frequently Asked Questions</h2>
+      <!-- INSTITUTIONAL FOOTER (NO DATABASE MENTIONS) -->
+      <footer class="landing-footer">
+        <div class="container footer-inner">
+          <div class="footer-left">
+            <strong>Christ Centered Academy of Lipa City Inc.</strong>
+            <p>Christ-Centered Academic Excellence &bull; Office of the College Registrar</p>
+          </div>
+          <div class="footer-right">
+            <span>Official Student Document Request &amp; Tracking Portal</span>
+          </div>
         </div>
+      </footer>
 
-        <div class="faqs-grid">
-          <div class="faq-card">
-            <h4>How do I track the status of my request?</h4>
-            <p>Log in to the <strong>Student Portal</strong> and open <strong>My Requests &amp; Tracking</strong>. Your submissions display a live 3-step progress stepper.</p>
-          </div>
-          <div class="faq-card">
-            <h4>Can I request multiple documents?</h4>
-            <p>Yes. You can submit separate requests for each document type as required. All requests will remain tracked under your Student ID.</p>
-          </div>
-          <div class="faq-card">
-            <h4>What does "Processing" status indicate?</h4>
-            <p>"Processing" indicates that the Registrar has approved your submission and is preparing, validating, and sealing your document.</p>
-          </div>
-          <div class="faq-card">
-            <h4>Where do I claim my completed document?</h4>
-            <p>Visit the <strong>Office of the Registrar, Christ Centered Academy of Lipa City Inc.</strong></p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Institutional Footer -->
-    <footer class="landing-footer">
-      <div class="container footer-inner">
-        <div class="footer-left">
-          <strong>Christ Centered Academy of Lipa City Inc.</strong>
-          <p>Christ-Centered Academic Excellence &bull; IT 412 Platform Technologies Project</p>
-        </div>
-        <div class="footer-right">
-          <span>Powered by Express &bull; Turso Cloud (libSQL) &bull; Render</span>
-        </div>
-      </div>
-    </footer>
+    </div><!-- /canvas-wrapper -->
   </div>
 
 
@@ -944,7 +847,7 @@
               </div>
 
               <div class="student-requests-container" id="studentRequestsContainer">
-                <div class="empty-state-box">Loading your document requests from Turso database...</div>
+                <div class="empty-state-box">Loading your document requests...</div>
               </div>
             </div>
           </div>
@@ -1052,12 +955,12 @@
           </button>
           <button class="nav-item" data-admin-tab="system">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            <span>Cloud &amp; System Info</span>
+            <span>System Specs &amp; API</span>
           </button>
         </nav>
 
         <div class="sidebar-footer">
-          <div class="db-status-badge" id="adminDbStatus">
+          <div class="db-status-badge" id="adminDbStatus" style="display: none;">
             <span class="status-dot"></span>
             <span class="status-label">Checking...</span>
           </div>
@@ -1085,7 +988,7 @@
             </div>
           </div>
           <div class="topbar-right">
-            <button class="refresh-btn" id="adminGlobalRefreshBtn" title="Sync with Database">
+            <button class="refresh-btn" id="adminGlobalRefreshBtn" title="Refresh Requests">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
               <span>Sync Cloud DB</span>
             </button>
@@ -1101,7 +1004,7 @@
                 <div class="stat-content">
                   <span class="stat-label">Total Requests</span>
                   <h3 class="stat-value" id="cardTotalCount">0</h3>
-                  <span class="stat-hint">All records stored in Turso Cloud</span>
+                  <span class="stat-hint">Official Registrar Registry</span>
                 </div>
                 <div class="stat-icon-wrapper navy">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1163,7 +1066,7 @@
                     </tr>
                   </thead>
                   <tbody id="adminRecentTableBody">
-                    <tr><td colspan="5" class="table-empty">Loading records from database...</td></tr>
+                    <tr><td colspan="5" class="table-empty">Loading records...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1208,7 +1111,7 @@
                     </tr>
                   </thead>
                   <tbody id="adminAllRequestsTableBody">
-                    <tr><td colspan="9" class="table-empty">Loading records from database...</td></tr>
+                    <tr><td colspan="9" class="table-empty">Loading records...</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -1233,8 +1136,8 @@
                     <span class="item-value">Node.js + Express.js</span>
                   </div>
                   <div class="system-item">
-                    <span class="item-title">Cloud Database</span>
-                    <span class="item-value" id="adminSysDbStatus">Turso Cloud (libSQL)</span>
+                    <span class="item-title">System Service Status</span>
+                    <span class="item-value" id="adminSysDbStatus">Operational (Online)</span>
                   </div>
                   <div class="system-item">
                     <span class="item-title">Deployment Target</span>
@@ -1266,12 +1169,12 @@
                   <div class="api-item">
                     <span class="http-tag get">GET</span>
                     <span class="api-route">/api/health</span>
-                    <span class="api-desc">System health &amp; Turso connection</span>
+                    <span class="api-desc">System health check &amp; uptime</span>
                   </div>
                   <div class="api-item">
                     <span class="http-tag get">GET</span>
                     <span class="api-route">/api/requests</span>
-                    <span class="api-desc">Fetch all requests from Turso database</span>
+                    <span class="api-desc">Retrieve all student document requests</span>
                   </div>
                   <div class="api-item">
                     <span class="http-tag post">POST</span>

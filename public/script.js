@@ -543,6 +543,59 @@ function setupNavigationHandlers() {
     }
   });
 
+  document.getElementById('cardHeroCenterHighlight')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  document.getElementById('btnCardSubmitQuick')?.addEventListener('click', () => {
+    if (state.currentUser && state.currentUser.role === 'student') {
+      switchView('student');
+      switchStudentSubtab('submit');
+    } else {
+      openAuthModal('signin', 'student');
+    }
+  });
+
+  // Segmented Pill Switches
+  const segStudent = document.getElementById('btnSegStudent');
+  const segAdmin = document.getElementById('btnSegAdmin');
+  const segAlumni = document.getElementById('btnSegAlumni');
+  const allSegs = [segStudent, segAdmin, segAlumni];
+
+  segStudent?.addEventListener('click', () => {
+    allSegs.forEach(s => s?.classList.remove('active'));
+    segStudent.classList.add('active');
+  });
+  segAdmin?.addEventListener('click', () => {
+    allSegs.forEach(s => s?.classList.remove('active'));
+    segAdmin.classList.add('active');
+  });
+  segAlumni?.addEventListener('click', () => {
+    allSegs.forEach(s => s?.classList.remove('active'));
+    segAlumni.classList.add('active');
+  });
+
+  // Hero Quick Search / Track Bar
+  const heroInput = document.getElementById('heroStudentIdInput');
+  const btnHeroTrack = document.getElementById('btnHeroTrack');
+  const handleHeroTrack = () => {
+    const val = heroInput ? heroInput.value.trim() : '';
+    if (val) {
+      if (elements.profileInputId) elements.profileInputId.value = val;
+      if (state.currentUser) state.currentUser.studentId = val;
+    }
+    switchView('student');
+    switchStudentSubtab('history');
+  };
+  btnHeroTrack?.addEventListener('click', handleHeroTrack);
+  heroInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleHeroTrack();
+  });
+
   elements.btnStudentBackToHome?.addEventListener('click', () => switchView('landing'));
   elements.btnAdminBackToHome?.addEventListener('click', () => switchView('landing'));
 
@@ -578,7 +631,7 @@ function setupNavigationHandlers() {
   elements.btnStudentRefreshHistory?.addEventListener('click', async () => {
     elements.btnStudentRefreshHistory.classList.add('rotating');
     await fetchAllRequests();
-    showToast('Student requests refreshed from database', 'info');
+    showToast('Student requests refreshed', 'info');
     elements.btnStudentRefreshHistory.classList.remove('rotating');
   });
 
@@ -586,7 +639,7 @@ function setupNavigationHandlers() {
     elements.adminGlobalRefreshBtn.classList.add('rotating');
     await fetchAllRequests();
     await fetchHealthCheck();
-    showToast('Synchronized with Turso Database!', 'success');
+    showToast('Synchronized with Registrar Office!', 'success');
     elements.adminGlobalRefreshBtn.classList.remove('rotating');
   });
 
@@ -652,7 +705,7 @@ function switchAdminSubtab(tabName) {
     },
     system: {
       title: 'Cloud Infrastructure & API Specifications',
-      subtitle: 'Turso Cloud connectivity, REST API endpoints, and IT 412 project specs'
+      subtitle: 'System connectivity, REST API endpoints, and IT 412 project specs'
     }
   };
 
@@ -678,21 +731,15 @@ async function fetchHealthCheck() {
     state.isDbConnected = isConnected;
 
     if (elements.landingDbIndicator) {
-      elements.landingDbIndicator.className = isConnected ? 'db-indicator connected' : 'db-indicator disconnected';
-      elements.landingDbIndicator.querySelector('.label').textContent = isConnected
-        ? 'Turso Database Connected'
-        : 'Cloud DB Disconnected';
+      elements.landingDbIndicator.style.display = 'none';
     }
 
     if (elements.adminDbStatus) {
-      elements.adminDbStatus.className = isConnected ? 'db-status-badge connected' : 'db-status-badge disconnected';
-      elements.adminDbStatus.querySelector('.status-label').textContent = isConnected
-        ? 'Turso Connected'
-        : 'Turso Disconnected';
+      elements.adminDbStatus.style.display = 'none';
     }
 
     if (elements.adminSysHealthBadge) {
-      elements.adminSysHealthBadge.textContent = isConnected ? 'Operational' : 'Database Offline';
+      elements.adminSysHealthBadge.textContent = isConnected ? 'Operational' : 'Service Offline';
       elements.adminSysHealthBadge.className = isConnected ? 'badge badge-success' : 'badge badge-error';
     }
   } catch (err) {
@@ -742,7 +789,7 @@ async function submitDocumentRequest(payload) {
     }
 
     showToast('Document request submitted successfully!', 'success');
-    showFormAlert('Your document request has been recorded and saved in Turso Database.', 'success');
+    showFormAlert('Your document request has been submitted successfully to the Registrar Office.', 'success');
 
     elements.studentRequestForm.reset();
     populateFormWithProfile();
@@ -966,7 +1013,7 @@ function renderStudentTrackingCards() {
 
           <div class="tracking-footer-box">
             <span class="purpose-note"><strong>Stated Purpose:</strong> ${escapeHtml(req.purpose)}</span>
-            <span style="color:#64748B;font-size:0.75rem;">Status live from Turso Database</span>
+            <span style="color:#64748B;font-size:0.75rem;">Official CCA Registrar Record</span>
           </div>
         </div>
       `;
@@ -1113,7 +1160,7 @@ function renderAdminRecentTable() {
 
   const recent = state.allRequests.slice(0, 5);
   if (recent.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found in database.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No requests found.</td></tr>`;
     return;
   }
 
