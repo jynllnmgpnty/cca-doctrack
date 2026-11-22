@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Flowize AI – Student Document Tracking Platform | CCA DocTrack</title>
+  <title>CCA DocTrack – Official Student Document Request &amp; Tracking Portal</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -125,7 +125,7 @@
   </div>
 
 
-  <!-- VIEW 1: LANDING PAGE (FLOWIZE AI DESIGN - STRICTLY MATCHING REFERENCE) -->
+  <!-- VIEW 1: LANDING PAGE (FLOWIZE AI DESIGN ADAPTED FOR DOCUMENT REQUESTS) -->
   <div class="app-view active" id="viewLanding">
     
     <div class="flowize-page-canvas">
@@ -142,24 +142,24 @@
                 <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
               </svg>
             </div>
-            <span class="flowize-brand-title">Flowize AI</span>
+            <span class="flowize-brand-title">CCA DocTrack</span>
             <div class="cca-badge-tag">
               <img src="logo.png" alt="CCA Seal" class="cca-nav-seal">
-              <span>CCA DocTrack</span>
+              <span>Christ-Centered Academy</span>
             </div>
           </a>
 
           <nav class="flowize-nav-links">
-            <a href="#heroSection" class="flowize-nav-link active">Product</a>
-            <a href="#portalSection" class="flowize-nav-link">Solutions</a>
-            <a href="#integrationsSection" class="flowize-nav-link">Integrations</a>
-            <a href="#servicesSection" class="flowize-nav-link">Resources</a>
-            <a href="#trackingSection" class="flowize-nav-link">Pricing</a>
+            <a href="#servicesSection" class="flowize-nav-link active">Documents</a>
+            <a href="#trackingSection" class="flowize-nav-link">Track Request</a>
+            <a href="#portalSection" class="flowize-nav-link">Student Portal</a>
+            <a href="#portalSection" class="flowize-nav-link">Registrar Admin</a>
+            <a href="#servicesSection" class="flowize-nav-link">Requirements</a>
           </nav>
 
           <div class="flowize-nav-actions" id="landingAuthActions">
             <button class="flowize-btn-login" id="btnLandingSignIn">Log in</button>
-            <button class="btn btn-flowize-primary" id="btnLandingRegister">Get Started</button>
+            <button class="btn btn-flowize-primary" id="btnLandingRegister">Request Document</button>
           </div>
         </div>
       </header>
@@ -172,32 +172,32 @@
           <div class="flowize-hero-left">
             <div class="flowize-tag-pill">
               <span class="tag-sparkle">✦</span>
-              <span>AI Automation Platform</span>
+              <span>Smart Document Tracking Platform</span>
             </div>
 
             <h1 class="flowize-hero-heading">
-              The AI co-pilot for<br>
-              <span class="text-flowize-blue">modern teams</span>
+              The smart co-pilot for<br>
+              <span class="text-flowize-blue">student requests</span>
             </h1>
 
             <p class="flowize-hero-sub">
-              Automate workflows, connect your tools and let AI agents handle the busy work. So your team can focus on what matters.
+              Request transcripts, certificates, and school records online. Track registrar evaluations in real-time with official dry-seal verification.
             </p>
 
             <div class="flowize-cta-group">
               <button class="btn btn-flowize-cta" id="btnHeroGetStarted">
-                <span>Start Free Trial</span>
+                <span>Request Document</span>
                 <span class="btn-arrow">&rarr;</span>
               </button>
               <button class="btn btn-flowize-demo" id="btnHeroDemo">
                 <span class="demo-play-circle">▶</span>
-                <span>Watch demo</span>
+                <span>Track Status</span>
               </button>
             </div>
 
             <div class="flowize-guarantee">
               <span class="check-icon">✓</span>
-              <span>No credit card required</span>
+              <span>Official Registrar Verified &bull; Instant Status Updates</span>
             </div>
           </div>
 
@@ -209,26 +209,29 @@
 
             <!-- Floating Sparkle Badge Top Center -->
             <div class="floating-orb float-sparkle-orb">
-              <span>✦</span>
+              <span>🎓</span>
             </div>
 
-            <!-- Floating 3D Cubes -->
-            <div class="floating-cube cube-hubspot" title="HubSpot Integration">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="#ff7a59">
-                <path d="M18.8 9.3V7.2c.8-.4 1.4-1.2 1.4-2.2 0-1.4-1.1-2.5-2.5-2.5s-2.5 1.1-2.5 2.5c0 1 .6 1.8 1.4 2.2v2.1c-.9.2-1.7.7-2.3 1.3L8.6 7.4c.1-.3.1-.6.1-.9 0-1.9-1.6-3.5-3.5-3.5S1.7 4.6 1.7 6.5s1.6 3.5 3.5 3.5c.6 0 1.2-.2 1.7-.5l5.5 3.1c-.2.5-.3 1.1-.3 1.7 0 .6.1 1.2.3 1.7l-5.5 3.1c-.5-.3-1.1-.5-1.7-.5-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5c0-.3 0-.6-.1-.9l5.7-3.2c.6.6 1.4 1.1 2.3 1.3v2.1c-.8.4-1.4 1.2-1.4 2.2 0 1.4 1.1 2.5 2.5 2.5s2.5-1.1 2.5-2.5c0-1-.6-1.8-1.4-2.2v-2.1c1.9-.5 3.3-2.2 3.3-4.3s-1.4-3.8-3.3-4.3zm-1.1-5.6c.7 0 1.2.5 1.2 1.2s-.5 1.2-1.2 1.2-1.2-.5-1.2-1.2.5-1.2 1.2-1.2zM5.2 8.7c-1.2 0-2.2-1-2.2-2.2s1-2.2 2.2-2.2 2.2 1 2.2 2.2-1 2.2-2.2 2.2zm0 14.6c-1.2 0-2.2-1-2.2-2.2s1-2.2 2.2-2.2 2.2 1 2.2 2.2-1 2.2-2.2 2.2zm12.5-6.8c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5zm0 6.6c-.7 0-1.2-.5-1.2-1.2s.5-1.2 1.2-1.2 1.2.5 1.2 1.2-.5 1.2-1.2 1.2z"/>
-              </svg>
+            <!-- Floating 3D Academic Cubes -->
+            <div class="floating-cube cube-hubspot" title="Official Transcript (TOR)">
+              <div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="#ff7a59"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span style="font-size:9px;font-weight:800;color:#ea580c;margin-top:2px;">TOR</span>
+              </div>
             </div>
 
-            <div class="floating-cube cube-notion" title="Notion Integration">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="#000000">
-                <path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.093-.373L17.82.986c-.42-.327-.98-.7-2.1-.607L2.965 1.453c-.467.047-.56.327-.374.513zm.84 3.082v13.627c0 .747.373 1.027 1.214.98l14.522-.84c.84-.046.933-.56.933-1.167V6.354c0-.606-.233-.933-.793-.886l-15.082.886c-.56.047-.794.374-.794.936zm13.822.42c.093.42 0 .84-.42.887l-.7.14v10.595c-.653.374-1.306.56-1.866.56-.933 0-1.353-.326-2.146-1.306l-4.48-6.953v6.766l1.4.327c0 .42-.28.84-.7.84l-3.826.233c-.093-.373.187-.793.607-.84l.886-.187V9.083l-1.166-.093c-.094-.42.14-.933.653-.98l3.92-.233 4.806 7.233V8.71l-1.073-.187c-.094-.42.233-.84.7-.84z"/>
-              </svg>
+            <div class="floating-cube cube-notion" title="Certificate of Enrollment (COE)">
+              <div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="#0f172a"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span style="font-size:9px;font-weight:800;color:#0f172a;margin-top:2px;">COE</span>
+              </div>
             </div>
 
-            <div class="floating-cube cube-openai" title="OpenAI Integration">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="#10a37f">
-                <path d="M22.28 9.37a5.98 5.98 0 0 0-.52-4.94 6.06 6.06 0 0 0-6.52-2.8 6.04 6.04 0 0 0-4.63-2.07c-3.1 0-5.69 2.34-6 5.4a6.04 6.04 0 0 0-4.08 2.96 6.06 6.06 0 0 0 .74 7.07 5.98 5.98 0 0 0 .52 4.94 6.06 6.06 0 0 0 6.52 2.8 6.05 6.05 0 0 0 4.63 2.07c3.1 0 5.69-2.34 6-5.4a6.04 6.04 0 0 0 4.08-2.96 6.06 6.06 0 0 0-.74-7.07zm-9.03 12.87c-1.3 0-2.52-.45-3.5-1.22l.18-.1 4.34-2.5a.8.8 0 0 0 .4-.7v-6.13l1.84 1.06v5.07c0 2.5-2.02 4.52-4.52 4.52h-.74zm-7.6-3.7a4.49 4.49 0 0 1-.6-3.66l.18.1 4.34 2.5c.24.14.54.14.78 0l5.3-3.07v2.13l-4.4 2.54a4.52 4.52 0 0 1-5.6-.54zm-1.8-8.9a4.5 4.5 0 0 1 2.37-2.82l-.01.2v5.02a.8.8 0 0 0 .4.7l5.3 3.06-1.84 1.07-4.4-2.54a4.53 4.53 0 0 1-1.82-4.69zm14.15 1.76-5.3-3.06 1.84-1.07 4.4 2.54a4.53 4.53 0 0 1 1.82 4.69 4.5 4.5 0 0 1-2.36 2.83v-5.23a.8.8 0 0 0-.4-.7zm2.4-3.37-.18-.1-4.34-2.5a.8.8 0 0 0-.78 0l-5.3 3.06v-2.12l4.4-2.54a4.53 4.53 0 0 1 6.2 4.2zm-9.14 4.56-2.12-1.22 2.12-1.22 2.12 1.22-2.12 1.22z"/>
-              </svg>
+            <div class="floating-cube cube-openai" title="Official Registrar Dry-Seal">
+              <div style="display:flex;flex-direction:column;align-items:center;line-height:1;">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="#10b981"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span style="font-size:9px;font-weight:800;color:#059669;margin-top:2px;">SEAL</span>
+              </div>
             </div>
 
             <!-- TABLET DASHBOARD MOCKUP -->
@@ -245,11 +248,11 @@
                   </svg>
                 </div>
                 <nav class="mockup-sidebar-icons">
-                  <div class="m-icon active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
-                  <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-                  <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                  <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                  <div class="m-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+                  <div class="m-icon active" title="Dashboard Overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg></div>
+                  <div class="m-icon" title="Document Requests"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                  <div class="m-icon" title="Request Timeline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                  <div class="m-icon" title="Official Seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                  <div class="m-icon" title="Student Profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
                 </nav>
               </aside>
 
@@ -257,77 +260,77 @@
               <div class="mockup-board">
                 <!-- Greeting -->
                 <div class="mockup-header">
-                  <h3 class="mockup-title">Hello, Alex 👋</h3>
-                  <p class="mockup-sub">Here's what's happening with your agents today.</p>
+                  <h3 class="mockup-title">Hello, Jaynellan 👋</h3>
+                  <p class="mockup-sub">Here's what's happening with your document requests today.</p>
                 </div>
 
                 <!-- 3 Top Metric Cards -->
                 <div class="mockup-metrics-row">
                   <div class="m-card">
-                    <span class="m-label">Total Automations</span>
+                    <span class="m-label">Total Requests</span>
                     <div class="m-val-row">
-                      <strong class="m-num">128</strong>
-                      <span class="m-pill green">↑ 24%</span>
+                      <strong class="m-num">12</strong>
+                      <span class="m-pill green">↑ Active</span>
                     </div>
                   </div>
                   <div class="m-card">
-                    <span class="m-label">Time Saved</span>
+                    <span class="m-label">In Processing</span>
                     <div class="m-val-row">
-                      <strong class="m-num">32h</strong>
-                      <span class="m-pill green">↑ 18%</span>
+                      <strong class="m-num">03</strong>
+                      <span class="m-pill green">↑ In Review</span>
                     </div>
                   </div>
                   <div class="m-card">
-                    <span class="m-label">Tasks Completed</span>
+                    <span class="m-label">Ready to Claim</span>
                     <div class="m-val-row">
-                      <strong class="m-num">1,458</strong>
-                      <span class="m-pill green">↑ 32%</span>
+                      <strong class="m-num">09</strong>
+                      <span class="m-pill green">↑ Ready</span>
                     </div>
                   </div>
                 </div>
 
                 <!-- 2 Split Panels -->
                 <div class="mockup-split-row">
-                  <!-- Active AI Agents -->
+                  <!-- Active Document Requests -->
                   <div class="mockup-subpanel">
-                    <div class="panel-head">Active AI Agents</div>
+                    <div class="panel-head">Active Document Requests</div>
                     <div class="panel-list">
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon blue">✦</span>
-                          <span class="p-name">Lead Enrichment Agent</span>
+                          <span class="p-icon blue">📄</span>
+                          <span class="p-name">Transcript of Records (TOR)</span>
                         </div>
-                        <span class="status-indicator online">● Running</span>
+                        <span class="status-indicator online">● Processing</span>
                       </div>
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon cyan">👥</span>
-                          <span class="p-name">Customer Support Agent</span>
+                          <span class="p-icon cyan">📜</span>
+                          <span class="p-name">Certificate of Enrollment</span>
                         </div>
-                        <span class="status-indicator online">● Running</span>
+                        <span class="status-indicator online">● Ready</span>
                       </div>
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon purple">📄</span>
-                          <span class="p-name">Content Creation Agent</span>
+                          <span class="p-icon purple">🎓</span>
+                          <span class="p-name">Good Moral Certificate</span>
                         </div>
-                        <span class="status-indicator idle">● Idle</span>
+                        <span class="status-indicator online">● Released</span>
                       </div>
                     </div>
                   </div>
 
                   <!-- Workflow Overview -->
                   <div class="mockup-subpanel">
-                    <div class="panel-head">Workflow Overview</div>
+                    <div class="panel-head">Request Lifecycle</div>
                     <div class="workflow-diagram">
                       <div class="wf-node wf-trigger">
                         <span class="wf-icon">⚡</span>
-                        <span>Trigger</span>
+                        <span>Request Filed</span>
                       </div>
                       <div class="wf-line-v"></div>
                       <div class="wf-node wf-agent">
                         <span class="wf-icon">✦</span>
-                        <span>AI Agent</span>
+                        <span>Registrar Review</span>
                       </div>
                       <div class="wf-fork-lines">
                         <div class="wf-branch left"></div>
@@ -335,12 +338,12 @@
                       </div>
                       <div class="wf-action-row">
                         <div class="wf-node wf-action">
-                          <span class="wf-icon">⚙</span>
-                          <span>Action</span>
+                          <span class="wf-icon">✓</span>
+                          <span>Dean Seal</span>
                         </div>
                         <div class="wf-node wf-action">
-                          <span class="wf-icon">⚙</span>
-                          <span>Action</span>
+                          <span class="wf-icon">✓</span>
+                          <span>Release</span>
                         </div>
                       </div>
                     </div>
@@ -355,8 +358,8 @@
               <div class="fpc-header">
                 <span class="fpc-icon">✦</span>
                 <div>
-                  <div class="fpc-title">AI Agent</div>
-                  <div class="fpc-desc">Extracting lead data...</div>
+                  <div class="fpc-title">Registrar Processing</div>
+                  <div class="fpc-desc">Verifying academic records for TOR...</div>
                 </div>
               </div>
               <div class="fpc-progress-row">
@@ -372,40 +375,34 @@
         </div>
       </section>
 
-      <!-- LOGO BAR: TRUSTED BY INNOVATIVE TEAMS AT -->
+      <!-- LOGO BAR: TRUSTED ACROSS ACADEMIC PROGRAMS -->
       <section class="flowize-trusted-section">
         <div class="flowize-container text-center">
-          <p class="flowize-trusted-title">Trusted by innovative teams at</p>
+          <p class="flowize-trusted-title">Trusted across academic programs &amp; colleges at Christ-Centered Academy</p>
           <div class="flowize-logos-row">
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.093-.373L17.82.986c-.42-.327-.98-.7-2.1-.607L2.965 1.453c-.467.047-.56.327-.374.513zm.84 3.082v13.627c0 .747.373 1.027 1.214.98l14.522-.84c.84-.046.933-.56.933-1.167V6.354c0-.606-.233-.933-.793-.886l-15.082.886c-.56.047-.794.374-.794.936zm13.822.42c.093.42 0 .84-.42.887l-.7.14v10.595c-.653.374-1.306.56-1.866.56-.933 0-1.353-.326-2.146-1.306l-4.48-6.953v6.766l1.4.327c0 .42-.28.84-.7.84l-3.826.233c-.093-.373.187-.793.607-.84l.886-.187V9.083l-1.166-.093c-.094-.42.14-.933.653-.98l3.92-.233 4.806 7.233V8.71l-1.073-.187c-.094-.42.233-.84.7-.84z"/></svg>
-              <span>Notion</span>
+              <span>💻 College of Computer Studies</span>
             </div>
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M18.8 9.3V7.2c.8-.4 1.4-1.2 1.4-2.2 0-1.4-1.1-2.5-2.5-2.5s-2.5 1.1-2.5 2.5c0 1 .6 1.8 1.4 2.2v2.1c-.9.2-1.7.7-2.3 1.3L8.6 7.4c.1-.3.1-.6.1-.9 0-1.9-1.6-3.5-3.5-3.5S1.7 4.6 1.7 6.5s1.6 3.5 3.5 3.5c.6 0 1.2-.2 1.7-.5l5.5 3.1c-.2.5-.3 1.1-.3 1.7 0 .6.1 1.2.3 1.7l-5.5 3.1c-.5-.3-1.1-.5-1.7-.5-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5c0-.3 0-.6-.1-.9l5.7-3.2c.6.6 1.4 1.1 2.3 1.3v2.1c-.8.4-1.4 1.2-1.4 2.2 0 1.4 1.1 2.5 2.5 2.5s2.5-1.1 2.5-2.5c0-1-.6-1.8-1.4-2.2v-2.1c1.9-.5 3.3-2.2 3.3-4.3s-1.4-3.8-3.3-4.3zm-1.1-5.6c.7 0 1.2.5 1.2 1.2s-.5 1.2-1.2 1.2-1.2-.5-1.2-1.2.5-1.2 1.2-1.2zM5.2 8.7c-1.2 0-2.2-1-2.2-2.2s1-2.2 2.2-2.2 2.2 1 2.2 2.2-1 2.2-2.2 2.2zm0 14.6c-1.2 0-2.2-1-2.2-2.2s1-2.2 2.2-2.2 2.2 1 2.2 2.2-1 2.2-2.2 2.2zm12.5-6.8c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5zm0 6.6c-.7 0-1.2-.5-1.2-1.2s.5-1.2 1.2-1.2 1.2.5 1.2 1.2-.5 1.2-1.2 1.2z"/></svg>
-              <span>HubSpot</span>
+              <span>📊 Business &amp; Accountancy</span>
             </div>
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
-              <span>slack</span>
+              <span>📚 College of Education</span>
             </div>
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22.28 9.37a5.98 5.98 0 0 0-.52-4.94 6.06 6.06 0 0 0-6.52-2.8 6.04 6.04 0 0 0-4.63-2.07c-3.1 0-5.69 2.34-6 5.4a6.04 6.04 0 0 0-4.08 2.96 6.06 6.06 0 0 0 .74 7.07 5.98 5.98 0 0 0 .52 4.94 6.06 6.06 0 0 0 6.52 2.8 6.05 6.05 0 0 0 4.63 2.07c3.1 0 5.69-2.34 6-5.4a6.04 6.04 0 0 0 4.08-2.96 6.06 6.06 0 0 0-.74-7.07z"/></svg>
-              <span>OpenAI</span>
+              <span>🏨 Hospitality Management</span>
             </div>
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12.24 10.285V14.4h6.887C18.2 16.88 15.64 19.2 12.24 19.2c-4.08 0-7.44-3.36-7.44-7.44s3.36-7.44 7.44-7.44c1.84 0 3.52.72 4.8 1.92l3.12-3.12C18.24 1.365 15.44 0 12.24 0 5.48 0 0 5.48 0 12.24s5.48 12.24 12.24 12.24c7.04 0 12.16-4.96 12.16-12.08 0-.8-.08-1.44-.16-2.115H12.24z"/></svg>
-              <span>Google</span>
+              <span>🏛️ Office of the Registrar</span>
             </div>
             <div class="f-logo-item">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/></svg>
-              <span>Microsoft</span>
+              <span>🎓 CHED Accredited</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 4-METRIC WHITE CONTAINER CARD (MATCHING REFERENCE IMAGE) -->
+      <!-- 4-METRIC WHITE CONTAINER CARD (DOCUMENT REQUEST SPECIALIZED) -->
       <section class="flowize-metrics-section" id="integrationsSection">
         <div class="flowize-container">
           <div class="flowize-metrics-card">
@@ -415,35 +412,35 @@
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="#2563EB"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               </div>
               <h3 class="f-metric-stat">10x</h3>
-              <h4 class="f-metric-title">Faster workflows</h4>
-              <p class="f-metric-desc">Automate repetitive tasks and save hours every week.</p>
+              <h4 class="f-metric-title">Faster Processing</h4>
+              <p class="f-metric-desc">Submit document requests online and avoid standing in long lines at the registrar window.</p>
             </div>
 
             <div class="f-metric-col">
               <div class="f-metric-icon">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="#2563EB"><path d="M12 2l2.4 7.2h7.6l-6.2 4.5 2.4 7.3-6.2-4.5-6.2 4.5 2.4-7.3-6.2-4.5h7.6z"/></svg>
               </div>
-              <h3 class="f-metric-stat">98%</h3>
-              <h4 class="f-metric-title">Accuracy rate</h4>
-              <p class="f-metric-desc">AI agents deliver consistent and reliable results.</p>
+              <h3 class="f-metric-stat">99.8%</h3>
+              <h4 class="f-metric-title">Accuracy Rate</h4>
+              <p class="f-metric-desc">Direct cross-referencing ensures zero record discrepancies and verified student credentials.</p>
             </div>
 
             <div class="f-metric-col">
               <div class="f-metric-icon">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="#2563EB"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="#2563EB"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
               </div>
-              <h3 class="f-metric-stat">50+</h3>
-              <h4 class="f-metric-title">Integrations</h4>
-              <p class="f-metric-desc">Connect your favorite tools and build powerful workflows.</p>
+              <h3 class="f-metric-stat">100%</h3>
+              <h4 class="f-metric-title">Official Credentials</h4>
+              <p class="f-metric-desc">Transcripts of Records, Certificates of Enrollment, Good Moral, and semester Report Cards.</p>
             </div>
 
             <div class="f-metric-col">
               <div class="f-metric-icon">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="#2563EB"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </div>
-              <h3 class="f-metric-stat">Enterprise-grade</h3>
-              <h4 class="f-metric-title">Security</h4>
-              <p class="f-metric-desc">Your data is protected with industry-leading security.</p>
+              <h3 class="f-metric-stat">Institutional</h3>
+              <h4 class="f-metric-title">Dry-Seal Security</h4>
+              <p class="f-metric-desc">Every released document is authenticated with the official registrar dry-seal and verification code.</p>
             </div>
 
           </div>
@@ -669,7 +666,7 @@
                   <rect x="14.5" y="14.5" width="9.5" height="9.5" rx="3" fill="#2563EB"/>
                 </svg>
               </div>
-              <strong>Flowize AI &bull; CCA DocTrack</strong>
+              <strong>CCA DocTrack &bull; Christ-Centered Academy</strong>
             </div>
             <p>Christ Centered Academy of Lipa City Inc. &bull; Office of the College Registrar</p>
           </div>

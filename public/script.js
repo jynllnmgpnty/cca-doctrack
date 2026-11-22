@@ -231,7 +231,7 @@ function updateLandingAuthUI() {
   } else {
     elements.landingAuthActions.innerHTML = `
       <button class="flowize-btn-login" id="btnLandingSignIn">Log in</button>
-      <button class="btn btn-flowize-primary" id="btnLandingRegister">Get Started</button>
+      <button class="btn btn-flowize-primary" id="btnLandingRegister">Request Document</button>
     `;
 
     document.getElementById('btnLandingSignIn')?.addEventListener('click', () => openAuthModal('signin', 'student'));
