@@ -2066,17 +2066,19 @@
             <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
           </svg>
         </div>
-        <span class="topbar-brand-title">CCA DocTrack</span>
-        <span class="portal-badge admin-badge" style="margin-left: 8px;">Registrar Admin</span>
+        <div class="topbar-brand-col">
+          <span class="topbar-brand-title">CCA DocTrack</span>
+          <span class="topbar-brand-sub">Admin Portal</span>
+        </div>
+      </div>
+
+      <!-- Center Search Bar (Reference layout) -->
+      <div class="admin-topbar-search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="adminGlobalSearch" placeholder="Search for students, requests, or documents...">
       </div>
 
       <div class="topbar-actions">
-        <!-- Quick Global Sync Button -->
-        <button class="refresh-btn" id="adminGlobalRefreshBtn" title="Sync with Registrar Office">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-          <span>Sync Requests</span>
-        </button>
-
         <!-- Notification Bell with Dropdown & disappearing count badge -->
         <div class="topbar-bell-wrapper">
           <button class="topbar-bell-btn" id="btnAdminTopbarBell" title="Admin Notifications" aria-label="View notifications">
@@ -2095,23 +2097,23 @@
             </div>
             <div class="notif-dropdown-list">
               <div class="notif-item unread">
-                <div class="notif-bullet-icon bg-blue-tint">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <div class="notif-text-col">
-                  <strong>New Document Submission</strong>
-                  <p>A new student request has been received for review.</p>
-                  <span class="notif-time-ago">Just now</span>
-                </div>
-              </div>
-              <div class="notif-item unread">
                 <div class="notif-bullet-icon bg-green-tint">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
                 <div class="notif-text-col">
-                  <strong>Database Synchronized</strong>
-                  <p>Remote Turso libSQL Cloud is connected and operational.</p>
-                  <span class="notif-time-ago">1h ago</span>
+                  <strong>TOR request (REQ-00234) was approved.</strong>
+                  <p>Cleared for official registrar issuance.</p>
+                  <span class="notif-time-ago">2 mins ago</span>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-bullet-icon bg-blue-tint">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <div class="notif-text-col">
+                  <strong>New document request from Juan Dela Cruz.</strong>
+                  <p>Good Moral Certificate submitted for review.</p>
+                  <span class="notif-time-ago">5 mins ago</span>
                 </div>
               </div>
               <div class="notif-item">
@@ -2119,9 +2121,9 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
                 </div>
                 <div class="notif-text-col">
-                  <strong>Registrar System Notice</strong>
-                  <p>Midterm clearance evaluation ongoing.</p>
-                  <span class="notif-time-ago">1d ago</span>
+                  <strong>Report Card (REQ-00232) was released.</strong>
+                  <p>Document claimed at Registrar Window 2.</p>
+                  <span class="notif-time-ago">15 mins ago</span>
                 </div>
               </div>
             </div>
@@ -2131,32 +2133,44 @@
         <!-- Admin User Chip & Dropdown -->
         <div class="topbar-user-menu-wrapper">
           <button class="topbar-user-chip" id="adminUserChip" aria-expanded="false" title="Account Menu">
-            <div class="user-chip-avatar" id="adminTopbarAvatar">AD</div>
+            <div class="user-chip-avatar" id="adminTopbarAvatar">AR</div>
             <svg class="chip-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
           <div class="student-user-dropdown" id="adminUserDropdown">
             <div class="dropdown-header">
-              <div class="dropdown-user-name" id="adminDropdownUserName">Office of the Registrar</div>
+              <div class="dropdown-user-name" id="adminDropdownUserName">Admin Reyes</div>
               <div class="dropdown-user-email" id="adminDropdownUserEmail">admin@cca.edu.ph</div>
             </div>
             <div class="dropdown-divider"></div>
             <button class="dropdown-item" data-admin-tab="dashboard">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
               <span>Dashboard</span>
             </button>
             <button class="dropdown-item" data-admin-tab="manage">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
               <span>Manage Requests</span>
             </button>
-            <button class="dropdown-item" data-admin-tab="system">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-              <span>System Specs &amp; API</span>
+            <button class="dropdown-item" data-admin-tab="students">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              <span>Manage Students</span>
+            </button>
+            <button class="dropdown-item" data-admin-tab="announcements">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span>Announcements</span>
+            </button>
+            <button class="dropdown-item" data-admin-tab="reports">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <span>Reports</span>
             </button>
             <button class="dropdown-item" data-admin-tab="settings">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
               <span>Settings</span>
+            </button>
+            <button class="dropdown-item" data-admin-tab="audit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+              <span>Audit Logs</span>
             </button>
             <div class="dropdown-divider"></div>
             <button class="dropdown-item dropdown-logout" id="btnAdminDropdownLogout">
@@ -2178,187 +2192,350 @@
               <svg width="48" height="48" viewBox="0 0 24 24" fill="#2563EB"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
             </div>
           </div>
-          <h3 class="student-sidebar-name" id="adminSidebarName">Office of the Registrar</h3>
-          <p class="student-sidebar-meta" id="adminSidebarMeta">Registrar Administrator</p>
+          <h3 class="student-sidebar-name" id="adminSidebarName">Admin Reyes</h3>
+          <p class="student-sidebar-meta" id="adminSidebarMeta">System Administrator</p>
+          <div class="admin-status-online">
+            <span class="online-dot"></span>
+            <span>Online</span>
+          </div>
         </div>
 
         <nav class="student-ref-nav">
           <button class="ref-nav-item active" data-admin-tab="dashboard">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             <span>Dashboard</span>
           </button>
           <button class="ref-nav-item" data-admin-tab="manage">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
             <span>Manage Requests</span>
-            <span class="ref-nav-badge" id="adminTotalBadge">0</span>
+            <span class="nav-chevron">&rsaquo;</span>
           </button>
-          <button class="ref-nav-item" data-admin-tab="system">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            <span>System Specs &amp; API</span>
+          <button class="ref-nav-item" data-admin-tab="students">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            <span>Manage Students</span>
+          </button>
+          <button class="ref-nav-item" data-admin-tab="announcements">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Announcements</span>
+          </button>
+          <button class="ref-nav-item" data-admin-tab="reports">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Reports</span>
           </button>
           <button class="ref-nav-item" data-admin-tab="settings">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Settings</span>
           </button>
+          <button class="ref-nav-item" data-admin-tab="audit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+            <span>Audit Logs</span>
+          </button>
+          <button class="ref-nav-item" id="adminSidebarLogoutBtn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Logout</span>
+          </button>
         </nav>
+
+        <!-- Bottom Sidebar Help Card (Same as Student Portal) -->
+        <div class="student-help-widget" style="margin-top:auto; padding: 18px; text-align:center;">
+          <div class="help-illu-box" style="margin-bottom:8px;">
+            <svg width="70" height="55" viewBox="0 0 70 55" fill="none">
+              <path d="M12 36L35 48L58 36L35 24L12 36Z" fill="#BFDBFE" />
+              <path d="M12 28L35 40L58 28L35 16L12 28Z" fill="#93C5FD" />
+              <path d="M12 20L35 32L58 20L35 8L12 20Z" fill="#2563EB" />
+              <path d="M35 5L8 18L35 31L62 18L35 5Z" fill="#1E3A8A" />
+              <line x1="58" y1="18" x2="58" y2="34" stroke="#F59E0B" stroke-width="2" />
+              <circle cx="58" cy="35" r="2.5" fill="#F59E0B" />
+            </svg>
+          </div>
+          <div style="font-size:13.5px; font-weight:700; color:#0F172A;">CCA DocTrack</div>
+          <div style="font-size:11px; color:#64748B; margin-top:2px;">Official Student Document Request &amp; Tracking Portal</div>
+        </div>
       </aside>
 
       <!-- Main Content Area -->
       <main class="student-ref-main admin-ref-main">
 
-        <!-- ==================== SUBTAB 1: DASHBOARD / HOME ==================== -->
+        <!-- ==================== SUBTAB 1: DASHBOARD (EXACT REFERENCE DESIGN) ==================== -->
         <div class="student-subtab-pane admin-subtab active" id="adminSubtab-dashboard">
-          <!-- Hero Banner -->
-          <div class="ref-hero-banner">
+          <!-- Hero Banner with Laptop Graphic -->
+          <div class="ref-hero-banner" style="background: linear-gradient(135deg, #F0F6FF 0%, #FFFFFF 100%);">
             <div class="hero-banner-content">
-              <div class="hero-badge-pill">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span>Office of the Registrar</span>
-              </div>
-              <h1 class="hero-title">Welcome back,<br><span class="hero-name-blue" id="adminHeroName">Administrator!</span></h1>
-              <p class="hero-subtitle">Campus-wide student document request tracking, verification, and operations.</p>
+              <h1 class="hero-title" style="font-size:28px;">Welcome back, <span class="hero-name-blue" id="adminHeroGreetingName">Admin Reyes!</span></h1>
+              <p class="hero-subtitle">Here's what's happening with CCA DocTrack today.</p>
             </div>
             <div class="hero-banner-graphic">
-              <svg width="240" height="180" viewBox="0 0 240 180" fill="none">
-                <circle cx="150" cy="90" r="80" fill="#DBEAFE" opacity="0.6" filter="blur(20px)" />
-                <rect x="70" y="110" width="130" height="45" rx="10" fill="#2563EB" />
-                <rect x="85" y="125" width="40" height="6" rx="3" fill="#93C5FD" />
-                <rect x="85" y="136" width="70" height="5" rx="2.5" fill="#BFDBFE" />
-                <circle cx="170" cy="132" r="12" fill="#1D4ED8" />
-                <polyline points="166,132 169,135 175,129" stroke="#FFFFFF" stroke-width="2" fill="none" />
-                <rect x="90" y="45" width="100" height="55" rx="8" fill="#1E3A8A" />
-                <rect x="105" y="60" width="70" height="6" rx="3" fill="#60A5FA" />
-                <rect x="105" y="72" width="50" height="5" rx="2.5" fill="#93C5FD" />
+              <svg width="220" height="150" viewBox="0 0 220 150" fill="none">
+                <ellipse cx="140" cy="80" rx="70" ry="50" fill="#DBEAFE" opacity="0.6" filter="blur(15px)"/>
+                <!-- Potted plant -->
+                <path d="M50 115 L45 85 L65 85 L60 115 Z" fill="#3B82F6" />
+                <ellipse cx="55" cy="85" rx="10" ry="3" fill="#2563EB" />
+                <path d="M55 85 Q45 60 40 50 Q55 58 55 85 Z" fill="#10B981" />
+                <path d="M55 85 Q65 60 70 50 Q60 62 55 85 Z" fill="#059669" />
+                <!-- Laptop base -->
+                <rect x="70" y="112" width="130" height="7" rx="3.5" fill="#94A3B8" />
+                <path d="M110 112 L130 112 L127 115 L113 115 Z" fill="#CBD5E1" />
+                <!-- Laptop Screen -->
+                <rect x="80" y="45" width="110" height="68" rx="6" fill="#1E293B" />
+                <rect x="84" y="49" width="102" height="60" rx="4" fill="#FFFFFF" />
+                <!-- 4-square logo on screen -->
+                <rect x="125" y="68" width="8" height="8" rx="2" fill="#2563EB" />
+                <rect x="136" y="68" width="8" height="8" rx="2" fill="#2563EB" />
+                <rect x="125" y="79" width="8" height="8" rx="2" fill="#2563EB" />
+                <rect x="136" y="79" width="8" height="8" rx="2" fill="#2563EB" />
+                <!-- Books on side -->
+                <rect x="195" y="104" width="22" height="7" rx="2" fill="#3B82F6" />
+                <rect x="193" y="96" width="24" height="7" rx="2" fill="#93C5FD" />
               </svg>
             </div>
           </div>
 
-          <!-- Quick Navigation Cards -->
-          <div class="ref-quick-grid" style="margin-top:24px;">
-            <div class="quick-nav-card" data-admin-tab="manage">
-              <div class="quick-icon-circle blue">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
+          <!-- 4 Metric Cards with Wave SVGs -->
+          <div class="metric-wave-grid">
+            <!-- Card 1: Total Requests -->
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon blue">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <span class="metric-wave-trend">&uarr; 12%</span>
               </div>
-              <div class="quick-title">Manage Requests</div>
-              <div class="quick-desc">Update statuses, search student records, and release credentials.</div>
-              <span class="quick-arrow">&rarr;</span>
+              <div class="metric-wave-value" id="cardTotalCount">1,248</div>
+              <div class="metric-wave-label">Total Requests</div>
+              <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
+                <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20" fill="none" stroke="#3B82F6" stroke-width="2"/>
+              </svg>
             </div>
-            <div class="quick-nav-card" data-admin-tab="system">
-              <div class="quick-icon-circle cyan">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+
+            <!-- Card 2: Pending Requests -->
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon cyan">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <span class="metric-wave-trend">&uarr; 8%</span>
               </div>
-              <div class="quick-title">System Specs &amp; API</div>
-              <div class="quick-desc">Monitor cloud libSQL connectivity and REST endpoints.</div>
-              <span class="quick-arrow">&rarr;</span>
+              <div class="metric-wave-value" id="cardPendingCount">342</div>
+              <div class="metric-wave-label">Pending Requests</div>
+              <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(14, 165, 233, 0.08)"/>
+                <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18" fill="none" stroke="#0EA5E9" stroke-width="2"/>
+              </svg>
             </div>
-            <div class="quick-nav-card" data-admin-tab="settings">
-              <div class="quick-icon-circle purple">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+
+            <!-- Card 3: Approved Requests -->
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span class="metric-wave-trend">&uarr; 14%</span>
               </div>
-              <div class="quick-title">Settings</div>
-              <div class="quick-desc">Update profile, change password, and toggle dark mode.</div>
-              <span class="quick-arrow">&rarr;</span>
+              <div class="metric-wave-value" id="cardApprovedCount">781</div>
+              <div class="metric-wave-label">Approved Requests</div>
+              <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
+                <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22" fill="none" stroke="#10B981" stroke-width="2"/>
+              </svg>
+            </div>
+
+            <!-- Card 4: Released Documents -->
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon purple">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <span class="metric-wave-trend">&uarr; 10%</span>
+              </div>
+              <div class="metric-wave-value" id="cardReleasedCount">125</div>
+              <div class="metric-wave-label">Released Documents</div>
+              <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
+                <path d="M0,24 C40,16 70,32 110,18 C150,10 180,26 200,16 L200,40 L0,40 Z" fill="rgba(168, 85, 247, 0.08)"/>
+                <path d="M0,24 C40,16 70,32 110,18 C150,10 180,26 200,16" fill="none" stroke="#A855F7" stroke-width="2"/>
+              </svg>
             </div>
           </div>
 
-          <!-- 4 Modern Stat Metric Cards -->
-          <div class="ref-track-stats-row" style="margin-top:24px;">
-            <div class="track-stat-box">
-              <div class="stat-box-icon blue">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              </div>
-              <div class="stat-box-num" id="cardTotalCount">0</div>
-              <div class="stat-box-label">Total Requests</div>
-            </div>
-
-            <div class="track-stat-box">
-              <div class="stat-box-icon cyan">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0284C7" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div class="stat-box-num" id="cardPendingCount">0</div>
-              <div class="stat-box-label">Pending Review</div>
-            </div>
-
-            <div class="track-stat-box">
-              <div class="stat-box-icon purple">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9333EA" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-              </div>
-              <div class="stat-box-num" id="cardProcessingCount">0</div>
-              <div class="stat-box-label">In Processing</div>
-            </div>
-
-            <div class="track-stat-box">
-              <div class="stat-box-icon green">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="stat-box-num" id="cardCompletedCount">0</div>
-              <div class="stat-box-label">Completed</div>
-            </div>
-          </div>
-
-          <!-- Two Section Grid: Recent Requests & System Status -->
+          <!-- Middle Row Grid (Request Overview Donut Chart & Recent Activities) -->
           <div class="ref-dashboard-grid" style="margin-top:24px;">
-            <!-- Recent Document Submissions -->
+            <!-- Request Overview Donut Chart -->
             <div class="ref-white-card">
               <div class="card-ref-header">
-                <div>
-                  <div class="card-ref-title">Recent Document Submissions</div>
-                  <div class="card-ref-sub">Latest requests received from student portal</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  <span class="card-ref-title">Request Overview</span>
                 </div>
-                <button class="btn-ref-outline-sm" id="btnAdminViewAll">View All &rarr;</button>
+                <select class="filter-select" id="overviewTimeRange" style="font-size:12.5px; padding:4px 10px; height:32px;">
+                  <option value="30">Last 30 Days</option>
+                  <option value="7">Last 7 Days</option>
+                  <option value="90">This Semester</option>
+                  <option value="365">This Year</option>
+                </select>
               </div>
+
+              <div class="overview-donut-layout">
+                <div class="overview-donut-box">
+                  <svg class="overview-donut-svg" viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F1F5F9" stroke-width="4.5"/>
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#2563EB" stroke-width="4.5" stroke-dasharray="62.6, 100" stroke-linecap="round"/>
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#60A5FA" stroke-width="4.5" stroke-dasharray="27.4, 100" stroke-dashoffset="-62.6"/>
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" stroke-width="4.5" stroke-dasharray="7.1, 100" stroke-dashoffset="-90"/>
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#A855F7" stroke-width="4.5" stroke-dasharray="2.9, 100" stroke-dashoffset="-97.1"/>
+                  </svg>
+                  <div class="overview-donut-center">
+                    <div class="donut-center-num" id="overviewDonutTotal">1,248</div>
+                    <div class="donut-center-label">Total</div>
+                  </div>
+                </div>
+
+                <div class="overview-legend-list">
+                  <div class="overview-legend-item">
+                    <div class="legend-item-left">
+                      <span class="legend-color-dot blue"></span>
+                      <span>Approved</span>
+                    </div>
+                    <span class="legend-percent" id="legendPctApproved">62.6%</span>
+                  </div>
+                  <div class="overview-legend-item">
+                    <div class="legend-item-left">
+                      <span class="legend-color-dot cyan"></span>
+                      <span>Processing</span>
+                    </div>
+                    <span class="legend-percent" id="legendPctProcessing">27.4%</span>
+                  </div>
+                  <div class="overview-legend-item">
+                    <div class="legend-item-left">
+                      <span class="legend-color-dot green"></span>
+                      <span>Pending</span>
+                    </div>
+                    <span class="legend-percent" id="legendPctPending">7.1%</span>
+                  </div>
+                  <div class="overview-legend-item">
+                    <div class="legend-item-left">
+                      <span class="legend-color-dot purple"></span>
+                      <span>For Release</span>
+                    </div>
+                    <span class="legend-percent" id="legendPctRelease">2.9%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="ref-white-card">
+              <div class="card-ref-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                  <span class="card-ref-title">Recent Activities</span>
+                </div>
+                <button class="btn-ref-outline-sm" id="btnAdminActivitiesViewAll">View All &rarr;</button>
+              </div>
+
+              <div class="recent-activities-list" id="adminRecentActivitiesList">
+                <div class="activity-item">
+                  <div class="activity-icon green">&#10003;</div>
+                  <div class="activity-text">TOR request (REQ-00234) was approved.</div>
+                  <div class="activity-time">2 mins ago</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon blue">+</div>
+                  <div class="activity-text">New document request from Juan Dela Cruz.</div>
+                  <div class="activity-time">5 mins ago</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon cyan">&#9201;</div>
+                  <div class="activity-text">Certificate of Enrollment (REQ-00233) is now processing.</div>
+                  <div class="activity-time">10 mins ago</div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon purple">&#10148;</div>
+                  <div class="activity-text">Report Card (REQ-00232) was released.</div>
+                  <div class="activity-time">15 mins ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Row Grid (Recent Document Requests & Quick Actions) -->
+          <div class="ref-dashboard-grid" style="margin-top:24px;">
+            <!-- Recent Document Requests Table -->
+            <div class="ref-white-card">
+              <div class="card-ref-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span class="card-ref-title">Recent Document Requests</span>
+                </div>
+                <button class="btn-ref-outline-sm" id="btnAdminRecentViewAll">View All &rarr;</button>
+              </div>
+
               <div class="table-responsive" style="margin-top:14px;">
                 <table class="data-table">
                   <thead>
                     <tr>
+                      <th>Request ID</th>
                       <th>Student Name</th>
-                      <th>Student ID</th>
                       <th>Document Type</th>
-                      <th>Date Filed</th>
                       <th>Status</th>
+                      <th>Requested Date</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody id="adminRecentTableBody">
-                    <tr><td colspan="5" class="table-empty">Loading records...</td></tr>
+                    <tr><td colspan="6" class="table-empty">Loading records...</td></tr>
                   </tbody>
                 </table>
               </div>
             </div>
 
-            <!-- Operations & Cloud Status -->
+            <!-- Quick Actions Card -->
             <div class="ref-white-card">
               <div class="card-ref-header">
-                <div>
-                  <div class="card-ref-title">Registrar Cloud Infrastructure</div>
-                  <div class="card-ref-sub">Real-time database connectivity &amp; sync</div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <span class="card-ref-title">Quick Actions</span>
                 </div>
-                <span class="badge badge-success" id="adminSysHealthBadge">Connected</span>
               </div>
-              <div class="system-list" style="margin-top:14px;">
-                <div class="admin-system-item">
-                  <span class="system-item-key">Database Engine</span>
-                  <span class="system-item-val">Turso Cloud (Remote libSQL)</span>
+
+              <div class="quick-actions-list">
+                <div class="quick-action-item" data-admin-tab="manage">
+                  <div class="quick-action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
+                  </div>
+                  <span class="quick-action-label">Manage Requests</span>
+                  <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Service Status</span>
-                  <span class="system-item-val" id="adminSysDbStatus">Operational (Online)</span>
+
+                <div class="quick-action-item" data-admin-tab="reports">
+                  <div class="quick-action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  </div>
+                  <span class="quick-action-label">View Reports</span>
+                  <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Deployment Target</span>
-                  <span class="system-item-val">Render Cloud Platform (PaaS)</span>
+
+                <div class="quick-action-item" data-admin-tab="students">
+                  <div class="quick-action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  </div>
+                  <span class="quick-action-label">Manage Students</span>
+                  <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Academic Course</span>
-                  <span class="system-item-val">IT 412 Platform Technologies</span>
+
+                <div class="quick-action-item" data-admin-tab="announcements">
+                  <div class="quick-action-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <span class="quick-action-label">Post Announcement</span>
+                  <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 2: MANAGE ALL REQUESTS ==================== -->
+        <!-- ==================== SUBTAB 2: MANAGE REQUESTS ==================== -->
         <div class="student-subtab-pane admin-subtab" id="adminSubtab-manage">
-          <!-- Subtab Header with Illustration -->
           <div class="ref-page-header-flex">
             <div>
               <div class="ref-breadcrumbs">
@@ -2367,7 +2544,7 @@
                 <span class="bc-active">Manage Requests</span>
               </div>
               <h1 class="ref-page-title">Manage All Document Requests</h1>
-              <p class="ref-page-subtitle">Search student submissions, update processing stages, and issue official releases.</p>
+              <p class="ref-page-subtitle">Review student submissions, transition verification stages, and issue official releases.</p>
             </div>
             <div class="ref-header-graphic">
               <div class="graphic-illustration-box">
@@ -2387,15 +2564,24 @@
           <!-- Filter & Search Controls Card -->
           <div class="ref-white-card" style="margin-top:20px; padding: 16px 20px;">
             <div class="manage-filters" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
-              <div class="search-box" style="flex:1; min-width:260px;">
+              <div class="search-box" style="flex:1; min-width:240px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input type="text" id="adminSearchInput" placeholder="Search by student name, ID, or document type...">
               </div>
-              <select id="adminStatusFilter" class="filter-select" style="min-width:180px;">
+              <select id="adminStatusFilter" class="filter-select" style="min-width:170px;">
                 <option value="ALL">All Statuses</option>
                 <option value="Pending">Pending Review</option>
                 <option value="Processing">In Processing</option>
+                <option value="For Release">For Release</option>
                 <option value="Completed">Completed</option>
+              </select>
+              <select id="adminDocTypeFilter" class="filter-select" style="min-width:170px;">
+                <option value="ALL">All Document Types</option>
+                <option value="TOR">Transcript of Records (TOR)</option>
+                <option value="Certificate of Enrollment">Certificate of Enrollment</option>
+                <option value="Good Moral Certificate">Good Moral Certificate</option>
+                <option value="Report Card">Report Card</option>
+                <option value="Others">Others</option>
               </select>
             </div>
           </div>
@@ -2405,7 +2591,7 @@
             <div class="card-ref-header">
               <div>
                 <div class="card-ref-title">Master Requests Registry</div>
-                <div class="card-ref-sub">Full record of student document requests in Turso libSQL</div>
+                <div class="card-ref-sub">Full live record of student document requests in Turso libSQL</div>
               </div>
             </div>
 
@@ -2436,110 +2622,364 @@
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 3: SYSTEM SPECS & API ==================== -->
-        <div class="student-subtab-pane admin-subtab" id="adminSubtab-system">
+        <!-- ==================== SUBTAB 3: MANAGE STUDENTS ==================== -->
+        <div class="student-subtab-pane admin-subtab" id="adminSubtab-students">
           <div class="ref-page-header-flex">
             <div>
               <div class="ref-breadcrumbs">
                 <span class="bc-home">🏠 Admin Portal</span>
                 <span class="bc-sep">&rsaquo;</span>
-                <span class="bc-active">System Specs &amp; API</span>
+                <span class="bc-active">Manage Students</span>
               </div>
-              <h1 class="ref-page-title">Cloud Infrastructure &amp; API Specifications</h1>
-              <p class="ref-page-subtitle">Live system connectivity, remote Turso libSQL database, and REST API endpoints.</p>
+              <h1 class="ref-page-title">Student Directory &amp; Records</h1>
+              <p class="ref-page-subtitle">View registered students, academic programs, and request activities.</p>
             </div>
             <div class="ref-header-graphic">
               <div class="graphic-illustration-box">
                 <svg width="120" height="90" viewBox="0 0 120 90" fill="none">
-                  <rect x="20" y="15" width="80" height="24" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
-                  <circle cx="34" cy="27" r="4" fill="#2563EB"/>
-                  <line x1="48" y1="27" x2="88" y2="27" stroke="#93C5FD" stroke-width="2.5" stroke-linecap="round"/>
-                  <rect x="20" y="45" width="80" height="24" rx="6" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2"/>
-                  <circle cx="34" cy="57" r="4" fill="#16A34A"/>
-                  <line x1="48" y1="57" x2="88" y2="57" stroke="#86EFAC" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M60 20L20 40L60 60L100 40L60 20Z" fill="#2563EB"/>
+                  <path d="M35 48V65C35 72 46 78 60 78C74 78 85 72 85 65V48" fill="none" stroke="#3B82F6" stroke-width="3"/>
+                  <line x1="95" y1="40" x2="95" y2="65" stroke="#F59E0B" stroke-width="2.5"/>
+                  <circle cx="95" cy="67" r="3" fill="#F59E0B"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Filters -->
+          <div class="ref-white-card" style="margin-top:20px; padding: 16px 20px;">
+            <div class="manage-filters" style="display:flex; gap:16px; align-items:center; flex-wrap:wrap;">
+              <div class="search-box" style="flex:1; min-width:240px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="adminStudentSearchInput" placeholder="Search by student name, ID, or email...">
+              </div>
+              <select id="adminStudentProgramFilter" class="filter-select" style="min-width:200px;">
+                <option value="ALL">All Academic Programs</option>
+                <option value="BSIT">BS Information Technology</option>
+                <option value="BSBA">BS Business Administration</option>
+                <option value="BSHM">BS Hospitality Management</option>
+                <option value="BSED">Bachelor of Secondary Education</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Student Directory Table -->
+          <div class="ref-white-card" style="margin-top:20px;">
+            <div class="card-ref-header">
+              <div>
+                <div class="card-ref-title">Enrolled Students Registry</div>
+                <div class="card-ref-sub">Active institutional student accounts in the portal</div>
+              </div>
+            </div>
+
+            <div class="table-responsive" style="margin-top:14px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Program</th>
+                    <th>Year Level</th>
+                    <th>Institutional Email</th>
+                    <th>Enrollment Status</th>
+                    <th>Total Requests</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminStudentsTableBody">
+                  <tr>
+                    <td><code>23-00234</code></td>
+                    <td><strong>Juan Dela Cruz</strong></td>
+                    <td>BSIT</td>
+                    <td>3rd Year</td>
+                    <td>juan.delacruz@cca.edu.ph</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Enrolled</span></td>
+                    <td><strong>5 Requests</strong></td>
+                    <td class="text-center">
+                      <button class="btn-table-pill" onclick="filterRequestsByStudent('Juan Dela Cruz')">View Requests</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>23-00189</code></td>
+                    <td><strong>Maria Santos</strong></td>
+                    <td>BSBA</td>
+                    <td>2nd Year</td>
+                    <td>maria.santos@cca.edu.ph</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Enrolled</span></td>
+                    <td><strong>2 Requests</strong></td>
+                    <td class="text-center">
+                      <button class="btn-table-pill" onclick="filterRequestsByStudent('Maria Santos')">View Requests</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>23-00412</code></td>
+                    <td><strong>Pedro Reyes</strong></td>
+                    <td>BSHM</td>
+                    <td>4th Year</td>
+                    <td>pedro.reyes@cca.edu.ph</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Enrolled</span></td>
+                    <td><strong>3 Requests</strong></td>
+                    <td class="text-center">
+                      <button class="btn-table-pill" onclick="filterRequestsByStudent('Pedro Reyes')">View Requests</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>23-00508</code></td>
+                    <td><strong>Ana Cruz</strong></td>
+                    <td>BSED</td>
+                    <td>1st Year</td>
+                    <td>ana.cruz@cca.edu.ph</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Enrolled</span></td>
+                    <td><strong>1 Request</strong></td>
+                    <td class="text-center">
+                      <button class="btn-table-pill" onclick="filterRequestsByStudent('Ana Cruz')">View Requests</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SUBTAB 4: ANNOUNCEMENTS ==================== -->
+        <div class="student-subtab-pane admin-subtab" id="adminSubtab-announcements">
+          <div class="ref-page-header-flex">
+            <div>
+              <div class="ref-breadcrumbs">
+                <span class="bc-home">🏠 Admin Portal</span>
+                <span class="bc-sep">&rsaquo;</span>
+                <span class="bc-active">Announcements</span>
+              </div>
+              <h1 class="ref-page-title">Campus Announcements</h1>
+              <p class="ref-page-subtitle">Publish official announcements and document release notices to student portals.</p>
+            </div>
+            <div class="ref-header-graphic">
+              <div class="graphic-illustration-box">
+                <svg width="120" height="90" viewBox="0 0 120 90" fill="none">
+                  <path d="M30 45 L55 30 L55 60 Z" fill="#2563EB"/>
+                  <rect x="55" y="32" width="25" height="26" fill="#3B82F6" rx="3"/>
+                  <path d="M80 40 C88 42 88 48 80 50" stroke="#60A5FA" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M85 36 C95 40 95 50 85 54" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
                 </svg>
               </div>
             </div>
           </div>
 
           <div class="ref-dashboard-grid" style="margin-top:20px;">
-            <!-- Infrastructure Specifications -->
+            <!-- Create Announcement Card -->
             <div class="ref-white-card">
               <div class="card-ref-header">
-                <div>
-                  <div class="card-ref-title">Cloud Infrastructure Status</div>
-                  <div class="card-ref-sub">Distributed microservices &amp; cloud database runtime</div>
-                </div>
+                <div class="card-ref-title">Post New Announcement</div>
               </div>
-              <div class="system-list" style="margin-top:14px;">
-                <div class="admin-system-item">
-                  <span class="system-item-key">Backend Runtime</span>
-                  <span class="system-item-val">Node.js + Express.js</span>
+              <form id="formAdminAnnouncement" style="margin-top:14px; display:flex; flex-direction:column; gap:14px;">
+                <div class="ref-input-group">
+                  <label class="ref-field-label">Announcement Title <span class="required">*</span></label>
+                  <input type="text" class="ref-input-box" id="announcementTitle" placeholder="e.g., Midterm Clearance &amp; TOR Processing" required>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Database Layer</span>
-                  <span class="system-item-val">Turso Cloud / Remote libSQL</span>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div class="ref-input-group">
+                    <label class="ref-field-label">Category</label>
+                    <select class="ref-input-box" id="announcementCategory">
+                      <option value="general">General Notice</option>
+                      <option value="important">Important / Urgent</option>
+                      <option value="clearance">Clearance Evaluation</option>
+                      <option value="release">Document Release</option>
+                    </select>
+                  </div>
+                  <div class="ref-input-group">
+                    <label class="ref-field-label">Target Audience</label>
+                    <select class="ref-input-box" id="announcementAudience">
+                      <option value="all">All Students</option>
+                      <option value="graduating">Graduating Students</option>
+                      <option value="freshmen">1st Year Freshmen</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Hosting Environment</span>
-                  <span class="system-item-val">Render Cloud Platform (PaaS)</span>
+                <div class="ref-input-group">
+                  <label class="ref-field-label">Message Details <span class="required">*</span></label>
+                  <textarea class="ref-textarea-box" id="announcementMessage" rows="4" placeholder="Enter announcement body text..." required></textarea>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Curriculum Subject</span>
-                  <span class="system-item-val">IT 412 Platform Technologies</span>
+                <div style="display:flex; justify-content:flex-end;">
+                  <button type="submit" class="btn-ref-primary">Post Announcement &rarr;</button>
                 </div>
-                <div class="admin-system-item">
-                  <span class="system-item-key">Database Connectivity</span>
-                  <span class="badge badge-success">Online &amp; Operational</span>
-                </div>
-              </div>
+              </form>
             </div>
 
-            <!-- REST API Specifications -->
+            <!-- Active Announcements List -->
             <div class="ref-white-card">
               <div class="card-ref-header">
-                <div>
-                  <div class="card-ref-title">REST API Specifications</div>
-                  <div class="card-ref-sub">Integrated endpoints for client-server communication</div>
-                </div>
+                <div class="card-ref-title">Active Announcements</div>
               </div>
-              <div class="api-list" style="margin-top:14px;">
-                <div class="api-item">
-                  <span class="http-tag post">POST</span>
-                  <span class="api-route">/api/auth/login</span>
-                  <span class="api-desc">User authentication (Student &amp; Admin)</span>
+              <div id="adminAnnouncementsList" style="margin-top:14px;">
+                <div class="announcement-card-item">
+                  <div class="announcement-meta-row">
+                    <span class="announcement-badge important">Important</span>
+                    <span class="activity-time">Today, 09:30 AM</span>
+                  </div>
+                  <h4 style="font-size:14.5px; font-weight:700; color:#0F172A; margin-bottom:4px;">Official TOR Release Batch 4 Schedule</h4>
+                  <p style="font-size:13px; color:#475569; line-height:1.4;">Official Transcripts requested before May 18 are now ready for release at Counter Window 2.</p>
                 </div>
-                <div class="api-item">
-                  <span class="http-tag post">POST</span>
-                  <span class="api-route">/api/auth/register</span>
-                  <span class="api-desc">Create new student/admin account</span>
+                <div class="announcement-card-item">
+                  <div class="announcement-meta-row">
+                    <span class="announcement-badge clearance">Clearance</span>
+                    <span class="activity-time">Yesterday</span>
+                  </div>
+                  <h4 style="font-size:14.5px; font-weight:700; color:#0F172A; margin-bottom:4px;">Midterm Academic Clearance Evaluation</h4>
+                  <p style="font-size:13px; color:#475569; line-height:1.4;">Ensure all department library balances are settled prior to document processing.</p>
                 </div>
-                <div class="api-item">
-                  <span class="http-tag get">GET</span>
-                  <span class="api-route">/api/health</span>
-                  <span class="api-desc">System health check &amp; uptime</span>
-                </div>
-                <div class="api-item">
-                  <span class="http-tag get">GET</span>
-                  <span class="api-route">/api/requests</span>
-                  <span class="api-desc">Retrieve all student document requests</span>
-                </div>
-                <div class="api-item">
-                  <span class="http-tag post">POST</span>
-                  <span class="api-route">/api/requests</span>
-                  <span class="api-desc">Submit new student document request</span>
-                </div>
-                <div class="api-item">
-                  <span class="http-tag patch">PATCH</span>
-                  <span class="api-route">/api/requests/:id</span>
-                  <span class="api-desc">Update status (Pending/Processing/Completed)</span>
+                <div class="announcement-card-item">
+                  <div class="announcement-meta-row">
+                    <span class="announcement-badge general">General</span>
+                    <span class="activity-time">3 days ago</span>
+                  </div>
+                  <h4 style="font-size:14.5px; font-weight:700; color:#0F172A; margin-bottom:4px;">Digital Student ID and Photo Verification</h4>
+                  <p style="font-size:13px; color:#475569; line-height:1.4;">Students may now update and crop their institutional profile photos directly in the portal.</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 4: SETTINGS ==================== -->
+        <!-- ==================== SUBTAB 5: REPORTS & ANALYTICS ==================== -->
+        <div class="student-subtab-pane admin-subtab" id="adminSubtab-reports">
+          <div class="ref-page-header-flex">
+            <div>
+              <div class="ref-breadcrumbs">
+                <span class="bc-home">🏠 Admin Portal</span>
+                <span class="bc-sep">&rsaquo;</span>
+                <span class="bc-active">Reports</span>
+              </div>
+              <h1 class="ref-page-title">System Analytics &amp; Reports</h1>
+              <p class="ref-page-subtitle">Track document processing throughput, turnaround metrics, and academic statistics.</p>
+            </div>
+            <div class="ref-header-graphic">
+              <div class="graphic-illustration-box">
+                <svg width="120" height="90" viewBox="0 0 120 90" fill="none">
+                  <rect x="25" y="55" width="16" height="25" rx="3" fill="#93C5FD"/>
+                  <rect x="52" y="35" width="16" height="45" rx="3" fill="#3B82F6"/>
+                  <rect x="79" y="20" width="16" height="60" rx="3" fill="#2563EB"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Metric Summary -->
+          <div class="metric-wave-grid" style="margin-top:20px;">
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon blue">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+              </div>
+              <div class="metric-wave-value" id="reportProcessedCount">1,248</div>
+              <div class="metric-wave-label">Total Documents Processed</div>
+            </div>
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon cyan">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+              </div>
+              <div class="metric-wave-value" id="reportAvgTurnaround">1.8 Days</div>
+              <div class="metric-wave-label">Average Processing Time</div>
+            </div>
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon green">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+              </div>
+              <div class="metric-wave-value" id="reportAccuracyRate">99.4%</div>
+              <div class="metric-wave-label">Approval Accuracy Rate</div>
+            </div>
+            <div class="metric-wave-card">
+              <div class="metric-wave-header">
+                <div class="metric-wave-icon purple">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                </div>
+              </div>
+              <div class="metric-wave-value" id="reportTopDoc">TOR (62%)</div>
+              <div class="metric-wave-label">Most Requested Document</div>
+            </div>
+          </div>
+
+          <!-- Monthly Bar Chart & Document Breakdown -->
+          <div class="ref-dashboard-grid" style="margin-top:20px;">
+            <div class="ref-white-card">
+              <div class="card-ref-header">
+                <div class="card-ref-title">Monthly Document Request Volume</div>
+                <button class="btn-ref-outline-sm" id="btnExportReportCsv">Export CSV</button>
+              </div>
+              <div class="bar-chart-visual">
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 45%;"></div>
+                  <span class="bar-col-label">Jan</span>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 60%;"></div>
+                  <span class="bar-col-label">Feb</span>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 75%;"></div>
+                  <span class="bar-col-label">Mar</span>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 55%;"></div>
+                  <span class="bar-col-label">Apr</span>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 95%;"></div>
+                  <span class="bar-col-label">May</span>
+                </div>
+                <div class="bar-col">
+                  <div class="bar-col-fill" style="height: 85%;"></div>
+                  <span class="bar-col-label">Jun</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ref-white-card">
+              <div class="card-ref-header">
+                <div class="card-ref-title">Document Breakdown Summary</div>
+              </div>
+              <div class="table-responsive" style="margin-top:14px;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Document Type</th>
+                      <th>Total</th>
+                      <th>Share</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>Transcript of Records (TOR)</strong></td>
+                      <td>781</td>
+                      <td><span class="admin-status-pill processing">62.6%</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>Certificate of Enrollment</strong></td>
+                      <td>342</td>
+                      <td><span class="admin-status-pill completed">27.4%</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>Good Moral Certificate</strong></td>
+                      <td>89</td>
+                      <td><span class="admin-status-pill pending">7.1%</span></td>
+                    </tr>
+                    <tr>
+                      <td><strong>Report Card / Form 137</strong></td>
+                      <td>36</td>
+                      <td><span class="admin-status-pill for-release">2.9%</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SUBTAB 6: SETTINGS ==================== -->
         <div class="student-subtab-pane admin-subtab" id="adminSubtab-settings">
           <div class="ref-page-header-flex">
             <div>
@@ -2574,7 +3014,7 @@
             <div class="ref-settings-grid" style="margin-top:16px;">
               <div class="ref-input-group">
                 <label class="ref-field-label">Administrator Full Name</label>
-                <input type="text" class="ref-input-box" id="adminInputFullName" value="Office of the Registrar">
+                <input type="text" class="ref-input-box" id="adminInputFullName" value="Admin Reyes">
               </div>
               <div class="ref-input-group">
                 <label class="ref-field-label">Institutional Email</label>
@@ -2582,7 +3022,7 @@
               </div>
               <div class="ref-input-group">
                 <label class="ref-field-label">Administrative Role</label>
-                <input type="text" class="ref-input-box" id="adminInputRole" value="Registrar Administrator" readonly>
+                <input type="text" class="ref-input-box" id="adminInputRole" value="System Administrator" readonly>
               </div>
             </div>
             <div style="margin-top:20px; display:flex; justify-content:flex-end;">
@@ -2638,7 +3078,93 @@
           </div>
         </div>
 
-        <!-- ==================== SUBTAB 5: CHANGE PASSWORD ==================== -->
+        <!-- ==================== SUBTAB 7: AUDIT LOGS ==================== -->
+        <div class="student-subtab-pane admin-subtab" id="adminSubtab-audit">
+          <div class="ref-page-header-flex">
+            <div>
+              <div class="ref-breadcrumbs">
+                <span class="bc-home">🏠 Admin Portal</span>
+                <span class="bc-sep">&rsaquo;</span>
+                <span class="bc-active">Audit Logs</span>
+              </div>
+              <h1 class="ref-page-title">System Audit Logs &amp; Security</h1>
+              <p class="ref-page-subtitle">Immutable security trail of administrative actions, authentication, and status transitions.</p>
+            </div>
+            <div class="ref-header-graphic">
+              <div class="graphic-illustration-box">
+                <svg width="120" height="90" viewBox="0 0 120 90" fill="none">
+                  <path d="M60 20 L85 30 V50 C85 65 60 75 60 75 C60 75 35 65 35 50 V30 Z" fill="#2563EB"/>
+                  <path d="M52 46 L58 52 L68 40" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="ref-white-card" style="margin-top:20px;">
+            <div class="card-ref-header">
+              <div class="card-ref-title">System Activity Trail</div>
+              <select class="filter-select" id="adminAuditFilter" style="min-width:180px;">
+                <option value="ALL">All Event Types</option>
+                <option value="STATUS">Status Updates</option>
+                <option value="AUTH">Authentication</option>
+                <option value="SYSTEM">System &amp; Database</option>
+              </select>
+            </div>
+
+            <div class="table-responsive" style="margin-top:14px;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>User / Actor</th>
+                    <th>Action</th>
+                    <th>Target Resource</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="adminAuditTableBody">
+                  <tr>
+                    <td>Just now</td>
+                    <td><strong>Admin Reyes</strong></td>
+                    <td>Approved Request</td>
+                    <td><code>REQ-00234</code> (TOR)</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Success</span></td>
+                  </tr>
+                  <tr>
+                    <td>5 mins ago</td>
+                    <td><strong>Juan Dela Cruz</strong></td>
+                    <td>Submitted Request</td>
+                    <td><code>REQ-00234</code> (Good Moral)</td>
+                    <td><span class="admin-status-pill processing"><span class="pill-dot"></span>Logged</span></td>
+                  </tr>
+                  <tr>
+                    <td>10 mins ago</td>
+                    <td><strong>Admin Reyes</strong></td>
+                    <td>Status Changed to Processing</td>
+                    <td><code>REQ-00233</code> (COE)</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Success</span></td>
+                  </tr>
+                  <tr>
+                    <td>15 mins ago</td>
+                    <td><strong>Admin Reyes</strong></td>
+                    <td>Released Document</td>
+                    <td><code>REQ-00232</code> (Report Card)</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Success</span></td>
+                  </tr>
+                  <tr>
+                    <td>1 hour ago</td>
+                    <td><strong>System Service</strong></td>
+                    <td>Database Synchronized</td>
+                    <td>Turso libSQL Cloud</td>
+                    <td><span class="admin-status-pill completed"><span class="pill-dot"></span>Success</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== SUBTAB 8: CHANGE PASSWORD ==================== -->
         <div class="student-subtab-pane admin-subtab" id="adminSubtab-change-password">
           <div class="ref-page-header-flex">
             <div>
@@ -2688,7 +3214,7 @@
                 <div class="ref-pw-box-wrapper">
                   <input type="password" class="ref-input-box" id="adminNewPassword" placeholder="Enter your new password" required>
                   <button type="button" class="btn-pw-eye" id="btnToggleAdminNewPw">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
                 <!-- Strength Meter -->
@@ -2708,7 +3234,7 @@
                 <div class="ref-pw-box-wrapper">
                   <input type="password" class="ref-input-box" id="adminConfirmNewPassword" placeholder="Re-enter your new password" required>
                   <button type="button" class="btn-pw-eye" id="btnToggleAdminConfPw">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   </button>
                 </div>
               </div>
@@ -2762,6 +3288,7 @@
       </main>
     </div>
   </div>
+
 
   <script src="script.js"></script>
 </body>
