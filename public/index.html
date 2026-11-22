@@ -40,6 +40,18 @@
         <button type="button" class="auth-tab-btn" id="authTabRegister">Create Account</button>
       </div>
 
+      <!-- 2 Indicators: Student vs Admin Role Selector -->
+      <div class="auth-role-indicators" id="authRoleIndicators">
+        <button type="button" class="role-indicator-tab active" id="btnIndicatorStudent" data-role="student" aria-label="Student portal indicator">
+          <span class="role-indicator-dot"></span>
+          <span class="role-indicator-title">Student</span>
+        </button>
+        <button type="button" class="role-indicator-tab" id="btnIndicatorAdmin" data-role="admin" aria-label="Admin portal indicator">
+          <span class="role-indicator-dot"></span>
+          <span class="role-indicator-title">Admin</span>
+        </button>
+      </div>
+
       <!-- Inline Alert Box -->
       <div class="auth-alert hidden" id="authAlert"></div>
 

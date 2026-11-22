@@ -1906,6 +1906,63 @@ input:focus, select:focus, textarea:focus {
   box-shadow: var(--shadow-sm);
 }
 
+/* 2 Role Indicators (Student vs Admin) */
+.auth-role-indicators {
+  display: flex;
+  background: var(--slate-100, #f1f5f9);
+  border: 1px solid var(--slate-200, #e2e8f0);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  gap: 4px;
+}
+
+.role-indicator-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--slate-600, #64748b);
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-indicator-tab:hover {
+  color: var(--slate-900, #0f172a);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.role-indicator-tab.active {
+  background: var(--white, #ffffff);
+  color: var(--flowize-blue, #2563eb);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.role-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--slate-300, #cbd5e1);
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.role-indicator-tab.active .role-indicator-dot {
+  background: var(--flowize-blue, #2563eb);
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.role-indicator-title {
+  letter-spacing: -0.01em;
+}
+
 .portal-target-banner {
   display: flex;
   align-items: center;

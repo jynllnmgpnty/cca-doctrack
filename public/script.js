@@ -38,6 +38,9 @@ const elements = {
   portalTargetBadge: document.getElementById('portalTargetBadge'),
   portalTargetHint: document.getElementById('portalTargetHint'),
   btnToggleTargetPortal: document.getElementById('btnToggleTargetPortal'),
+  btnIndicatorStudent: document.getElementById('btnIndicatorStudent'),
+  btnIndicatorAdmin: document.getElementById('btnIndicatorAdmin'),
+  authRoleIndicators: document.getElementById('authRoleIndicators'),
   authAlert: document.getElementById('authAlert'),
 
   // Auth Inputs
@@ -217,9 +220,45 @@ function updateLandingAuthUI() {
   }
 }
 
+function setRoleIndicator(role = 'student') {
+  state.authTargetPortal = role;
+  const isStudent = role === 'student';
+
+  if (elements.btnIndicatorStudent && elements.btnIndicatorAdmin) {
+    if (isStudent) {
+      elements.btnIndicatorStudent.classList.add('active');
+      elements.btnIndicatorAdmin.classList.remove('active');
+    } else {
+      elements.btnIndicatorAdmin.classList.add('active');
+      elements.btnIndicatorStudent.classList.remove('active');
+    }
+  }
+
+  // Update inputs placeholder and button labels
+  if (elements.loginEmail) {
+    elements.loginEmail.placeholder = isStudent ? 'e.g., student@cca.edu.ph' : 'e.g., admin@cca.edu.ph';
+  }
+  if (elements.loginBtnLabel) {
+    elements.loginBtnLabel.textContent = isStudent ? 'Sign In as Student' : 'Sign In as Admin';
+  }
+  if (elements.authModalSubtext) {
+    elements.authModalSubtext.textContent = isStudent 
+      ? 'Student Document Portal • CCA DocTrack'
+      : 'Registrar Admin Management • CCA DocTrack';
+  }
+
+  // Also sync register fields if registration tab is used
+  if (elements.regRole) {
+    elements.regRole.value = role;
+  }
+  const groupStudentId = document.getElementById('groupRegStudentId');
+  if (groupStudentId) {
+    groupStudentId.style.display = isStudent ? 'block' : 'none';
+  }
+}
+
 function openAuthModal(mode = 'signin', targetPortal = 'student') {
-  state.authTargetPortal = targetPortal;
-  updatePortalTargetBanner();
+  setRoleIndicator(targetPortal);
   clearAuthAlert();
 
   if (mode === 'signin') {
@@ -240,17 +279,6 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
 function closeAuthModal() {
   elements.authModalOverlay.classList.add('hidden');
   clearAuthAlert();
-}
-
-function updatePortalTargetBanner() {
-  if (!elements.portalTargetBadge || !elements.btnToggleTargetPortal) return;
-  const isStudent = state.authTargetPortal === 'student';
-  elements.portalTargetBadge.className = `portal-target-badge ${isStudent ? 'student' : 'admin'}`;
-  elements.portalTargetBadge.textContent = isStudent ? 'Student Portal' : 'Admin Portal';
-  if (elements.portalTargetHint) {
-    elements.portalTargetHint.textContent = isStudent ? 'Logging in as Student' : 'Logging in as Registrar Admin';
-  }
-  elements.btnToggleTargetPortal.textContent = isStudent ? 'Switch to Admin Portal' : 'Switch to Student Portal';
 }
 
 function setupAuthHandlers() {
@@ -297,11 +325,9 @@ function setupAuthHandlers() {
     clearAuthAlert();
   });
 
-  // Target Portal Toggle
-  elements.btnToggleTargetPortal?.addEventListener('click', () => {
-    state.authTargetPortal = state.authTargetPortal === 'student' ? 'admin' : 'student';
-    updatePortalTargetBanner();
-  });
+  // Role Indicators (Student vs Admin)
+  elements.btnIndicatorStudent?.addEventListener('click', () => setRoleIndicator('student'));
+  elements.btnIndicatorAdmin?.addEventListener('click', () => setRoleIndicator('admin'));
 
   // Password Visibility Toggle
   elements.btnToggleLoginPw?.addEventListener('click', () => {
@@ -339,7 +365,7 @@ async function handleLoginSubmit(e) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password, targetPortal: state.authTargetPortal })
     });
 
     const result = await response.json();
