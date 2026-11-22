@@ -243,10 +243,13 @@ function closeAuthModal() {
 }
 
 function updatePortalTargetBanner() {
+  if (!elements.portalTargetBadge || !elements.btnToggleTargetPortal) return;
   const isStudent = state.authTargetPortal === 'student';
   elements.portalTargetBadge.className = `portal-target-badge ${isStudent ? 'student' : 'admin'}`;
   elements.portalTargetBadge.textContent = isStudent ? 'Student Portal' : 'Admin Portal';
-  elements.portalTargetHint.textContent = isStudent ? 'Logging in as Student' : 'Logging in as Registrar Admin';
+  if (elements.portalTargetHint) {
+    elements.portalTargetHint.textContent = isStudent ? 'Logging in as Student' : 'Logging in as Registrar Admin';
+  }
   elements.btnToggleTargetPortal.textContent = isStudent ? 'Switch to Admin Portal' : 'Switch to Student Portal';
 }
 
@@ -336,7 +339,7 @@ async function handleLoginSubmit(e) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, targetPortal: state.authTargetPortal })
+      body: JSON.stringify({ email, password })
     });
 
     const result = await response.json();
