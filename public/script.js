@@ -780,23 +780,6 @@ function setupNavigationHandlers() {
     segAlumni.classList.add('active');
   });
 
-  // Hero Quick Search / Track Bar
-  const heroInput = document.getElementById('heroStudentIdInput');
-  const btnHeroTrack = document.getElementById('btnHeroTrack');
-  const handleHeroTrack = () => {
-    const val = heroInput ? heroInput.value.trim() : '';
-    if (val) {
-      if (elements.profileInputId) elements.profileInputId.value = val;
-      if (state.currentUser) state.currentUser.studentId = val;
-    }
-    switchView('student');
-    switchStudentSubtab('history');
-  };
-  btnHeroTrack?.addEventListener('click', handleHeroTrack);
-  heroInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleHeroTrack();
-  });
-
   elements.btnStudentBackToHome?.addEventListener('click', () => switchView('landing'));
   elements.btnAdminBackToHome?.addEventListener('click', () => switchView('landing'));
 
