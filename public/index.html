@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CCA DocTrack – Official Student Document Request &amp; Tracking Portal</title>
+  <title>CCA DocTrack – Document Request Portal for Students</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,10 +21,17 @@
       
       <div class="auth-modal-header">
         <div class="auth-logo-wrapper">
-          <img src="logo.png" alt="Christ Centered Academy Logo" class="auth-logo-img">
+        <div class="flowize-brand-icon">
+          <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
+            <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+            <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+            <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+            <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+          </svg>
         </div>
+      </div>
         <h2 id="authModalHeading">Sign In to CCA DocTrack</h2>
-        <p class="auth-modal-sub" id="authModalSubtext">Office of the Registrar &bull; Christ Centered Academy</p>
+        <p class="auth-modal-sub" id="authModalSubtext">Office of the Registrar &bull; CCA DocTrack</p>
       </div>
 
       <!-- Segmented Tab Switcher (Sign In vs Register) -->
@@ -58,7 +65,7 @@
           <label for="loginPassword">Account Password</label>
           <div class="pw-wrapper">
             <input type="password" id="loginPassword" placeholder="Enter your password" required>
-            <button type="button" class="pw-toggle-btn" id="btnToggleLoginPw" title="Show/Hide Password">👁</button>
+            <button type="button" class="pw-toggle-btn" id="btnToggleLoginPw" title="Show/Hide Password"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
           </div>
         </div>
 
@@ -75,12 +82,12 @@
         <div class="form-grid auth-grid">
           <div class="form-group">
             <label for="regFullName">Full Name <span class="required">*</span></label>
-            <input type="text" id="regFullName" placeholder="e.g., Juan Dela Cruz" required>
+            <input type="text" id="regFullName" placeholder="e.g., User" required>
           </div>
 
           <div class="form-group" id="groupRegStudentId">
             <label for="regStudentId">Student ID Number <span class="required">*</span></label>
-            <input type="text" id="regStudentId" placeholder="e.g., 23-67894" required>
+            <input type="text" id="regStudentId" placeholder="e.g., 23-0000" required>
           </div>
 
           <div class="form-group">
@@ -135,7 +142,7 @@
         <div class="flowize-nav-container">
           <a href="#" class="flowize-brand" id="btnLandingBrand">
             <div class="flowize-brand-icon">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
                 <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
                 <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
                 <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
@@ -143,23 +150,18 @@
               </svg>
             </div>
             <span class="flowize-brand-title">CCA DocTrack</span>
-            <div class="cca-badge-tag">
-              <img src="logo.png" alt="CCA Seal" class="cca-nav-seal">
-              <span>Christ-Centered Academy</span>
-            </div>
           </a>
 
           <nav class="flowize-nav-links">
-            <a href="#servicesSection" class="flowize-nav-link active">Documents</a>
+            <a href="#heroSection" class="flowize-nav-link active">Home</a>
+            <a href="#servicesSection" class="flowize-nav-link">Documents</a>
             <a href="#trackingSection" class="flowize-nav-link">Track Request</a>
             <a href="#portalSection" class="flowize-nav-link">Student Portal</a>
-            <a href="#portalSection" class="flowize-nav-link">Registrar Admin</a>
-            <a href="#servicesSection" class="flowize-nav-link">Requirements</a>
+            <a href="#portalSection" class="flowize-nav-link">Admin Portal</a>
           </nav>
 
           <div class="flowize-nav-actions" id="landingAuthActions">
-            <button class="flowize-btn-login" id="btnLandingSignIn">Log in</button>
-            <button class="btn btn-flowize-primary" id="btnLandingRegister">Request Document</button>
+            <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
           </div>
         </div>
       </header>
@@ -176,8 +178,8 @@
             </div>
 
             <h1 class="flowize-hero-heading">
-              The smart co-pilot for<br>
-              <span class="text-flowize-blue">student requests</span>
+              CCA DocTrack:<br>
+              <span class="text-flowize-blue">a smart document request for students</span>
             </h1>
 
             <p class="flowize-hero-sub">
@@ -190,13 +192,11 @@
                 <span class="btn-arrow">&rarr;</span>
               </button>
               <button class="btn btn-flowize-demo" id="btnHeroDemo">
-                <span class="demo-play-circle">▶</span>
                 <span>Track Status</span>
               </button>
             </div>
 
             <div class="flowize-guarantee">
-              <span class="check-icon">✓</span>
               <span>Official Registrar Verified &bull; Instant Status Updates</span>
             </div>
           </div>
@@ -209,7 +209,7 @@
 
             <!-- Floating Sparkle Badge Top Center -->
             <div class="floating-orb float-sparkle-orb">
-              <span>🎓</span>
+              <span>✦</span>
             </div>
 
             <!-- Floating 3D Academic Cubes -->
@@ -260,7 +260,7 @@
               <div class="mockup-board">
                 <!-- Greeting -->
                 <div class="mockup-header">
-                  <h3 class="mockup-title">Hello, Jaynellan 👋</h3>
+                  <h3 class="mockup-title">Hello, User</h3>
                   <p class="mockup-sub">Here's what's happening with your document requests today.</p>
                 </div>
 
@@ -297,21 +297,21 @@
                     <div class="panel-list">
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon blue">📄</span>
+                          <span class="doc-badge-chip blue">TOR</span>
                           <span class="p-name">Transcript of Records (TOR)</span>
                         </div>
                         <span class="status-indicator online">● Processing</span>
                       </div>
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon cyan">📜</span>
+                          <span class="doc-badge-chip cyan">COE</span>
                           <span class="p-name">Certificate of Enrollment</span>
                         </div>
                         <span class="status-indicator online">● Ready</span>
                       </div>
                       <div class="panel-item">
                         <div class="item-left">
-                          <span class="p-icon purple">🎓</span>
+                          <span class="doc-badge-chip purple">GMC</span>
                           <span class="p-name">Good Moral Certificate</span>
                         </div>
                         <span class="status-indicator online">● Released</span>
@@ -324,13 +324,11 @@
                     <div class="panel-head">Request Lifecycle</div>
                     <div class="workflow-diagram">
                       <div class="wf-node wf-trigger">
-                        <span class="wf-icon">⚡</span>
-                        <span>Request Filed</span>
+                        <span>1. Request Filed</span>
                       </div>
                       <div class="wf-line-v"></div>
                       <div class="wf-node wf-agent">
-                        <span class="wf-icon">✦</span>
-                        <span>Registrar Review</span>
+                        <span>2. Review</span>
                       </div>
                       <div class="wf-fork-lines">
                         <div class="wf-branch left"></div>
@@ -338,12 +336,10 @@
                       </div>
                       <div class="wf-action-row">
                         <div class="wf-node wf-action">
-                          <span class="wf-icon">✓</span>
-                          <span>Dean Seal</span>
+                          <span>3. Seal</span>
                         </div>
                         <div class="wf-node wf-action">
-                          <span class="wf-icon">✓</span>
-                          <span>Release</span>
+                          <span>4. Release</span>
                         </div>
                       </div>
                     </div>
@@ -356,7 +352,7 @@
             <!-- Floating Pill Card Foreground -->
             <div class="floating-pill-card">
               <div class="fpc-header">
-                <span class="fpc-icon">✦</span>
+                <span class="fpc-icon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
                 <div>
                   <div class="fpc-title">Registrar Processing</div>
                   <div class="fpc-desc">Verifying academic records for TOR...</div>
@@ -375,32 +371,7 @@
         </div>
       </section>
 
-      <!-- LOGO BAR: TRUSTED ACROSS ACADEMIC PROGRAMS -->
-      <section class="flowize-trusted-section">
-        <div class="flowize-container text-center">
-          <p class="flowize-trusted-title">Trusted across academic programs &amp; colleges at Christ-Centered Academy</p>
-          <div class="flowize-logos-row">
-            <div class="f-logo-item">
-              <span>💻 College of Computer Studies</span>
-            </div>
-            <div class="f-logo-item">
-              <span>📊 Business &amp; Accountancy</span>
-            </div>
-            <div class="f-logo-item">
-              <span>📚 College of Education</span>
-            </div>
-            <div class="f-logo-item">
-              <span>🏨 Hospitality Management</span>
-            </div>
-            <div class="f-logo-item">
-              <span>🏛️ Office of the Registrar</span>
-            </div>
-            <div class="f-logo-item">
-              <span>🎓 CHED Accredited</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      
 
       <!-- 4-METRIC WHITE CONTAINER CARD (DOCUMENT REQUEST SPECIALIZED) -->
       <section class="flowize-metrics-section" id="integrationsSection">
@@ -458,7 +429,7 @@
             Direct Access to Your Official <span class="text-flowize-blue">Document Portals</span>
           </h2>
           <p class="flowize-section-sub">
-            Seamless credential tracking for Christ-Centered Academy students, alumni, and registrar officers.
+            Seamless credential tracking for students, alumni, and registrar officers.
           </p>
 
           <!-- Central Search / Quick Track Pill -->
@@ -466,7 +437,7 @@
             <div class="f-search-icon">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             </div>
-            <input type="text" id="heroStudentIdInput" placeholder="Enter your Student ID to track (e.g., 23-67894)...">
+            <input type="text" id="heroStudentIdInput" placeholder="Enter your Student ID to track (e.g., 23-0000)...">
             <button class="btn btn-flowize-cta btn-pill-action" id="btnHeroTrack">
               <span>Track Status</span>
               <span class="btn-arrow">&rarr;</span>
@@ -542,7 +513,7 @@
             <div class="inv-card-header">
               <div class="inv-header-left">
                 <div class="inv-logo-circle">
-                  <img src="logo.png" alt="CCA Crest" class="inv-seal-img">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#2563eb" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
                 <div>
                   <h4>Document Request #REQ-00234</h4>
@@ -557,11 +528,11 @@
             <div class="inv-card-grid">
               <div class="inv-field">
                 <label>Student Name</label>
-                <strong>Jaynellan Almary O. Magpantay</strong>
+                <strong>User</strong>
               </div>
               <div class="inv-field">
                 <label>Student ID Number</label>
-                <code>23-67894</code>
+                <code>23-0000</code>
               </div>
               <div class="inv-field">
                 <label>Document Requested</label>
@@ -575,12 +546,12 @@
 
             <div class="inv-stepper-wrap">
               <div class="inv-step-node done">
-                <span class="node-circle">✓</span>
+                <span class="node-circle">1</span>
                 <span class="node-text">1. Request Submitted<br><small>Nov 22, 2026</small></span>
               </div>
               <div class="inv-step-line done"></div>
               <div class="inv-step-node active">
-                <span class="node-circle">⏳</span>
+                <span class="node-circle">2</span>
                 <span class="node-text">2. Registrar Review<br><small>Under Evaluation</small></span>
               </div>
               <div class="inv-step-line"></div>
@@ -666,12 +637,12 @@
                   <rect x="14.5" y="14.5" width="9.5" height="9.5" rx="3" fill="#2563EB"/>
                 </svg>
               </div>
-              <strong>CCA DocTrack &bull; Christ-Centered Academy</strong>
+              <strong>CCA DocTrack</strong>
             </div>
-            <p>Christ Centered Academy of Lipa City Inc. &bull; Office of the College Registrar</p>
+            <p>Official Student Document Request &amp; Tracking Portal</p>
           </div>
           <div class="footer-right-info">
-            <span>© 2026 Christ Centered Academy. Official Student Document Tracking Platform.</span>
+            <span>© 2026 CCA DocTrack. All rights reserved.</span>
           </div>
         </div>
       </footer>
@@ -687,20 +658,28 @@
       <aside class="portal-sidebar student-theme">
         <div class="sidebar-header">
           <div class="logo-container">
-            <img src="logo.png" alt="Christ Centered Academy Logo" class="sidebar-logo-img">
+            <div class="flowize-brand-icon">
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+              </svg>
+            </div>
             <div class="logo-text">
               <h2>CCA DocTrack</h2>
-              <span class="subtext">Christ Centered Academy</span>
+              <span class="subtext">Student Portal</span>
             </div>
+          </div>
           </div>
           <button class="mobile-close-btn" id="mobileStudentSidebarClose">&times;</button>
         </div>
 
         <div class="sidebar-student-summary">
-          <div class="student-avatar-sm" id="sidebarStudentAvatar">JM</div>
+          <div class="student-avatar-sm" id="sidebarStudentAvatar">U</div>
           <div class="student-info-sm">
-            <div class="student-name-sm" id="sidebarStudentName">Jaynellan Almary O. Magpantay</div>
-            <div class="student-id-sm" id="sidebarStudentId">ID: 23-67894</div>
+            <div class="student-name-sm" id="sidebarStudentName">User</div>
+            <div class="student-id-sm" id="sidebarStudentId">ID: 23-0000</div>
           </div>
         </div>
 
@@ -752,7 +731,7 @@
 
         <div class="portal-content">
           <div class="flowize-portal-greeting">
-            <h2 class="portal-greeting-title">Hello, <span id="studentGreetingName">Student</span> 👋</h2>
+            <h2 class="portal-greeting-title">Hello, <span id="studentGreetingName">User</span></h2>
             <p class="portal-greeting-sub">Here's what's happening with your document requests today.</p>
           </div>
           <!-- SUB-TAB 1: SUBMIT DOCUMENT REQUEST -->
@@ -772,13 +751,13 @@
                   <div class="form-grid">
                     <div class="form-group">
                       <label for="formStudentName">Student Full Name <span class="required">*</span></label>
-                      <input type="text" id="formStudentName" name="studentName" placeholder="e.g., Jaynellan Almary Magpantay" required>
+                      <input type="text" id="formStudentName" name="studentName" placeholder="e.g., User" required>
                       <span class="field-error" id="errStudentName"></span>
                     </div>
 
                     <div class="form-group">
                       <label for="formStudentId">Student ID Number <span class="required">*</span></label>
-                      <input type="text" id="formStudentId" name="studentId" placeholder="e.g., 23-67894" required>
+                      <input type="text" id="formStudentId" name="studentId" placeholder="e.g., 23-0000" required>
                       <span class="field-error" id="errStudentId"></span>
                     </div>
 
@@ -881,19 +860,27 @@
               <!-- Digital Student ID Card Visual -->
               <div class="card student-id-card-visual">
                 <div class="id-card-banner">
-                  <img src="logo.png" alt="CCA Logo" class="id-card-logo-img">
-                  <div>
-                    <h4>CHRIST CENTERED ACADEMY</h4>
-                    <span>ACADEMY OF LIPA CITY INC &bull; STUDENT ID</span>
+                  <div class="flowize-brand-icon">
+                    <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                      <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                      <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                      <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                      <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#FFFFFF"/>
+                    </svg>
                   </div>
+                  <div>
+                    <h4>CCA DOCTRACK</h4>
+                    <span>STUDENT CREDENTIAL IDENTIFICATION</span>
+                  </div>
+                </div>
                 </div>
                 <div class="id-card-content">
                   <div class="id-photo-box">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                   </div>
                   <div class="id-details">
-                    <h3 id="cardProfileName">Jaynellan Almary O. Magpantay</h3>
-                    <div class="id-number" id="cardProfileId">STUDENT ID: 23-67894</div>
+                    <h3 id="cardProfileName">User</h3>
+                    <div class="id-number" id="cardProfileId">STUDENT ID: 23-0000</div>
                     <div class="id-program" id="cardProfileCourse">BS Information Technology</div>
                     <div class="id-meta-grid">
                       <div>
@@ -921,11 +908,11 @@
                 <div class="card-body">
                   <div class="form-group">
                     <label for="profileInputName">Student Full Name</label>
-                    <input type="text" id="profileInputName" value="Jaynellan Almary O. Magpantay">
+                    <input type="text" id="profileInputName" value="User">
                   </div>
                   <div class="form-group">
                     <label for="profileInputId">Student ID Number</label>
-                    <input type="text" id="profileInputId" value="23-67894">
+                    <input type="text" id="profileInputId" value="23-0000">
                     <small class="helper-text">Changing this updates your active tracking view to show requests submitted under this ID.</small>
                   </div>
                   <div class="form-group">
@@ -957,7 +944,14 @@
       <aside class="portal-sidebar admin-theme">
         <div class="sidebar-header">
           <div class="logo-container">
-            <img src="logo.png" alt="Christ Centered Academy Logo" class="sidebar-logo-img">
+            <div class="flowize-brand-icon">
+              <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+                <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+                <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB"/>
+              </svg>
+            </div>
             <div class="logo-text">
               <h2>CCA DocTrack</h2>
               <span class="subtext">Office of the Registrar</span>
@@ -1022,7 +1016,7 @@
         <div class="portal-content">
           <!-- ADMIN SUB-TAB 1: DASHBOARD OVERVIEW -->
           <div class="flowize-portal-greeting">
-            <h2 class="portal-greeting-title">Hello, Administrator 👋</h2>
+            <h2 class="portal-greeting-title">Hello, Administrator</h2>
             <p class="portal-greeting-sub">Here's the real-time operational overview of student requests.</p>
           </div>
           <div class="admin-subtab active" id="adminSubtab-dashboard">

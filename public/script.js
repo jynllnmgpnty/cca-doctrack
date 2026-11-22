@@ -210,32 +210,10 @@ function updateLandingAuthUI() {
 
   if (state.currentUser) {
     elements.landingAuthActions.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:0.85rem;font-weight:700;color:var(--cca-navy);">
-          👤 ${escapeHtml(state.currentUser.fullName.split(' ')[0])}
-        </span>
-        <button class="btn btn-navy btn-sm" id="btnLandingGoDashboard">
-          <span>Go to ${state.currentUser.role === 'admin' ? 'Admin' : 'Student'} Portal &rarr;</span>
-        </button>
-        <button class="btn btn-secondary btn-sm" id="btnLandingSignOut">
-          <span>Sign Out</span>
-        </button>
-      </div>
-    `;
-
-    document.getElementById('btnLandingGoDashboard')?.addEventListener('click', () => {
-      switchView(state.currentUser.role === 'admin' ? 'admin' : 'student');
-    });
-
-    document.getElementById('btnLandingSignOut')?.addEventListener('click', handleLogout);
-  } else {
-    elements.landingAuthActions.innerHTML = `
-      <button class="flowize-btn-login" id="btnLandingSignIn">Log in</button>
-      <button class="btn btn-flowize-primary" id="btnLandingRegister">Request Document</button>
+      <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
     `;
 
     document.getElementById('btnLandingSignIn')?.addEventListener('click', () => openAuthModal('signin', 'student'));
-    document.getElementById('btnLandingRegister')?.addEventListener('click', () => openAuthModal('register', 'student'));
   }
 }
 
@@ -326,7 +304,7 @@ function setupAuthHandlers() {
   elements.btnToggleLoginPw?.addEventListener('click', () => {
     const isPw = elements.loginPassword.type === 'password';
     elements.loginPassword.type = isPw ? 'text' : 'password';
-    elements.btnToggleLoginPw.textContent = isPw ? '🔒' : '👁';
+    elements.btnToggleLoginPw.textContent = isPw ? 'Hide' : 'Show';
   });
 
   // Login Form Submission
@@ -849,23 +827,23 @@ function getActiveStudentId() {
   if (state.currentUser && state.currentUser.studentId) {
     return state.currentUser.studentId;
   }
-  return elements.profileInputId?.value || '23-67894';
+  return elements.profileInputId?.value || '23-0000';
 }
 
 function syncStudentProfileFromAuth() {
   const user = state.currentUser || {
-    fullName: 'Jaynellan Almary O. Magpantay',
-    studentId: '23-67894',
+    fullName: 'User',
+    studentId: '23-0000',
     course: 'BS Information Technology'
   };
 
   if (elements.sidebarStudentName) elements.sidebarStudentName.textContent = user.fullName;
   const greetingEl = document.getElementById('studentGreetingName');
-  if (greetingEl) greetingEl.textContent = user.fullName ? user.fullName.split(' ')[0] : 'Student';
+  if (greetingEl) greetingEl.textContent = user.fullName || 'User';
   if (elements.sidebarStudentId) elements.sidebarStudentId.textContent = `ID: ${user.studentId}`;
   if (elements.sidebarStudentAvatar) {
     const initials = user.fullName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase();
-    elements.sidebarStudentAvatar.textContent = initials || 'JM';
+    elements.sidebarStudentAvatar.textContent = initials || 'U';
   }
 
   if (elements.cardProfileName) elements.cardProfileName.textContent = user.fullName;
@@ -881,10 +859,10 @@ function syncStudentProfileFromAuth() {
 
 function populateFormWithProfile() {
   const user = state.currentUser || {
-    fullName: elements.profileInputName?.value || 'Jaynellan Almary O. Magpantay',
-    studentId: elements.profileInputId?.value || '23-67894',
+    fullName: elements.profileInputName?.value || 'User',
+    studentId: elements.profileInputId?.value || '23-0000',
     course: elements.profileInputCourse?.value || 'BS Information Technology',
-    email: 'jaynellan@cca.edu.ph'
+    email: 'user@cca.edu.ph'
   };
 
   if (elements.formStudentName && !elements.formStudentName.value) {
@@ -1266,7 +1244,7 @@ function renderAdminTable() {
 }
 
 function renderTableErrors(msg) {
-  const errorHtml = `<tr><td colspan="9" class="table-empty" style="color:#DC2626;">⚠️ ${escapeHtml(msg)}</td></tr>`;
+  const errorHtml = `<tr><td colspan="9" class="table-empty" style="color:#DC2626;">${escapeHtml(msg)}</td></tr>`;
   if (elements.adminRecentTableBody) elements.adminRecentTableBody.innerHTML = errorHtml;
   if (elements.adminAllRequestsTableBody) elements.adminAllRequestsTableBody.innerHTML = errorHtml;
 }

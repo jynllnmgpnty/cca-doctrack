@@ -2085,3 +2085,65 @@ input:focus, select:focus, textarea:focus {
     display: none;
   }
 }
+
+/* Document code badges in tablet mockup */
+.doc-badge-chip {
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  line-height: 1.2;
+}
+.doc-badge-chip.blue { background: #eff6ff; color: #2563eb; }
+.doc-badge-chip.cyan { background: #ecfeff; color: #0891b2; }
+.doc-badge-chip.purple { background: #f5f3ff; color: #7c3aed; }
+
+.fpc-icon-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--flowize-blue-tint);
+  color: var(--flowize-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Perfect Navbar Alignment */
+.flowize-navbar {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.flowize-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 24px;
+}
+
+.flowize-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.flowize-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.flowize-nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
