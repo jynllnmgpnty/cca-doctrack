@@ -16,7 +16,28 @@ router.post('/register', async (req, res) => {
     const errors = [];
     if (!fullName || !fullName.trim()) errors.push('Full name is required.');
     if (!email || !email.trim()) errors.push('Email address is required.');
-    if (!password || password.length < 6) errors.push('Password must be at least 6 characters long.');
+    
+    // Password validation: 8-12 characters, uppercase, lowercase, number
+    if (!password) {
+      errors.push('Password is required.');
+    } else {
+      if (password.length < 8 || password.length > 12) {
+        errors.push('Password must be between 8 and 12 characters long.');
+      }
+      if (!/[A-Z]/.test(password)) {
+        errors.push('Password must include at least one uppercase letter (A-Z).');
+      }
+      if (!/[a-z]/.test(password)) {
+        errors.push('Password must include at least one lowercase letter (a-z).');
+      }
+      if (!/[0-9]/.test(password)) {
+        errors.push('Password must include at least one number (0-9).');
+      }
+    }
+
+    if (req.body.confirmPassword !== undefined && req.body.confirmPassword !== password) {
+      errors.push('Passwords do not match.');
+    }
 
     const userRole = role === 'admin' ? 'admin' : 'student';
     if (userRole === 'student' && (!studentId || !studentId.trim())) {

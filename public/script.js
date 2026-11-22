@@ -57,7 +57,9 @@ const elements = {
   regRole: document.getElementById('regRole'),
   regEmail: document.getElementById('regEmail'),
   regPassword: document.getElementById('regPassword'),
+  regConfirmPassword: document.getElementById('regConfirmPassword'),
   btnToggleRegPw: document.getElementById('btnToggleRegPw'),
+  btnToggleRegConfirmPw: document.getElementById('btnToggleRegConfirmPw'),
   btnRegisterSubmit: document.getElementById('btnRegisterSubmit'),
   registerSpinner: document.getElementById('registerSpinner'),
   registerBtnLabel: document.getElementById('registerBtnLabel'),
@@ -305,6 +307,20 @@ function closeAuthModal() {
   clearAuthAlert();
 }
 
+function setupPasswordToggle(button, input) {
+  if (!button || !input) return;
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+    button.classList.toggle('unhidden', isPw);
+    button.title = isPw ? 'Hide Password' : 'Show Password';
+    button.innerHTML = isPw
+      ? `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+      : `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+  });
+}
+
 function setupAuthHandlers() {
   // Modal Openers
   elements.btnLandingSignIn?.addEventListener('click', () => openAuthModal('signin', 'student'));
@@ -353,17 +369,10 @@ function setupAuthHandlers() {
   elements.btnIndicatorStudent?.addEventListener('click', () => setRoleIndicator('student'));
   elements.btnIndicatorAdmin?.addEventListener('click', () => setRoleIndicator('admin'));
 
-  // Password Visibility Toggle
-  elements.btnToggleLoginPw?.addEventListener('click', () => {
-    const isPw = elements.loginPassword.type === 'password';
-    elements.loginPassword.type = isPw ? 'text' : 'password';
-    elements.btnToggleLoginPw.textContent = isPw ? 'Hide' : 'Show';
-  });
-
-  elements.btnToggleRegPw?.addEventListener('click', () => {
-    const isPw = elements.regPassword.type === 'password';
-    elements.regPassword.type = isPw ? 'text' : 'password';
-  });
+  // Password Visibility Toggles (Hide and Unhide)
+  setupPasswordToggle(elements.btnToggleLoginPw, elements.loginPassword);
+  setupPasswordToggle(elements.btnToggleRegPw, elements.regPassword);
+  setupPasswordToggle(elements.btnToggleRegConfirmPw, elements.regConfirmPassword);
 
   // Login Form Submission
   elements.formSignIn?.addEventListener('submit', handleLoginSubmit);
@@ -430,24 +439,56 @@ async function handleRegisterSubmit(e) {
   clearAuthAlert();
 
   const role = elements.regRole ? elements.regRole.value : state.authTargetPortal;
-  const payload = {
-    fullName: elements.regFullName.value.trim(),
-    studentId: elements.regStudentId ? elements.regStudentId.value.trim() : '',
-    course: elements.regCourse ? elements.regCourse.value : 'BS Information Technology',
-    role: role,
-    email: elements.regEmail.value.trim(),
-    password: elements.regPassword.value
-  };
+  const fullName = elements.regFullName.value.trim();
+  const studentId = elements.regStudentId ? elements.regStudentId.value.trim() : '';
+  const email = elements.regEmail.value.trim();
+  const password = elements.regPassword.value;
+  const confirmPassword = elements.regConfirmPassword ? elements.regConfirmPassword.value : '';
+  const course = elements.regCourse ? elements.regCourse.value : 'BS Information Technology';
 
-  if (!payload.fullName || !payload.email || !payload.password) {
+  if (!fullName || !email || !password || !confirmPassword) {
     showAuthAlert('Please fill in all required fields.', 'error');
     return;
   }
 
-  if (payload.role === 'student' && !payload.studentId) {
+  if (role === 'student' && !studentId) {
     showAuthAlert('Student ID is required for student registration.', 'error');
     return;
   }
+
+  // Password rules validation: 8-12 characters, uppercase, lowercase, number
+  if (password.length < 8 || password.length > 12) {
+    showAuthAlert('Password must be between 8 and 12 characters long.', 'error');
+    return;
+  }
+  if (!/[A-Z]/.test(password)) {
+    showAuthAlert('Password must include at least one uppercase letter (A-Z).', 'error');
+    return;
+  }
+  if (!/[a-z]/.test(password)) {
+    showAuthAlert('Password must include at least one lowercase letter (a-z).', 'error');
+    return;
+  }
+  if (!/[0-9]/.test(password)) {
+    showAuthAlert('Password must include at least one number (0-9).', 'error');
+    return;
+  }
+
+  // Password match verification
+  if (password !== confirmPassword) {
+    showAuthAlert('Passwords do not match. Please re-enter your password.', 'error');
+    return;
+  }
+
+  const payload = {
+    fullName,
+    studentId,
+    course,
+    role,
+    email,
+    password,
+    confirmPassword
+  };
 
   setAuthLoading(true, 'register');
 
