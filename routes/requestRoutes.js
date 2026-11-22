@@ -7,10 +7,22 @@ const ALLOWED_DOCUMENT_TYPES = [
   'Report Card',
   'Certificate of Enrollment',
   'Good Moral Certificate',
-  'Transcript of Records'
+  'Transcript of Records',
+  'Transcript of Records (TOR)',
+  'TOR',
+  'Certificate of Good Moral',
+  'Certificate of Grades',
+  'Others'
 ];
 
-const ALLOWED_STATUSES = ['Pending', 'Processing', 'Completed'];
+const ALLOWED_STATUSES = [
+  'Pending',
+  'Processing',
+  'Approved',
+  'For Release',
+  'Completed',
+  'Rejected'
+];
 
 /**
  * @route   GET /api/requests
@@ -187,7 +199,13 @@ router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const numericId = parseInt(id, 10);
+    let numericId = parseInt(id, 10);
+    if (isNaN(numericId) || numericId <= 0) {
+      const extracted = String(id).replace(/\D/g, '');
+      if (extracted) {
+        numericId = parseInt(extracted, 10);
+      }
+    }
 
     // Validate ID format
     if (isNaN(numericId) || numericId <= 0) {

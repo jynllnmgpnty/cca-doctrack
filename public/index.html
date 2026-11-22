@@ -701,7 +701,7 @@
               <div class="notif-header-title">Notifications</div>
               <button class="btn-clear-notifs" id="btnClearNotifs">Mark all as read</button>
             </div>
-            <div class="notif-dropdown-list">
+            <div class="notif-dropdown-list" id="studentNotifDropdownList">
               <div class="notif-item unread">
                 <div class="notif-bullet-icon bg-blue-tint">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -738,7 +738,7 @@
                 </div>
                 <div class="notif-text-col">
                   <strong>Maintenance Notice</strong>
-                  <p>Scheduled maintenance on May 25, 2025, 8:00 PM.</p>
+                  <p>Scheduled maintenance on Nov 25, 2026, 8:00 PM.</p>
                   <span class="notif-time-ago">3d ago</span>
                 </div>
               </div>
@@ -828,6 +828,10 @@
           <button class="ref-nav-item" data-student-tab="settings">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             <span>Settings</span>
+          </button>
+          <button class="ref-nav-item" id="studentSidebarLogoutBtn" type="button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span>Logout</span>
           </button>
         </nav>
       </aside>
@@ -977,7 +981,7 @@
                   </div>
                   <div class="notif-texts">
                     <div class="notif-headline">Maintenance Notice</div>
-                    <div class="notif-body">Scheduled maintenance on May 25, 2025, 8:00 PM.</div>
+                    <div class="notif-body">Scheduled maintenance on Nov 25, 2026, 8:00 PM.</div>
                   </div>
                   <div class="notif-time">3d ago</div>
                 </div>
@@ -1005,7 +1009,7 @@
                     <div class="req-type-title">TOR</div>
                     <div class="req-id-tag">REQ-00234 &bull; <span class="badge-status-pill green">Approved</span></div>
                   </div>
-                  <div class="req-date-text">May 20, 2025</div>
+                  <div class="req-date-text">Nov 22, 2026</div>
                 </div>
 
                 <div class="recent-req-row">
@@ -1016,7 +1020,7 @@
                     <div class="req-type-title">Certificate of Enrollment</div>
                     <div class="req-id-tag">REQ-00233 &bull; <span class="badge-status-pill blue">Processing</span></div>
                   </div>
-                  <div class="req-date-text">May 18, 2025</div>
+                  <div class="req-date-text">Nov 20, 2026</div>
                 </div>
 
                 <div class="recent-req-row">
@@ -1027,7 +1031,7 @@
                     <div class="req-type-title">Good Moral Certificate</div>
                     <div class="req-id-tag">REQ-00231 &bull; <span class="badge-status-pill purple">Released</span></div>
                   </div>
-                  <div class="req-date-text">May 15, 2025</div>
+                  <div class="req-date-text">Nov 18, 2026</div>
                 </div>
               </div>
             </div>
@@ -1943,7 +1947,7 @@
         </div>
         <div class="modal-detail-row">
           <span class="detail-label">Date Requested:</span>
-          <span class="detail-value" id="detailsModalDate">May 20, 2025 10:24 AM</span>
+          <span class="detail-value" id="detailsModalDate">Nov 23, 2026 10:24 AM</span>
         </div>
         <div class="modal-detail-row">
           <span class="detail-label">Remarks:</span>
@@ -1952,7 +1956,7 @@
         <!-- Only shown once completed / approved as requested -->
         <div class="modal-detail-row claim-info-row" id="detailsModalClaimRow" style="display:none;">
           <span class="detail-label">When to Receive / Pickup:</span>
-          <span class="detail-value text-green" id="detailsModalClaimDate">May 22, 2025 (Registrar Window 2)</span>
+          <span class="detail-value text-green" id="detailsModalClaimDate">Nov 25, 2026 (Registrar Window 2)</span>
         </div>
 
         <div class="modal-tracking-timeline">
@@ -1962,7 +1966,14 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <div id="detailsModalAdminActions" style="display:none; gap:6px; flex-wrap:wrap;">
+          <button type="button" class="btn-table-pill" style="background:#EFF6FF; color:#2563EB; font-weight:600;" onclick="quickUpdateStatusFromModal('Processing')">Set Processing</button>
+          <button type="button" class="btn-table-pill" style="background:#F0FDF4; color:#16A34A; font-weight:600;" onclick="quickUpdateStatusFromModal('Approved')">Approve</button>
+          <button type="button" class="btn-table-pill" style="background:#FAF5FF; color:#9333EA; font-weight:600;" onclick="quickUpdateStatusFromModal('For Release')">For Release</button>
+          <button type="button" class="btn-table-pill" style="background:#F1F5F9; color:#0F172A; font-weight:600;" onclick="quickUpdateStatusFromModal('Completed')">Completed</button>
+          <button type="button" class="btn-table-pill" style="background:#FEF2F2; color:#DC2626; font-weight:600;" onclick="quickUpdateStatusFromModal('Rejected')">Reject</button>
+        </div>
         <button class="btn-ref-outline" id="btnCloseDetailsModalBtn">Close</button>
       </div>
     </div>
@@ -2095,7 +2106,7 @@
               <div class="notif-header-title">Admin Notifications</div>
               <button class="btn-clear-notifs" id="btnClearAdminNotifs">Mark all as read</button>
             </div>
-            <div class="notif-dropdown-list">
+            <div class="notif-dropdown-list" id="adminNotifDropdownList">
               <div class="notif-item unread">
                 <div class="notif-bullet-icon bg-green-tint">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2208,7 +2219,6 @@
           <button class="ref-nav-item" data-admin-tab="manage">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14h6"/><path d="M9 18h6"/><path d="M9 10h2"/></svg>
             <span>Manage Requests</span>
-            <span class="nav-chevron">&rsaquo;</span>
           </button>
           <button class="ref-nav-item" data-admin-tab="students">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
@@ -2235,26 +2245,6 @@
             <span>Logout</span>
           </button>
         </nav>
-
-        <!-- Bottom Sidebar Help Card (Same as Student Portal) -->
-        <div class="sidebar-help-card" style="margin-top:auto; margin-bottom:12px;">
-          <div class="help-card-illustration">
-            <svg width="70" height="55" viewBox="0 0 70 55" fill="none">
-              <ellipse cx="35" cy="45" rx="30" ry="8" fill="#DBEAFE"/>
-              <rect x="18" y="32" width="34" height="6" rx="2" fill="#2563EB"/>
-              <rect x="15" y="24" width="40" height="7" rx="2" fill="#3B82F6"/>
-              <rect x="20" y="16" width="30" height="7" rx="2" fill="#60A5FA"/>
-              <polygon points="35,6 54,12 35,18 16,12" fill="#1E3A8A"/>
-              <polygon points="26,14 26,19 44,19 44,14" fill="#1E40AF"/>
-              <line x1="49" y1="13" x2="52" y2="23" stroke="#F59E0B" stroke-width="1.5"/>
-              <circle cx="52" cy="23" r="1.5" fill="#F59E0B"/>
-              <circle cx="14" cy="18" r="1.5" fill="#93C5FD"/>
-              <circle cx="58" cy="30" r="1.5" fill="#93C5FD"/>
-            </svg>
-          </div>
-          <div class="help-card-title">CCA DocTrack</div>
-          <div class="help-card-text" style="margin-bottom:0;">Official Student Document Request &amp; Tracking Portal</div>
-        </div>
       </aside>
 
       <!-- Main Content Area -->
@@ -2568,7 +2558,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="manageStatTotal">1,248</div>
+              <div class="metric-wave-value" id="manageStatTotal">0</div>
               <div class="metric-wave-label">Total Requests</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
@@ -2582,7 +2572,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="manageStatPending">342</div>
+              <div class="metric-wave-value" id="manageStatPending">0</div>
               <div class="metric-wave-label">Pending Review</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
@@ -2596,7 +2586,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="manageStatProcessing">781</div>
+              <div class="metric-wave-value" id="manageStatProcessing">0</div>
               <div class="metric-wave-label">In Processing</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,24 C40,16 70,32 110,18 C150,10 180,26 200,16 L200,40 L0,40 Z" fill="rgba(168, 85, 247, 0.08)"/>
@@ -2610,7 +2600,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="manageStatCompleted">125</div>
+              <div class="metric-wave-value" id="manageStatCompleted">0</div>
               <div class="metric-wave-label">Completed</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
@@ -2742,7 +2732,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="studentStatTotal">1,248</div>
+              <div class="metric-wave-value" id="studentStatTotal">0</div>
               <div class="metric-wave-label">Total Students</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
@@ -2756,7 +2746,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="studentStatActive">1,215</div>
+              <div class="metric-wave-value" id="studentStatActive">0</div>
               <div class="metric-wave-label">Active Students</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
@@ -2770,7 +2760,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="studentStatInactive">33</div>
+              <div class="metric-wave-value" id="studentStatInactive">0</div>
               <div class="metric-wave-label">Inactive Students</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
@@ -2843,16 +2833,8 @@
 
             <!-- Table Pagination Footer -->
             <div class="card-footer" style="padding:14px 20px; border-top:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
-              <span id="adminStudentsCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 1-5 of 1,248 students</span>
-              <div class="pagination-pills" id="adminStudentsPagination">
-                <button class="btn-page-pill" disabled>&laquo;</button>
-                <button class="btn-page-pill active">1</button>
-                <button class="btn-page-pill">2</button>
-                <button class="btn-page-pill">3</button>
-                <button class="btn-page-pill">4</button>
-                <button class="btn-page-pill">5</button>
-                <button class="btn-page-pill">&raquo;</button>
-              </div>
+              <span id="adminStudentsCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 0 students</span>
+              <div class="pagination-pills" id="adminStudentsPagination"></div>
             </div>
           </div>
         </div>
@@ -2898,7 +2880,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="annStatTotal">12</div>
+              <div class="metric-wave-value" id="annStatTotal">0</div>
               <div class="metric-wave-label">Total Announcements</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
@@ -2912,7 +2894,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="annStatPublished">10</div>
+              <div class="metric-wave-value" id="annStatPublished">0</div>
               <div class="metric-wave-label">Published</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
@@ -2926,7 +2908,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="annStatDrafts">2</div>
+              <div class="metric-wave-value" id="annStatDrafts">0</div>
               <div class="metric-wave-label">Drafts</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
@@ -3001,14 +2983,8 @@
 
             <!-- Table Pagination Footer -->
             <div class="card-footer" style="padding:14px 20px; border-top:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
-              <span id="adminAnnounceCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 1-5 of 12 announcements</span>
-              <div class="pagination-pills" id="adminAnnouncePagination">
-                <button class="btn-page-pill" disabled>&laquo;</button>
-                <button class="btn-page-pill active">1</button>
-                <button class="btn-page-pill">2</button>
-                <button class="btn-page-pill">3</button>
-                <button class="btn-page-pill">&raquo;</button>
-              </div>
+              <span id="adminAnnounceCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 0 announcements</span>
+              <div class="pagination-pills" id="adminAnnouncePagination"></div>
             </div>
           </div>
         </div>
@@ -3056,9 +3032,9 @@
                 <div class="metric-wave-icon blue">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 </div>
-                <span class="metric-wave-trend">&uarr; 12%</span>
+                <span class="metric-wave-trend" id="reportTrendTotal">&uarr; Live</span>
               </div>
-              <div class="metric-wave-value" id="reportStatTotal">1,248</div>
+              <div class="metric-wave-value" id="reportStatTotal">0</div>
               <div class="metric-wave-label">Total Requests</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
@@ -3071,9 +3047,9 @@
                 <div class="metric-wave-icon cyan">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 </div>
-                <span class="metric-wave-trend">&uarr; 8%</span>
+                <span class="metric-wave-trend" id="reportTrendPending">Pending</span>
               </div>
-              <div class="metric-wave-value" id="reportStatPending">342</div>
+              <div class="metric-wave-value" id="reportStatPending">0</div>
               <div class="metric-wave-label">Pending Requests</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
@@ -3086,9 +3062,9 @@
                 <div class="metric-wave-icon green">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>
-                <span class="metric-wave-trend">&uarr; 14%</span>
+                <span class="metric-wave-trend" id="reportTrendApproved">Approved</span>
               </div>
-              <div class="metric-wave-value" id="reportStatApproved">781</div>
+              <div class="metric-wave-value" id="reportStatApproved">0</div>
               <div class="metric-wave-label">Approved Requests</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
@@ -3101,9 +3077,9 @@
                 <div class="metric-wave-icon purple">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                 </div>
-                <span class="metric-wave-trend">&uarr; 10%</span>
+                <span class="metric-wave-trend" id="reportTrendReleased">Released</span>
               </div>
-              <div class="metric-wave-value" id="reportStatReleased">125</div>
+              <div class="metric-wave-value" id="reportStatReleased">0</div>
               <div class="metric-wave-label">Released Documents</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,24 C40,16 70,32 110,18 C150,10 180,26 200,16 L200,40 L0,40 Z" fill="rgba(168, 85, 247, 0.08)"/>
@@ -3119,9 +3095,9 @@
               <span style="font-size:12.5px; font-weight:600; color:#475569;">Date Range</span>
             </div>
             <select id="reportFilterDateRange" class="ref-filter-select">
-              <option value="MAY_2025">May 1, 2025 - May 31, 2025</option>
-              <option value="THIS_MONTH">This Month</option>
-              <option value="LAST_90">This Semester</option>
+              <option value="THIS_MONTH">November 1, 2026 - November 30, 2026</option>
+              <option value="LAST_30">Last 30 Days</option>
+              <option value="THIS_SEMESTER">1st Semester AY 2026-2027</option>
               <option value="ALL">All Time</option>
             </select>
             <div style="display:flex; align-items:center; gap:6px;">
@@ -3159,15 +3135,15 @@
                   <span class="card-ref-title">Request Trends</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:16px;">
-                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569;">
+                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569; cursor:pointer;" onclick="filterRequestsByStatus('ALL')">
                     <span style="width:8px; height:8px; border-radius:50%; background:#2563EB;"></span>
                     <span>Total</span>
                   </div>
-                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569;">
+                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569; cursor:pointer;" onclick="filterRequestsByStatus('Approved')">
                     <span style="width:8px; height:8px; border-radius:50%; background:#10B981;"></span>
                     <span>Approved</span>
                   </div>
-                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569;">
+                  <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#475569; cursor:pointer;" onclick="filterRequestsByStatus('Pending')">
                     <span style="width:8px; height:8px; border-radius:50%; background:#F59E0B;"></span>
                     <span>Pending</span>
                   </div>
@@ -3176,45 +3152,27 @@
 
               <!-- SVG Line Chart Visual -->
               <div style="margin-top:20px; position:relative; height:200px; width:100%;">
-                <svg viewBox="0 0 500 180" style="width:100%; height:100%; overflow:visible;">
+                <svg id="reportTrendsSvg" viewBox="0 0 500 180" style="width:100%; height:100%; overflow:visible;">
                   <!-- Grid horizontal lines -->
                   <line x1="35" y1="20" x2="490" y2="20" stroke="#F1F5F9" stroke-width="1"/>
-                  <text x="5" y="24" fill="#94A3B8" font-size="10" font-family="sans-serif">1,000</text>
+                  <text x="14" y="24" fill="#94A3B8" font-size="10" font-family="sans-serif">20</text>
                   <line x1="35" y1="60" x2="490" y2="60" stroke="#F1F5F9" stroke-width="1"/>
-                  <text x="14" y="64" fill="#94A3B8" font-size="10" font-family="sans-serif">750</text>
+                  <text x="14" y="64" fill="#94A3B8" font-size="10" font-family="sans-serif">15</text>
                   <line x1="35" y1="100" x2="490" y2="100" stroke="#F1F5F9" stroke-width="1"/>
-                  <text x="14" y="104" fill="#94A3B8" font-size="10" font-family="sans-serif">500</text>
+                  <text x="14" y="104" fill="#94A3B8" font-size="10" font-family="sans-serif">10</text>
                   <line x1="35" y1="140" x2="490" y2="140" stroke="#F1F5F9" stroke-width="1"/>
-                  <text x="14" y="144" fill="#94A3B8" font-size="10" font-family="sans-serif">250</text>
+                  <text x="18" y="144" fill="#94A3B8" font-size="10" font-family="sans-serif">5</text>
                   <line x1="35" y1="170" x2="490" y2="170" stroke="#E2E8F0" stroke-width="1"/>
-                  <text x="24" y="174" fill="#94A3B8" font-size="10" font-family="sans-serif">0</text>
+                  <text x="18" y="174" fill="#94A3B8" font-size="10" font-family="sans-serif">0</text>
 
-                  <!-- Line 1: Total (Blue) -->
-                  <path d="M60,130 L190,95 L320,80 L450,90" fill="none" stroke="#2563EB" stroke-width="2.5"/>
-                  <circle cx="60" cy="130" r="4" fill="#2563EB"/>
-                  <circle cx="190" cy="95" r="4" fill="#2563EB"/>
-                  <circle cx="320" cy="80" r="4" fill="#2563EB"/>
-                  <circle cx="450" cy="90" r="4" fill="#2563EB"/>
-
-                  <!-- Line 2: Approved (Green) -->
-                  <path d="M60,145 L190,115 L320,105 L450,112" fill="none" stroke="#10B981" stroke-width="2.5"/>
-                  <circle cx="60" cy="145" r="4" fill="#10B981"/>
-                  <circle cx="190" cy="115" r="4" fill="#10B981"/>
-                  <circle cx="320" cy="105" r="4" fill="#10B981"/>
-                  <circle cx="450" cy="112" r="4" fill="#10B981"/>
-
-                  <!-- Line 3: Pending (Orange) -->
-                  <path d="M60,160 L190,140 L320,130 L450,138" fill="none" stroke="#F59E0B" stroke-width="2.5"/>
-                  <circle cx="60" cy="160" r="4" fill="#F59E0B"/>
-                  <circle cx="190" cy="140" r="4" fill="#F59E0B"/>
-                  <circle cx="320" cy="130" r="4" fill="#F59E0B"/>
-                  <circle cx="450" cy="138" r="4" fill="#F59E0B"/>
+                  <!-- Dynamic trend lines inserted by JS -->
+                  <g id="reportTrendLinesGroup"></g>
                 </svg>
                 <div style="display:flex; justify-content:space-around; margin-left:35px; margin-top:6px; font-size:11px; color:#64748B; font-weight:600;">
-                  <span>May 1-7</span>
-                  <span>May 8-14</span>
-                  <span>May 15-21</span>
-                  <span>May 22-31</span>
+                  <span style="cursor:pointer;" onclick="filterRequestsByWeek(1)">Nov 1-7</span>
+                  <span style="cursor:pointer;" onclick="filterRequestsByWeek(2)">Nov 8-14</span>
+                  <span style="cursor:pointer;" onclick="filterRequestsByWeek(3)">Nov 15-21</span>
+                  <span style="cursor:pointer;" onclick="filterRequestsByWeek(4)">Nov 22-30</span>
                 </div>
               </div>
             </div>
@@ -3226,52 +3184,22 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10h-10z"/></svg>
                   <span class="card-ref-title">Request by Document Type</span>
                 </div>
+                <span style="font-size:11.5px; color:#64748B;">Click slice to filter</span>
               </div>
 
               <div class="overview-donut-layout" style="margin-top:14px;">
                 <div class="overview-donut-box">
-                  <svg class="overview-donut-svg" viewBox="0 0 36 36">
+                  <svg class="overview-donut-svg" id="reportDocDonutSvg" viewBox="0 0 36 36">
                     <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F1F5F9" stroke-width="4.5"/>
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#2563EB" stroke-width="4.5" stroke-dasharray="34.1, 100"/>
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#10B981" stroke-width="4.5" stroke-dasharray="28.6, 100" stroke-dashoffset="-34.1"/>
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#F59E0B" stroke-width="4.5" stroke-dasharray="22.3, 100" stroke-dashoffset="-62.7"/>
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#A855F7" stroke-width="4.5" stroke-dasharray="14.9, 100" stroke-dashoffset="-85"/>
                   </svg>
                   <div class="overview-donut-center">
-                    <div class="donut-center-num">1,248</div>
+                    <div class="donut-center-num" id="reportDocDonutTotal">0</div>
                     <div class="donut-center-label">Total</div>
                   </div>
                 </div>
 
-                <div class="overview-legend-list">
-                  <div class="overview-legend-item">
-                    <div class="legend-item-left">
-                      <span class="legend-color-dot blue"></span>
-                      <span>TOR</span>
-                    </div>
-                    <span class="legend-percent">34.1%</span>
-                  </div>
-                  <div class="overview-legend-item">
-                    <div class="legend-item-left">
-                      <span class="legend-color-dot green"></span>
-                      <span>Certificate of Enrollment</span>
-                    </div>
-                    <span class="legend-percent">28.6%</span>
-                  </div>
-                  <div class="overview-legend-item">
-                    <div class="legend-item-left">
-                      <span class="legend-color-dot cyan"></span>
-                      <span>Good Moral Certificate</span>
-                    </div>
-                    <span class="legend-percent">22.3%</span>
-                  </div>
-                  <div class="overview-legend-item">
-                    <div class="legend-item-left">
-                      <span class="legend-color-dot purple"></span>
-                      <span>Report Card</span>
-                    </div>
-                    <span class="legend-percent">14.9%</span>
-                  </div>
+                <div class="overview-legend-list" id="reportDocLegendList">
+                  <!-- Generated dynamically in script.js -->
                 </div>
               </div>
             </div>
@@ -3286,36 +3214,10 @@
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
                   <span class="card-ref-title">Top Courses</span>
                 </div>
+                <span style="font-size:11.5px; color:#64748B;">Click bar to filter</span>
               </div>
-              <div style="margin-top:16px;">
-                <div class="top-course-row">
-                  <div class="top-course-name">BSIT</div>
-                  <div class="top-course-bar-track">
-                    <div class="top-course-bar-fill" style="width: 85%;"></div>
-                  </div>
-                  <div class="top-course-count">420</div>
-                </div>
-                <div class="top-course-row">
-                  <div class="top-course-name">BSBA</div>
-                  <div class="top-course-bar-track">
-                    <div class="top-course-bar-fill" style="width: 70%;"></div>
-                  </div>
-                  <div class="top-course-count">352</div>
-                </div>
-                <div class="top-course-row">
-                  <div class="top-course-name">BSA</div>
-                  <div class="top-course-bar-track">
-                    <div class="top-course-bar-fill" style="width: 55%;"></div>
-                  </div>
-                  <div class="top-course-count">276</div>
-                </div>
-                <div class="top-course-row">
-                  <div class="top-course-name">BSCS</div>
-                  <div class="top-course-bar-track">
-                    <div class="top-course-bar-fill" style="width: 40%;"></div>
-                  </div>
-                  <div class="top-course-count">200</div>
-                </div>
+              <div style="margin-top:16px;" id="reportTopCoursesList">
+                <!-- Dynamically populated from state.allRequests in script.js -->
               </div>
             </div>
 
@@ -3332,25 +3234,25 @@
                   <div class="report-file-icon pdf">PDF</div>
                   <div class="report-file-info">
                     <div class="report-file-title">Document Requests Report</div>
-                    <div class="report-file-date">May 31, 2025 &bull; 10:24 AM</div>
+                    <div class="report-file-date">Nov 23, 2026 &bull; 10:24 AM</div>
                   </div>
-                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminRequestsCsv()">Download</button>
-                </div>
-                <div class="recent-report-row">
-                  <div class="report-file-icon xls">XLS</div>
-                  <div class="report-file-info">
-                    <div class="report-file-title">Student Records Report</div>
-                    <div class="report-file-date">May 30, 2025 &bull; 03:15 PM</div>
-                  </div>
-                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminRequestsCsv()">Download</button>
+                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminReportsPdf('Document Requests Report')">Download</button>
                 </div>
                 <div class="recent-report-row">
                   <div class="report-file-icon pdf">PDF</div>
                   <div class="report-file-info">
-                    <div class="report-file-title">Request Status Report</div>
-                    <div class="report-file-date">May 29, 2025 &bull; 11:20 AM</div>
+                    <div class="report-file-title">Student Records Summary</div>
+                    <div class="report-file-date">Nov 22, 2026 &bull; 03:15 PM</div>
                   </div>
-                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminRequestsCsv()">Download</button>
+                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminReportsPdf('Student Records Report')">Download</button>
+                </div>
+                <div class="recent-report-row">
+                  <div class="report-file-icon pdf">PDF</div>
+                  <div class="report-file-info">
+                    <div class="report-file-title">Request Status &amp; Turnaround Report</div>
+                    <div class="report-file-date">Nov 21, 2026 &bull; 11:20 AM</div>
+                  </div>
+                  <button type="button" class="btn-ref-outline-sm" onclick="exportAdminReportsPdf('Request Status Report')">Download</button>
                 </div>
               </div>
             </div>
@@ -3364,27 +3266,27 @@
                 </div>
               </div>
               <div class="quick-actions-list" style="margin-top:12px;">
-                <div class="quick-action-item" onclick="exportAdminRequestsCsv()">
+                <div class="quick-action-item" onclick="exportAdminReportsPdf('All Document Requests')">
                   <div class="quick-action-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   </div>
-                  <span class="quick-action-label">Export All Requests</span>
+                  <span class="quick-action-label">Export All Requests (PDF)</span>
                   <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
 
-                <div class="quick-action-item" onclick="exportAdminRequestsCsv()">
+                <div class="quick-action-item" onclick="exportAdminReportsPdf('Student Records')">
                   <div class="quick-action-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   </div>
-                  <span class="quick-action-label">Export Student List</span>
+                  <span class="quick-action-label">Export Student List (PDF)</span>
                   <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
 
-                <div class="quick-action-item" data-admin-tab="reports">
+                <div class="quick-action-item" data-admin-tab="manage">
                   <div class="quick-action-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                   </div>
-                  <span class="quick-action-label">View Detailed Reports</span>
+                  <span class="quick-action-label">Manage Requests</span>
                   <span class="quick-action-chevron">&rsaquo;</span>
                 </div>
               </div>
@@ -3440,28 +3342,31 @@
                 </div>
               </div>
 
-              <div class="settings-account-body">
-                <div class="settings-avatar-wrap" id="adminSettingsAvatar">
-                  <svg width="50" height="50" viewBox="0 0 24 24" fill="#2563EB"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-                  <label class="btn-avatar-camera-pill" for="adminPhotoUploadInput" title="Change Photo">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <div class="settings-account-layout">
+                <div class="account-avatar-side">
+                  <div class="settings-avatar-circle" id="adminSettingsAvatar">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="#2563EB"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                    <span class="avatar-edit-badge">&#9998;</span>
+                  </div>
+                  <button class="btn-change-photo" id="btnAdminChangePhoto" type="button">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     <span>Change Photo</span>
-                  </label>
+                  </button>
                   <input type="file" id="adminPhotoUploadInput" accept="image/*" style="display:none;">
                 </div>
 
-                <div class="settings-fields-col">
+                <div class="account-fields-side">
                   <div class="settings-field-row">
-                    <label class="settings-field-label">Full Name</label>
-                    <input type="text" class="settings-input-box" id="adminSettingsFullName" value="Admin Reyes">
+                    <label class="settings-row-lbl">Full Name</label>
+                    <input type="text" class="ref-input-box" id="adminSettingsFullName" value="Admin Reyes">
                   </div>
                   <div class="settings-field-row">
-                    <label class="settings-field-label">Email Address</label>
-                    <input type="email" class="settings-input-box" id="adminSettingsEmail" value="admin@ccadoctrack.edu.ph">
+                    <label class="settings-row-lbl">Email Address</label>
+                    <input type="email" class="ref-input-box" id="adminSettingsEmail" value="admin@ccadoctrack.edu.ph">
                   </div>
                   <div class="settings-field-row">
-                    <label class="settings-field-label">Contact Number</label>
-                    <input type="text" class="settings-input-box" id="adminSettingsContact" value="+63 912 345 6789">
+                    <label class="settings-row-lbl">Contact Number</label>
+                    <input type="text" class="ref-input-box" id="adminSettingsContact" value="+63 912 345 6789">
                   </div>
                 </div>
               </div>
@@ -3609,9 +3514,9 @@
 
           <!-- Settings Bottom Bar -->
           <div class="settings-bottom-bar">
-            <div class="settings-updated-pill">
+            <div class="settings-updated-pill" id="adminSettingsUpdatedPill">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              <span>Last updated: May 20, 2025 at 10:24 AM</span>
+              <span id="adminSettingsLastUpdated">Last updated: November 23, 2026 at 10:24 AM</span>
             </div>
             <div style="display:flex; align-items:center; gap:12px;">
               <button type="button" class="btn-filter-outline" id="btnCancelAdminSettings">Cancel</button>
@@ -3666,7 +3571,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="auditStatTotal">1,248</div>
+              <div class="metric-wave-value" id="auditStatTotal">0</div>
               <div class="metric-wave-label">Total Logs</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,28 C40,36 70,16 110,24 C150,32 170,14 200,20 L200,40 L0,40 Z" fill="rgba(59, 130, 246, 0.08)"/>
@@ -3680,7 +3585,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="auditStatUser">642</div>
+              <div class="metric-wave-value" id="auditStatUser">0</div>
               <div class="metric-wave-label">User Actions</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,30 C50,14 80,34 130,22 C170,12 185,28 200,22 L200,40 L0,40 Z" fill="rgba(16, 185, 129, 0.08)"/>
@@ -3694,7 +3599,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="auditStatSystem">342</div>
+              <div class="metric-wave-value" id="auditStatSystem">0</div>
               <div class="metric-wave-label">System Events</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
@@ -3708,7 +3613,7 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 </div>
               </div>
-              <div class="metric-wave-value" id="auditStatSecurity">264</div>
+              <div class="metric-wave-value" id="auditStatSecurity">0</div>
               <div class="metric-wave-label">Security Events</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,24 C40,16 70,32 110,18 C150,10 180,26 200,16 L200,40 L0,40 Z" fill="rgba(168, 85, 247, 0.08)"/>
@@ -3724,8 +3629,7 @@
               <span style="font-size:12.5px; font-weight:600; color:#475569;">Date Range</span>
             </div>
             <select id="adminAuditDateRange" class="ref-filter-select">
-              <option value="MAY_2025">May 1, 2025 - May 31, 2025</option>
-              <option value="THIS_MONTH">This Month</option>
+              <option value="THIS_MONTH">November 1, 2026 - November 30, 2026</option>
               <option value="LAST_30">Last 30 Days</option>
               <option value="ALL">All Time</option>
             </select>
@@ -3756,9 +3660,9 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
               <span>Filter</span>
             </button>
-            <button type="button" class="btn-filter-outline" id="btnAdminExportAuditLogs" onclick="exportAdminRequestsCsv()">
+            <button type="button" class="btn-filter-outline" id="btnAdminExportAuditLogs" onclick="exportAdminReportsPdf('Audit Logs Report')">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span>Export Logs</span>
+              <span>Export Logs (PDF)</span>
             </button>
           </div>
 
@@ -3786,16 +3690,8 @@
 
             <!-- Table Pagination Footer -->
             <div class="card-footer" style="padding:14px 20px; border-top:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
-              <span id="adminAuditCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 1-8 of 1,248 logs</span>
-              <div class="pagination-pills" id="adminAuditPagination">
-                <button class="btn-page-pill" disabled>&laquo;</button>
-                <button class="btn-page-pill active">1</button>
-                <button class="btn-page-pill">2</button>
-                <button class="btn-page-pill">3</button>
-                <button class="btn-page-pill">4</button>
-                <button class="btn-page-pill">5</button>
-                <button class="btn-page-pill">&raquo;</button>
-              </div>
+              <span id="adminAuditCountLabel" style="font-size:13px; font-weight:600; color:#64748B;">Showing 0 logs</span>
+              <div class="pagination-pills" id="adminAuditPagination"></div>
             </div>
           </div>
         </div>
@@ -3926,7 +3822,7 @@
   <!-- 1. LOGOUT CONFIRMATION MODAL -->
   <div class="modal" id="modalConfirmLogout" style="display:none;">
     <div class="modal-backdrop" id="backdropConfirmLogout"></div>
-    <div class="modal-content" style="max-width: 420px; text-align: center; padding: 28px 24px;">
+    <div class="modal-dialog ref-dialog-md" style="max-width: 420px; text-align: center; padding: 28px 24px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
       <div style="width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -3948,13 +3844,14 @@
   <!-- 2. CREATE ANNOUNCEMENT MODAL -->
   <div class="modal" id="modalAdminCreateAnnouncement" style="display:none;">
     <div class="modal-backdrop" id="backdropCreateAnnouncement"></div>
-    <div class="modal-content" style="max-width: 520px;">
+    <div class="modal-dialog ref-dialog-md" style="max-width: 520px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
       <div class="modal-header">
-        <h3 class="modal-title">Create Campus Announcement</h3>
+        <h3 class="modal-title" id="adminAnnModalTitle">Create Campus Announcement</h3>
         <button class="modal-close" id="btnCloseCreateAnnouncement">&times;</button>
       </div>
       <div class="modal-body">
         <form id="formAdminCreateAnnouncement">
+          <input type="hidden" id="adminEditAnnIndex" value="-1">
           <div class="form-group" style="margin-bottom:14px;">
             <label class="ref-field-label">Announcement Title <span class="required">*</span></label>
             <input type="text" class="ref-input-box" id="adminNewAnnTitle" placeholder="e.g. Enrollment Schedule for 1st Semester" required>
@@ -3993,9 +3890,34 @@
           </div>
           <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
             <button type="button" class="btn-ref-outline" id="btnCancelCreateAnnouncement">Cancel</button>
-            <button type="submit" class="btn-ref-primary">Publish Announcement</button>
+            <button type="submit" class="btn-ref-primary" id="btnSubmitAdminAnn">Publish Announcement</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2B. VIEW ANNOUNCEMENT MODAL -->
+  <div class="modal" id="modalAdminViewAnnouncement" style="display:none;">
+    <div class="modal-backdrop" id="backdropViewAnnouncement"></div>
+    <div class="modal-dialog ref-dialog-md" style="max-width: 520px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 class="modal-title" id="viewAnnTitle">Announcement Details</h3>
+          <span class="badge-status-pill green" id="viewAnnBadge">&bull; Published</span>
+        </div>
+        <button class="modal-close" id="btnCloseViewAnnouncement">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:12.5px; color:#64748B;">
+          <span>Category: <strong id="viewAnnCategory" style="color:#2563EB;">Academic</strong></span>
+          <span>Published: <strong id="viewAnnDate" style="color:#0F172A;">Nov 23, 2026</strong></span>
+        </div>
+        <div id="viewAnnContent" style="padding:14px; background:#F8FAFC; border-radius:10px; color:#334155; font-size:13.5px; line-height:1.6; white-space:pre-wrap;">
+        </div>
+      </div>
+      <div class="modal-footer" style="margin-top:20px; display:flex; justify-content:flex-end;">
+        <button class="btn-ref-outline" id="btnCloseViewAnnBtn">Close</button>
       </div>
     </div>
   </div>
@@ -4003,7 +3925,7 @@
   <!-- 3. ADD STUDENT MODAL -->
   <div class="modal" id="modalAdminAddStudent" style="display:none;">
     <div class="modal-backdrop" id="backdropAddStudent"></div>
-    <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-dialog ref-dialog-md" style="max-width: 500px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
       <div class="modal-header">
         <h3 class="modal-title">Add New Student Record</h3>
         <button class="modal-close" id="btnCloseAddStudent">&times;</button>
@@ -4022,10 +3944,10 @@
             <div class="form-group">
               <label class="ref-field-label">Course</label>
               <select class="ref-select-lg" id="adminNewStudentCourse">
-                <option value="BSIT">BSIT</option>
-                <option value="BSBA">BSBA</option>
-                <option value="BSA">BSA</option>
-                <option value="BSCS">BSCS</option>
+                <option value="BS Information Technology">BSIT</option>
+                <option value="BS Business Administration">BSBA</option>
+                <option value="BS Accountancy">BSA</option>
+                <option value="BS Computer Science">BSCS</option>
               </select>
             </div>
             <div class="form-group">
@@ -4045,6 +3967,107 @@
           <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
             <button type="button" class="btn-ref-outline" id="btnCancelAddStudent">Cancel</button>
             <button type="submit" class="btn-ref-primary">Save Student Record</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ADMIN STATUS CHANGE QUICK MODAL (MANAGE REQUEST ACTIONS) -->
+  <div class="modal" id="modalAdminStatusChange" style="display:none;">
+    <div class="modal-backdrop" id="backdropAdminStatusChange"></div>
+    <div class="modal-dialog ref-dialog-md" style="max-width: 440px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title">Update Request Status</h3>
+          <p class="modal-subtitle" id="statusChangeSubtitle" style="font-size:12.5px; color:#64748B; margin-top:2px;">Select new status for this document request</p>
+        </div>
+        <button class="modal-close" id="btnCloseStatusChangeModal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:12px;">
+        <input type="hidden" id="statusChangeTargetId" value="">
+        <div class="ref-input-group" style="margin-bottom:16px;">
+          <label class="ref-field-label">Request Status <span class="required">*</span></label>
+          <select class="ref-select-lg" id="statusChangeSelect">
+            <option value="Pending">Pending (Under review)</option>
+            <option value="Processing">Processing (Registrar assigned)</option>
+            <option value="Approved">Approved (Ready for document issuance)</option>
+            <option value="For Release">For Release (Ready for window pickup)</option>
+            <option value="Completed">Completed (Claimed / Released)</option>
+            <option value="Rejected">Rejected (Incomplete / Ineligible)</option>
+          </select>
+        </div>
+        <div class="ref-input-group" style="margin-bottom:16px;">
+          <label class="ref-field-label">Registrar Remarks / Notes</label>
+          <input type="text" class="ref-input-box" id="statusChangeRemarks" placeholder="e.g. Window 2 ready for pickup, or requirement notice">
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn-ref-outline" id="btnCancelStatusChangeModal">Cancel</button>
+        <button type="button" class="btn-ref-primary" id="btnSaveStatusChangeModal">Update Status &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. CHANGE PASSWORD MODAL (MATCHING REFERENCE IMAGE 1) -->
+  <div class="modal" id="modalAdminChangePassword" style="display:none;">
+    <div class="modal-backdrop" id="backdropAdminChangePassword"></div>
+    <div class="modal-dialog ref-dialog-md" style="max-width: 540px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; display:flex; align-items:center; justify-content:center; color:#2563EB;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin:0;">Update Your Password</h3>
+            <p style="font-size:12.5px; color:#64748B; margin:2px 0 0;">Enter your current password and set a new one.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btnCloseAdminChangePw">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:16px;">
+        <form id="formAdminChangePassword">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="ref-field-label">Current Password <span class="required">*</span></label>
+            <input type="password" class="ref-input-box" id="adminCurPassword" placeholder="Enter your current password" required>
+          </div>
+          <div class="form-group" style="margin-bottom:14px;">
+            <label class="ref-field-label">New Password <span class="required">*</span></label>
+            <input type="password" class="ref-input-box" id="adminNewPassword" placeholder="Enter your new password" required>
+            <div style="display:flex; gap:4px; margin-top:8px;" id="adminPwStrengthBars">
+              <div style="height:4px; flex:1; background:#10B981; border-radius:2px;"></div>
+              <div style="height:4px; flex:1; background:#10B981; border-radius:2px;"></div>
+              <div style="height:4px; flex:1; background:#E2E8F0; border-radius:2px;"></div>
+              <div style="height:4px; flex:1; background:#E2E8F0; border-radius:2px;"></div>
+              <span style="font-size:11px; font-weight:700; color:#10B981; margin-left:6px;">Strong</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label class="ref-field-label">Confirm New Password <span class="required">*</span></label>
+            <input type="password" class="ref-input-box" id="adminConfirmNewPassword" placeholder="Re-enter your new password" required>
+          </div>
+
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:16px;">
+            <div style="font-size:12.5px; font-weight:700; color:#1E293B; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Password Requirements:</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#475569;">
+              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span> At least 8 characters long</div>
+              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span> Include at least one uppercase letter</div>
+              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span> Include at least one lowercase letter</div>
+              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span> Include at least one number or special character</div>
+            </div>
+          </div>
+
+          <div style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; margin-bottom:18px;">
+            <span style="color:#059669; font-weight:700;">&#10004;</span>
+            <span style="font-size:12px; color:#065F46; font-weight:600;">Your password will be updated securely.</span>
+          </div>
+
+          <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px;">
+            <button type="button" class="btn-ref-outline" id="btnCancelAdminChangePw">Cancel</button>
+            <button type="submit" class="btn-ref-primary">Update Password &rarr;</button>
           </div>
         </form>
       </div>

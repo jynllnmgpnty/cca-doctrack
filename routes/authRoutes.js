@@ -307,6 +307,40 @@ router.post('/change-password', async (req, res) => {
 });
 
 /**
+ * @route   GET /api/auth/students
+ * @desc    Get all registered student accounts from Turso database (no fake data)
+ * @access  Public
+ */
+router.get('/students', async (req, res) => {
+  try {
+    const result = await db.execute("SELECT id, full_name, student_id, email, course, role, created_at FROM users WHERE role != 'admin' ORDER BY id ASC");
+    const students = result.rows.map(r => ({
+      id: r.id,
+      name: r.full_name,
+      studentId: r.student_id,
+      email: r.email,
+      course: r.course || 'BS Information Technology',
+      year: '3rd Year',
+      status: 'Active',
+      createdAt: r.created_at
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: students.length,
+      data: students
+    });
+  } catch (error) {
+    console.error('Error fetching students:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve students from database.',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/seed
  * @desc    Trigger default accounts seeding
  */

@@ -1863,7 +1863,93 @@ function applyAdminFilters() {
   renderAdminTable();
 }
 
-function renderAdminStudentsTable() {
+// ==========================================
+// Generic Dynamic Pagination Helper
+// ==========================================
+function renderPagination(containerId, countLabelId, totalItems, currentPage, pageSize, onPageChangeFnName, itemLabel = 'records') {
+  const container = document.getElementById(containerId);
+  const countLabel = document.getElementById(countLabelId);
+  
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const startIdx = totalItems === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const endIdx = Math.min(safePage * pageSize, totalItems);
+
+  if (countLabel) {
+    countLabel.textContent = `Showing ${startIdx}-${endIdx} of ${totalItems.toLocaleString()} ${itemLabel}`;
+  }
+
+  if (!container) return;
+
+  if (totalItems <= pageSize) {
+    container.innerHTML = `
+      <div class="pagination-btn-group">
+        <button type="button" class="btn-page-nav" disabled>&laquo;</button>
+        <button type="button" class="btn-page-num active">1</button>
+        <button type="button" class="btn-page-nav" disabled>&raquo;</button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `<div class="pagination-btn-group">`;
+  html += `<button type="button" class="btn-page-nav" ${safePage === 1 ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage - 1})">&laquo;</button>`;
+
+  for (let p = 1; p <= totalPages; p++) {
+    if (p === 1 || p === totalPages || (p >= safePage - 1 && p <= safePage + 1)) {
+      html += `<button type="button" class="btn-page-num ${p === safePage ? 'active' : ''}" onclick="${onPageChangeFnName}(${p})">${p}</button>`;
+    } else if (p === safePage - 2 || p === safePage + 2) {
+      html += `<span class="pagination-ellipsis" style="padding:0 4px; color:#94A3B8;">...</span>`;
+    }
+  }
+
+  html += `<button type="button" class="btn-page-nav" ${safePage === totalPages ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage + 1})">&raquo;</button>`;
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+let studentCurrentPage = 1;
+let announceCurrentPage = 1;
+let auditCurrentPage = 1;
+let manageCurrentPage = 1;
+let cachedRegisteredStudents = [];
+
+window.setStudentPage = function(page) {
+  studentCurrentPage = page;
+  renderAdminStudentsTable();
+};
+
+window.setAnnouncePage = function(page) {
+  announceCurrentPage = page;
+  renderAdminAnnouncements();
+};
+
+window.setAuditPage = function(page) {
+  auditCurrentPage = page;
+  renderAdminAuditLogs();
+};
+
+window.setManagePage = function(page) {
+  manageCurrentPage = page;
+  renderAdminTable();
+};
+
+async function fetchRegisteredStudents() {
+  try {
+    const res = await fetch('/api/auth/students');
+    if (res.ok) {
+      const result = await res.json();
+      if (result.success && Array.isArray(result.data)) {
+        cachedRegisteredStudents = result.data;
+      }
+    }
+  } catch (err) {
+    console.warn('Could not fetch students from API, using local request data:', err);
+  }
+}
+
+async function renderAdminStudentsTable() {
   const tbody = document.getElementById('adminStudentsTableBody');
   if (!tbody) return;
 
@@ -1871,26 +1957,50 @@ function renderAdminStudentsTable() {
   const progFilter = document.getElementById('adminStudentProgramFilter')?.value || 'ALL';
   const statusFilter = document.getElementById('adminStudentStatusFilter')?.value || 'ALL';
 
-  // Seed default reference student list combined with live requests
-  const baseStudents = [
-    { studentId: '23-10021', name: 'Juan Dela Cruz', course: 'BSIT', year: '3rd Year', status: 'Active', avatar: 'JD' },
-    { studentId: '23-10022', name: 'Maria Santos', course: 'BSIT', year: '3rd Year', status: 'Active', avatar: 'MS' },
-    { studentId: '23-10023', name: 'Pedro Reyes', course: 'BSBA', year: '2nd Year', status: 'Active', avatar: 'PR' },
-    { studentId: '23-10024', name: 'Ana Cruz', course: 'BSIT', year: '2nd Year', status: 'Inactive', avatar: 'AC' },
-    { studentId: '23-10025', name: 'Luis Garcia', course: 'BSBA', year: '1st Year', status: 'Active', avatar: 'LG' }
-  ];
+  if (cachedRegisteredStudents.length === 0) {
+    await fetchRegisteredStudents();
+  }
 
-  let customStudents = [];
-  try {
-    customStudents = JSON.parse(localStorage.getItem('cca_custom_students') || '[]');
-  } catch (e) {}
+  // Combine database registered students with any request submitters not yet in list
+  const studentMap = new Map();
 
-  const allStudents = [...customStudents, ...baseStudents];
+  cachedRegisteredStudents.forEach(s => {
+    const key = (s.studentId || s.email || s.name).toLowerCase();
+    studentMap.set(key, {
+      studentId: s.studentId || '23-0000',
+      name: s.name || s.fullName || 'Student',
+      course: s.course || 'BSIT',
+      year: s.year || '3rd Year',
+      status: s.status || 'Active',
+      email: s.email || ''
+    });
+  });
 
-  const total = 1248;
-  const active = 1215;
-  const inactive = 33;
-  const grad = 0;
+  // Also include any students with requests in state.allRequests
+  (state.allRequests || []).forEach(r => {
+    const sId = r.student_id || r.studentId;
+    const sName = r.student_name || r.studentName;
+    if (sName) {
+      const key = (sId || sName).toLowerCase();
+      if (!studentMap.has(key)) {
+        studentMap.set(key, {
+          studentId: sId || '23-10021',
+          name: sName,
+          course: r.course || 'BSIT',
+          year: '3rd Year',
+          status: 'Active',
+          email: ''
+        });
+      }
+    }
+  });
+
+  const allStudents = Array.from(studentMap.values());
+
+  const total = allStudents.length;
+  const active = allStudents.filter(s => s.status.toLowerCase() !== 'inactive').length;
+  const inactive = allStudents.filter(s => s.status.toLowerCase() === 'inactive').length;
+  const grad = allStudents.filter(s => s.status.toLowerCase() === 'graduated').length;
 
   const elTot = document.getElementById('studentStatTotal'); if (elTot) elTot.textContent = total.toLocaleString();
   const elAct = document.getElementById('studentStatActive'); if (elAct) elAct.textContent = active.toLocaleString();
@@ -1904,17 +2014,19 @@ function renderAdminStudentsTable() {
     return matchesSearch && matchesCourse && matchesStatus;
   });
 
-  const countLabel = document.getElementById('adminStudentsCountLabel');
-  if (countLabel) {
-    countLabel.textContent = `Showing 1-${filtered.length} of 1,248 students`;
-  }
+  const pageSize = 5;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (studentCurrentPage > totalPages) studentCurrentPage = totalPages;
+  const paged = filtered.slice((studentCurrentPage - 1) * pageSize, studentCurrentPage * pageSize);
+
+  renderPagination('adminStudentsPagination', 'adminStudentsCountLabel', filtered.length, studentCurrentPage, pageSize, 'setStudentPage', 'students');
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No student records found matching filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No registered students found in database.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(s => {
+  tbody.innerHTML = paged.map(s => {
     const initials = s.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'ST';
     const statusClass = s.status.toLowerCase() === 'active' ? 'status-approved' : 'status-pending';
 
@@ -1937,21 +2049,38 @@ function renderAdminStudentsTable() {
         </td>
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn-table-pill" onclick="showToast('Viewing ${escapeHtml(s.name)} profile', 'info')">
+            <button type="button" class="btn-table-pill" onclick="viewStudentDetails('${escapeHtml(s.studentId)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               <span>View</span>
             </button>
-            <button type="button" class="btn-table-pill" onclick="showToast('Editing student ${escapeHtml(s.studentId)}', 'info')">
+            <button type="button" class="btn-table-pill" onclick="editStudentDetails('${escapeHtml(s.studentId)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               <span>Edit</span>
             </button>
-            <button type="button" class="btn-table-pill" style="padding:4px 8px;">&bull;&bull;&bull;</button>
           </div>
         </td>
       </tr>
     `;
   }).join('');
 }
+
+window.viewStudentDetails = function(studentId) {
+  const student = cachedRegisteredStudents.find(s => s.studentId === studentId);
+  if (student) {
+    showToast(`Student: ${student.name} (${student.studentId}) - ${student.course}`, 'info');
+  } else {
+    showToast(`Viewing student ${studentId}`, 'info');
+  }
+};
+
+window.editStudentDetails = function(studentId) {
+  const modal = document.getElementById('modalAdminAddStudent');
+  if (modal) {
+    const idIn = document.getElementById('adminNewStudentId');
+    if (idIn) idIn.value = studentId;
+    modal.style.display = 'flex';
+  }
+};
 
 window.filterRequestsByStudent = function(studentName) {
   switchAdminSubtab('manage');
@@ -1969,32 +2098,31 @@ function renderAdminAnnouncements() {
   const statusFilter = document.getElementById('adminAnnounceStatusFilter')?.value || 'ALL';
   const catFilter = document.getElementById('adminAnnounceCategoryFilter')?.value || 'ALL';
 
-  const defaultAnnouncements = [
-    { num: 1, title: 'Enrollment Schedule for 1st Semester', category: 'Academic', status: 'Published', pubDate: 'May 20, 2025', expDate: 'Jun 20, 2025' },
-    { num: 2, title: 'Document Request Guidelines', category: 'General', status: 'Published', pubDate: 'May 18, 2025', expDate: '-' },
-    { num: 3, title: 'System Maintenance Notice', category: 'System', status: 'Published', pubDate: 'May 15, 2025', expDate: 'May 16, 2025' },
-    { num: 4, title: 'Scholarship Application Reminder', category: 'Scholarship', status: 'Published', pubDate: 'May 12, 2025', expDate: 'Jun 12, 2025' },
-    { num: 5, title: 'Holiday Announcement', category: 'General', status: 'Draft', pubDate: 'May 10, 2025', expDate: '-' }
-  ];
-
   let stored = [];
   try {
     stored = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
   } catch (e) {}
 
-  const allAnnouncements = [...stored.map((a, i) => ({
-    num: defaultAnnouncements.length + i + 1,
+  const allAnnouncements = stored.map((a, i) => ({
+    id: a.id || ('ann_' + (i + 1)),
+    num: i + 1,
     title: a.title,
     category: a.category || 'General',
     status: a.status || 'Published',
+    message: a.message || '',
     pubDate: formatDate(a.timestamp || new Date()),
     expDate: a.expDate || '-'
-  })), ...defaultAnnouncements];
+  }));
 
-  const elTot = document.getElementById('annStatTotal'); if (elTot) elTot.textContent = 12;
-  const elPub = document.getElementById('annStatPublished'); if (elPub) elPub.textContent = 10;
-  const elDrf = document.getElementById('annStatDrafts'); if (elDrf) elDrf.textContent = 2;
-  const elSch = document.getElementById('annStatScheduled'); if (elSch) elSch.textContent = 0;
+  const total = allAnnouncements.length;
+  const published = allAnnouncements.filter(a => a.status === 'Published').length;
+  const drafts = allAnnouncements.filter(a => a.status === 'Draft').length;
+  const scheduled = allAnnouncements.filter(a => a.status === 'Scheduled').length;
+
+  const elTot = document.getElementById('annStatTotal'); if (elTot) elTot.textContent = total;
+  const elPub = document.getElementById('annStatPublished'); if (elPub) elPub.textContent = published;
+  const elDrf = document.getElementById('annStatDrafts'); if (elDrf) elDrf.textContent = drafts;
+  const elSch = document.getElementById('annStatScheduled'); if (elSch) elSch.textContent = scheduled;
 
   const filtered = allAnnouncements.filter(a => {
     const matchesSearch = !search || a.title.toLowerCase().includes(search);
@@ -2003,17 +2131,19 @@ function renderAdminAnnouncements() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const countLabel = document.getElementById('adminAnnounceCountLabel');
-  if (countLabel) {
-    countLabel.textContent = `Showing 1-${filtered.length} of 12 announcements`;
-  }
+  const pageSize = 5;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (announceCurrentPage > totalPages) announceCurrentPage = totalPages;
+  const paged = filtered.slice((announceCurrentPage - 1) * pageSize, announceCurrentPage * pageSize);
+
+  renderPagination('adminAnnouncePagination', 'adminAnnounceCountLabel', filtered.length, announceCurrentPage, pageSize, 'setAnnouncePage', 'announcements');
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No announcements found matching criteria.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="table-empty">No announcements published yet. Click "+ Create Announcement" above to publish one.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(a => {
+  tbody.innerHTML = paged.map((a, i) => {
     let catClass = 'bg-blue-tint';
     let catColor = '#2563EB';
     if (a.category === 'General') { catClass = 'bg-purple-tint'; catColor = '#9333EA'; }
@@ -2023,10 +2153,11 @@ function renderAdminAnnouncements() {
     const statusPill = a.status === 'Published'
       ? '<span class="admin-status-pill status-approved"><span class="pill-dot"></span><span>Published</span></span>'
       : '<span class="admin-status-pill status-pending"><span class="pill-dot"></span><span>Draft</span></span>';
+    const rowNum = (announceCurrentPage - 1) * pageSize + i + 1;
 
     return `
       <tr>
-        <td style="color:#64748B; font-weight:600;">${a.num}</td>
+        <td style="color:#64748B; font-weight:600;">${rowNum}</td>
         <td><strong>${escapeHtml(a.title)}</strong></td>
         <td><span class="badge-status-pill" style="background:${catClass === 'bg-blue-tint' ? '#EFF6FF' : (catClass === 'bg-purple-tint' ? '#FAF5FF' : (catClass === 'bg-green-tint' ? '#F0FDF4' : '#FFFBEB'))}; color:${catColor}; font-weight:600;">${escapeHtml(a.category)}</span></td>
         <td>${statusPill}</td>
@@ -2034,15 +2165,17 @@ function renderAdminAnnouncements() {
         <td style="color:#64748B; font-size:13px;">${escapeHtml(a.expDate)}</td>
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn-table-pill" onclick="showToast('Viewing ${escapeHtml(a.title)}', 'info')">
+            <button type="button" class="btn-table-pill" onclick="openAdminViewAnnouncement('${escapeHtml(a.id)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               <span>View</span>
             </button>
-            <button type="button" class="btn-table-pill" onclick="showToast('Editing announcement ${a.num}', 'info')">
+            <button type="button" class="btn-table-pill" onclick="openAdminEditAnnouncement('${escapeHtml(a.id)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               <span>Edit</span>
             </button>
-            <button type="button" class="btn-table-pill" style="padding:4px 8px;">&bull;&bull;&bull;</button>
+            <button type="button" class="btn-table-pill" style="color:#DC2626;" onclick="deleteAdminAnnouncement('${escapeHtml(a.id)}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
         </td>
       </tr>
@@ -2050,49 +2183,255 @@ function renderAdminAnnouncements() {
   }).join('');
 }
 
+window.openAdminViewAnnouncement = function(annId) {
+  let existing = [];
+  try {
+    existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
+  } catch (e) {}
+  const ann = existing.find(a => (a.id === annId || ('ann_' + a.id) === annId));
+  if (!ann) return;
+
+  const modal = document.getElementById('modalAdminViewAnnouncement');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('viewAnnTitle') || document.getElementById('adminViewAnnTitle');
+  if (titleEl) titleEl.textContent = ann.title;
+
+  const badgeEl = document.getElementById('viewAnnBadge') || document.getElementById('adminViewAnnStatus');
+  if (badgeEl) {
+    badgeEl.className = 'badge-status-pill ' + (ann.status === 'Published' ? 'green' : 'gray');
+    badgeEl.innerHTML = '&bull; ' + (ann.status || 'Published');
+  }
+
+  const catEl = document.getElementById('viewAnnCategory') || document.getElementById('adminViewAnnCategory');
+  if (catEl) catEl.textContent = ann.category || 'General';
+
+  const dateEl = document.getElementById('viewAnnDate') || document.getElementById('adminViewAnnDate');
+  if (dateEl) dateEl.textContent = formatDate(ann.timestamp || new Date());
+
+  const contentEl = document.getElementById('viewAnnContent') || document.getElementById('adminViewAnnContent');
+  if (contentEl) contentEl.textContent = ann.message || '';
+
+  modal.style.display = 'flex';
+};
+
+window.openAdminEditAnnouncement = function(annId) {
+  let existing = [];
+  try {
+    existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
+  } catch (e) {}
+  const ann = existing.find(a => (a.id === annId || ('ann_' + a.id) === annId));
+  if (!ann) return;
+
+  const modal = document.getElementById('modalAdminCreateAnnouncement');
+  const form = document.getElementById('formAdminCreateAnnouncement');
+  if (!modal || !form) return;
+
+  form.setAttribute('data-edit-id', annId);
+  document.getElementById('adminNewAnnTitle').value = ann.title || '';
+  document.getElementById('adminNewAnnCategory').value = ann.category || 'General';
+  document.getElementById('adminNewAnnStatus').value = ann.status || 'Published';
+  document.getElementById('adminNewAnnContent').value = ann.message || '';
+
+  const titleEl = modal.querySelector('.modal-title');
+  if (titleEl) titleEl.textContent = 'Edit Announcement';
+
+  modal.style.display = 'flex';
+};
+
+window.deleteAdminAnnouncement = function(annId) {
+  if (!confirm('Are you sure you want to delete this announcement?')) return;
+  try {
+    let existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
+    const target = existing.find(a => (a.id === annId || ('ann_' + a.id) === annId));
+    existing = existing.filter(a => a.id !== annId && ('ann_' + a.id) !== annId);
+    localStorage.setItem('cca_announcements', JSON.stringify(existing));
+    if (target) {
+      addAdminAuditLog(`Deleted announcement: "${target.title}"`, 'SYSTEM');
+    }
+    showToast('Announcement deleted.', 'info');
+    renderAdminAnnouncements();
+  } catch (e) {}
+};
+
 function renderAdminReports() {
   const reqs = state.allRequests || [];
   const total = reqs.length;
-  const processed = reqs.filter(r => {
-    const s = (r.status || '').toUpperCase();
-    return s === 'COMPLETED' || s === 'APPROVED';
-  }).length;
+  const pending = reqs.filter(r => (r.status || '').toUpperCase() === 'PENDING').length;
+  const approved = reqs.filter(r => ['COMPLETED', 'APPROVED'].includes((r.status || '').toUpperCase())).length;
+  const released = reqs.filter(r => ['FOR RELEASE', 'RELEASED'].includes((r.status || '').toUpperCase())).length;
 
-  const countProcessed = document.getElementById('reportProcessedCount');
-  if (countProcessed) countProcessed.textContent = processed.toLocaleString();
+  const elTot = document.getElementById('reportStatTotal'); if (elTot) elTot.textContent = total.toLocaleString();
+  const elPend = document.getElementById('reportStatPending'); if (elPend) elPend.textContent = pending.toLocaleString();
+  const elApp = document.getElementById('reportStatApproved'); if (elApp) elApp.textContent = approved.toLocaleString();
+  const elRel = document.getElementById('reportStatReleased'); if (elRel) elRel.textContent = released.toLocaleString();
 
-  const avgTurn = document.getElementById('reportAvgTurnaround');
-  if (avgTurn) avgTurn.textContent = total > 0 ? '1-2 Days' : '--';
+  // 1. Dynamic Request Trends Line Chart (November 2026: 4 Weeks)
+  const trendLinesGroup = document.getElementById('reportTrendLinesGroup');
+  if (trendLinesGroup) {
+    const w1 = reqs.filter(r => { const d = new Date(r.created_at || r.date_submitted || 0).getDate(); return d >= 1 && d <= 7; }).length;
+    const w2 = reqs.filter(r => { const d = new Date(r.created_at || r.date_submitted || 0).getDate(); return d >= 8 && d <= 14; }).length;
+    const w3 = reqs.filter(r => { const d = new Date(r.created_at || r.date_submitted || 0).getDate(); return d >= 15 && d <= 21; }).length;
+    const w4 = reqs.filter(r => { const d = new Date(r.created_at || r.date_submitted || 0).getDate(); return d >= 22 && d <= 30; }).length;
 
-  const accRate = document.getElementById('reportAccuracyRate');
-  if (accRate) {
-    accRate.textContent = total > 0 ? ((processed / total) * 100).toFixed(1) + '%' : '--';
+    const maxVal = Math.max(w1, w2, w3, w4, 5);
+    const getY = (val) => 170 - (val / maxVal) * 140;
+
+    const xCoords = [75, 195, 320, 445];
+    const pts = [
+      { x: xCoords[0], y: getY(w1), count: w1, week: 'Nov 1-7' },
+      { x: xCoords[1], y: getY(w2), count: w2, week: 'Nov 8-14' },
+      { x: xCoords[2], y: getY(w3), count: w3, week: 'Nov 15-21' },
+      { x: xCoords[3], y: getY(w4), count: w4, week: 'Nov 22-30' }
+    ];
+
+    const dPath = `M ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[2].x} ${pts[2].y} L ${pts[3].x} ${pts[3].y}`;
+    const fillPath = `M ${pts[0].x} 170 L ${pts[0].x} ${pts[0].y} L ${pts[1].x} ${pts[1].y} L ${pts[2].x} ${pts[2].y} L ${pts[3].x} ${pts[3].y} L ${pts[3].x} 170 Z`;
+
+    let groupHtml = `
+      <path d="${fillPath}" fill="rgba(37, 99, 235, 0.08)" />
+      <path d="${dPath}" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    `;
+
+    pts.forEach(p => {
+      groupHtml += `
+        <circle cx="${p.x}" cy="${p.y}" r="6" fill="#FFFFFF" stroke="#2563EB" stroke-width="3" style="cursor:pointer;" onclick="filterRequestsByWeek('${p.week}')">
+          <title>${p.week}: ${p.count} requests</title>
+        </circle>
+        <text x="${p.x}" y="${p.y - 12}" fill="#2563EB" font-size="11" font-weight="700" text-anchor="middle">${p.count}</text>
+      `;
+    });
+
+    trendLinesGroup.innerHTML = groupHtml;
   }
 
-  // Calculate actual top requested document
+  // 2. Dynamic Document Types Donut & Legend
   const docCounts = {};
   reqs.forEach(r => {
     const d = r.document_type || r.documentType || 'Official Document';
     docCounts[d] = (docCounts[d] || 0) + 1;
   });
 
-  let topDocName = '--';
-  let maxCount = 0;
-  for (const [doc, count] of Object.entries(docCounts)) {
-    if (count > maxCount) {
-      maxCount = count;
-      topDocName = doc;
+  const donutTotalEl = document.getElementById('reportDocDonutTotal');
+  if (donutTotalEl) donutTotalEl.textContent = total;
+
+  const colors = ['#2563EB', '#10B981', '#F59E0B', '#A855F7', '#EC4899', '#6366F1'];
+  const docTypesList = Object.entries(docCounts).map(([doc, count], idx) => ({
+    name: doc,
+    count: count,
+    pct: total > 0 ? ((count / total) * 100) : 0,
+    color: colors[idx % colors.length]
+  }));
+
+  const legendList = document.getElementById('reportDocLegendList');
+  if (legendList) {
+    if (docTypesList.length === 0) {
+      legendList.innerHTML = `<div style="color:#64748B; font-size:12px; padding:10px;">No document records available.</div>`;
+    } else {
+      legendList.innerHTML = docTypesList.map(item => `
+        <div class="overview-legend-item" style="cursor:pointer;" onclick="filterRequestsByDocType('${escapeHtml(item.name)}')">
+          <div class="legend-color-dot" style="background:${item.color};"></div>
+          <div class="legend-label-col">
+            <span class="legend-label-title">${escapeHtml(item.name)}</span>
+            <span class="legend-label-pct">${item.pct.toFixed(1)}% (${item.count})</span>
+          </div>
+        </div>
+      `).join('');
     }
   }
 
-  const topDoc = document.getElementById('reportTopDoc');
-  if (topDoc) {
-    const topPct = total > 0 ? ` (${((maxCount / total) * 100).toFixed(0)}%)` : '';
-    topDoc.textContent = total > 0 ? `${topDocName}${topPct}` : '--';
+  const donutSvg = document.getElementById('reportDocDonutSvg');
+  if (donutSvg) {
+    if (total === 0) {
+      donutSvg.innerHTML = `<circle cx="18" cy="18" r="15.9155" fill="none" stroke="#E2E8F0" stroke-width="4.5"/>`;
+    } else {
+      let offset = 0;
+      let paths = `<circle cx="18" cy="18" r="15.9155" fill="none" stroke="#F1F5F9" stroke-width="4.5"/>`;
+      docTypesList.forEach(item => {
+        if (item.pct > 0) {
+          paths += `<path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="${item.color}" stroke-width="4.5" stroke-dasharray="${item.pct.toFixed(1)}, 100" stroke-dashoffset="${(-offset).toFixed(1)}" style="cursor:pointer;" onclick="filterRequestsByDocType('${escapeHtml(item.name)}')"><title>${escapeHtml(item.name)}: ${item.count} (${item.pct.toFixed(1)}%)</title></path>`;
+          offset += item.pct;
+        }
+      });
+      donutSvg.innerHTML = paths;
+    }
   }
 
-  renderMonthlyChartBars(reqs);
+  // 3. Dynamic Top Courses
+  const courseCounts = { BSIT: 0, BSBA: 0, BSA: 0, BSCS: 0, Others: 0 };
+  reqs.forEach(r => {
+    const c = (r.course || '').toUpperCase();
+    if (c.includes('BSIT') || c.includes('INFORMATION')) courseCounts.BSIT++;
+    else if (c.includes('BSBA') || c.includes('BUSINESS')) courseCounts.BSBA++;
+    else if (c.includes('BSA') || c.includes('ACCOUNTANCY')) courseCounts.BSA++;
+    else if (c.includes('BSCS') || c.includes('COMPUTER SCIENCE')) courseCounts.BSCS++;
+    else courseCounts.Others++;
+  });
+
+  const topCoursesContainer = document.getElementById('reportTopCoursesList');
+  if (topCoursesContainer) {
+    const maxCourse = Math.max(...Object.values(courseCounts), 1);
+    topCoursesContainer.innerHTML = Object.entries(courseCounts).map(([course, count]) => {
+      const widthPct = Math.max(8, (count / maxCourse) * 100);
+      return `
+        <div style="margin-bottom:12px; cursor:pointer;" onclick="filterRequestsByCourse('${course}')" title="Click to filter by ${course}">
+          <div style="display:flex; justify-content:space-between; font-size:12.5px; font-weight:600; color:#334155; margin-bottom:4px;">
+            <span>${course}</span>
+            <span>${count}</span>
+          </div>
+          <div style="height:8px; background:#F1F5F9; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:${widthPct}%; background:#2563EB; border-radius:4px; transition:width 0.3s ease;"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
 }
+
+window.filterRequestsByDocType = function(docType) {
+  switchAdminSubtab('manage');
+  const docTypeEl = document.getElementById('adminDocTypeFilter');
+  if (docTypeEl) {
+    let found = false;
+    for (let opt of docTypeEl.options) {
+      if (opt.value.toLowerCase().includes(docType.toLowerCase()) || docType.toLowerCase().includes(opt.value.toLowerCase())) {
+        docTypeEl.value = opt.value;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const sIn = document.getElementById('adminSearchInput');
+      if (sIn) sIn.value = docType;
+    }
+  }
+  applyAdminFilters();
+  showToast(`Filtering requests by document: "${docType}"`, 'info');
+};
+
+window.filterRequestsByCourse = function(course) {
+  switchAdminSubtab('manage');
+  const sIn = document.getElementById('adminSearchInput');
+  if (sIn) {
+    sIn.value = course === 'Others' ? '' : course;
+  }
+  applyAdminFilters();
+  showToast(`Filtering requests by course: "${course}"`, 'info');
+};
+
+window.filterRequestsByWeek = function(weekLabel) {
+  switchAdminSubtab('manage');
+  showToast(`Filtered requests for: ${weekLabel}`, 'info');
+};
+
+window.filterRequestsByStatus = function(status) {
+  switchAdminSubtab('manage');
+  const statusEl = document.getElementById('adminStatusFilter');
+  if (statusEl) {
+    statusEl.value = status;
+    applyAdminFilters();
+  }
+};
 
 function renderMonthlyChartBars(reqs) {
   const container = document.querySelector('.bar-chart-visual');
@@ -2125,53 +2464,158 @@ function renderMonthlyChartBars(reqs) {
   }).join('');
 }
 
-function exportAdminRequestsCsv() {
+window.exportAdminReportsPdf = function(reportTitle = 'CCA DocTrack Official Report') {
   const reqs = state.allRequests || [];
-  if (reqs.length === 0) {
-    showToast('No requests available to export.', 'info');
+  const total = reqs.length;
+  const pending = reqs.filter(r => (r.status || '').toUpperCase() === 'PENDING').length;
+  const processing = reqs.filter(r => (r.status || '').toUpperCase() === 'PROCESSING').length;
+  const approved = reqs.filter(r => ['APPROVED', 'COMPLETED'].includes((r.status || '').toUpperCase())).length;
+  const released = reqs.filter(r => ['FOR RELEASE', 'RELEASED'].includes((r.status || '').toUpperCase())).length;
+
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    showToast('Please allow popups in your browser to generate PDF reports.', 'warning');
     return;
   }
 
-  const headers = ['Request ID', 'Student Name', 'Student ID', 'Course/Program', 'Document Type', 'Purpose', 'Date Submitted', 'Status'];
-  const rows = reqs.map((r, idx) => {
-    const id = r.tracking_number || (r._id ? ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + idx)));
-    const sName = `"${(r.student_name || r.studentName || '').replace(/"/g, '""')}"`;
-    const sId = `"${(r.student_id || r.studentId || '').replace(/"/g, '""')}"`;
-    const crs = `"${(r.course || 'BSIT').replace(/"/g, '""')}"`;
-    const doc = `"${(r.document_type || r.documentType || '').replace(/"/g, '""')}"`;
-    const purp = `"${(r.purpose || '').replace(/"/g, '""')}"`;
-    const date = `"${formatDate(r.date_submitted || r.dateSubmitted || r.createdAt)}"`;
-    const status = `"${r.status || 'Pending'}"`;
-    return [id, sName, sId, crs, doc, purp, date, status].join(',');
-  });
+  const rowsHtml = reqs.map((r, i) => {
+    const id = r.tracking_number || (r._id ? ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (r.id || i + 1))));
+    const sName = escapeHtml(r.student_name || r.studentName || 'Student');
+    const sId = escapeHtml(r.student_id || r.studentId || '--');
+    const course = escapeHtml(r.course || 'BSIT');
+    const doc = escapeHtml(r.document_type || r.documentType || 'Official Document');
+    const date = escapeHtml(formatDate(r.date_submitted || r.dateSubmitted || r.createdAt));
+    const status = escapeHtml(r.status || 'Pending');
 
-  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `CCA_DocTrack_Requests_${new Date().toISOString().slice(0, 10)}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  addAdminAuditLog('Exported all requests report as CSV', 'SECURITY');
-  showToast('Requests report exported as CSV.', 'success');
-}
+    return `
+      <tr>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; font-family:monospace;">${id}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; font-weight:600;">${sName}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0;">${sId}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0;">${course}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0;">${doc}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0;">${date}</td>
+        <td style="padding:8px 10px; border-bottom:1px solid #E2E8F0; font-weight:600;">${status}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const reportHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${escapeHtml(reportTitle)} - November 2026</title>
+      <style>
+        @page { size: A4 portrait; margin: 16mm 14mm; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0F172A; margin: 0; padding: 20px; font-size: 13px; }
+        .report-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #2563EB; padding-bottom: 14px; margin-bottom: 20px; }
+        .report-logo-text { font-size: 20px; font-weight: 800; color: #2563EB; }
+        .report-sub { font-size: 12px; color: #64748B; margin-top: 3px; }
+        .report-date { font-size: 12px; color: #334155; text-align: right; }
+        .stat-cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+        .stat-card { border: 1px solid #CBD5E1; border-radius: 8px; padding: 12px; text-align: center; background: #F8FAFC; }
+        .stat-val { font-size: 22px; font-weight: 700; color: #1E293B; }
+        .stat-lbl { font-size: 11px; text-transform: uppercase; color: #64748B; margin-top: 4px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th { background: #F1F5F9; color: #475569; text-align: left; padding: 10px; font-weight: 700; border-bottom: 2px solid #CBD5E1; }
+        .footer-sign { margin-top: 40px; display: flex; justify-content: space-between; }
+        .sign-box { width: 220px; border-top: 1px solid #000; text-align: center; padding-top: 6px; font-size: 11px; }
+      </style>
+    </head>
+    <body>
+      <div class="report-header">
+        <div>
+          <div class="report-logo-text">CCA DocTrack &bull; Official Report</div>
+          <div class="report-sub">City College of Angeles - Registrar Document Tracking System</div>
+        </div>
+        <div class="report-date">
+          <strong>Generated Date:</strong> November 23, 2026<br>
+          <strong>Report:</strong> ${escapeHtml(reportTitle)}
+        </div>
+      </div>
+
+      <div class="stat-cards-row">
+        <div class="stat-card">
+          <div class="stat-val">${total}</div>
+          <div class="stat-lbl">Total Requests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">${pending}</div>
+          <div class="stat-lbl">Pending</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">${approved}</div>
+          <div class="stat-lbl">Approved</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">${released}</div>
+          <div class="stat-lbl">For Release</div>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom:8px; font-size:15px; color:#1E293B;">Summary of Document Requests</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Student Name</th>
+            <th>Student ID</th>
+            <th>Course</th>
+            <th>Document Type</th>
+            <th>Date Submitted</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml || '<tr><td colspan="7" style="text-align:center; padding:20px; color:#64748B;">No request records found.</td></tr>'}
+        </tbody>
+      </table>
+
+      <div class="footer-sign">
+        <div class="sign-box">
+          <strong>Admin Reyes</strong><br>
+          CCA System Administrator
+        </div>
+        <div class="sign-box">
+          <strong>Office of the Registrar</strong><br>
+          City College of Angeles
+        </div>
+      </div>
+      <script>
+        window.onload = function() {
+          window.print();
+        };
+      <\/script>
+    </body>
+    </html>
+  `;
+
+  printWindow.document.open();
+  printWindow.document.write(reportHtml);
+  printWindow.document.close();
+  addAdminAuditLog(`Exported PDF report: "${reportTitle}"`, 'SECURITY');
+  showToast('Official PDF report generated.', 'info');
+};
 
 function addAdminAuditLog(action, type = 'STATUS') {
   try {
     const logs = JSON.parse(localStorage.getItem('cca_audit_logs') || '[]');
     const user = state.currentUser || {};
     const newLog = {
+      id: 'log_' + Date.now(),
       time: 'Just now',
-      user: user.fullName || 'Admin Reyes',
-      role: user.role === 'admin' ? 'System Administrator' : 'Staff',
+      timestamp: new Date().toISOString(),
+      user: user.email || 'admin@cca.edu.ph',
       action: action,
+      module: type === 'STATUS' ? 'Requests' : (type === 'SECURITY' ? 'Security' : 'Announcements'),
       type: type,
-      target: 'Database / System',
+      details: action,
+      ip: '192.168.1.10',
       status: 'Success'
     };
     logs.unshift(newLog);
-    if (logs.length > 50) logs.pop();
+    if (logs.length > 100) logs.pop();
     localStorage.setItem('cca_audit_logs', JSON.stringify(logs));
   } catch (e) {}
 }
@@ -2180,7 +2624,9 @@ function renderAdminAuditLogs() {
   const tbody = document.getElementById('adminAuditTableBody');
   if (!tbody) return;
 
+  const search = document.getElementById('adminAuditSearchInput')?.value.toLowerCase().trim() || '';
   const filter = document.getElementById('adminAuditFilter')?.value || 'ALL';
+  const moduleFilter = document.getElementById('adminAuditModuleFilter')?.value || 'ALL';
 
   let logs = [];
   try {
@@ -2189,26 +2635,56 @@ function renderAdminAuditLogs() {
 
   if (logs.length === 0) {
     logs = [
-      { time: 'System Live', user: 'Admin Reyes', role: 'System Admin', action: 'Synchronized live records with Turso database', type: 'CONFIG', target: 'Cloud libSQL', status: 'Success' }
+      { id: 'log_init', time: 'Today 10:24 AM', timestamp: new Date().toISOString(), user: 'admin@cca.edu.ph', action: 'Synchronized live records with database', module: 'System', type: 'CONFIG', details: 'Database connection verified', ip: '192.168.1.10', status: 'Success' }
     ];
   }
 
-  const filtered = logs.filter(log => filter === 'ALL' || log.type === filter);
+  const total = logs.length;
+  const userActions = logs.filter(l => l.module === 'Requests' || l.type === 'STATUS' || l.type === 'USER').length;
+  const sysEvents = logs.filter(l => l.module === 'System' || l.type === 'CONFIG' || l.module === 'Announcements').length;
+  const secEvents = logs.filter(l => l.type === 'SECURITY' || l.module === 'Security').length;
+
+  const elTot = document.getElementById('auditStatTotal'); if (elTot) elTot.textContent = total.toLocaleString();
+  const elUsr = document.getElementById('auditStatUser'); if (elUsr) elUsr.textContent = userActions.toLocaleString();
+  const elSys = document.getElementById('auditStatSystem'); if (elSys) elSys.textContent = sysEvents.toLocaleString();
+  const elSec = document.getElementById('auditStatSecurity'); if (elSec) elSec.textContent = secEvents.toLocaleString();
+
+  const filtered = logs.filter(log => {
+    const matchesFilter = filter === 'ALL' || log.type === filter;
+    const matchesModule = moduleFilter === 'ALL' || (log.module || '').toUpperCase() === moduleFilter.toUpperCase();
+    const matchesSearch = !search || (log.action || '').toLowerCase().includes(search) || (log.user || '').toLowerCase().includes(search) || (log.details || '').toLowerCase().includes(search);
+    return matchesFilter && matchesModule && matchesSearch;
+  });
+
+  const pageSize = 8;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (auditCurrentPage > totalPages) auditCurrentPage = totalPages;
+  const paged = filtered.slice((auditCurrentPage - 1) * pageSize, auditCurrentPage * pageSize);
+
+  renderPagination('adminAuditPagination', 'adminAuditCountLabel', filtered.length, auditCurrentPage, pageSize, 'setAuditPage', 'logs');
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No audit logs matching this event type.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No audit logs matching this event filter.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map(log => `
-    <tr>
-      <td><span style="color:#64748B; font-size:13px;">${escapeHtml(log.time)}</span></td>
-      <td><strong>${escapeHtml(log.user)}</strong> <span style="font-size:11px; color:#64748B;">(${escapeHtml(log.role)})</span></td>
-      <td><span style="font-weight:500; color:#1E293B;">${escapeHtml(log.action)}</span></td>
-      <td><code style="background:#F1F5F9; padding:2px 6px; border-radius:4px; font-size:12px; color:#475569;">${escapeHtml(log.target)}</code></td>
-      <td><span class="admin-status-pill status-approved"><span class="pill-dot"></span><span>${escapeHtml(log.status)}</span></span></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = paged.map((log, i) => {
+    const rowNum = (auditCurrentPage - 1) * pageSize + i + 1;
+    const timeDisplay = log.timestamp ? formatDate(log.timestamp) + ' ' + new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : log.time;
+
+    return `
+      <tr>
+        <td style="color:#64748B; font-weight:600;">${rowNum}</td>
+        <td><span style="color:#64748B; font-size:13px;">${escapeHtml(timeDisplay)}</span></td>
+        <td><strong>${escapeHtml(log.user)}</strong></td>
+        <td><span style="font-weight:500; color:#1E293B;">${escapeHtml(log.action)}</span></td>
+        <td><code style="background:#F1F5F9; padding:2px 6px; border-radius:4px; font-size:12px; color:#475569;">${escapeHtml(log.module || 'System')}</code></td>
+        <td style="color:#64748B; font-size:12.5px;">${escapeHtml(log.details || log.action)}</td>
+        <td><code style="font-size:11.5px; color:#64748B;">${escapeHtml(log.ip || '192.168.1.10')}</code></td>
+        <td><span class="admin-status-pill status-approved"><span class="pill-dot"></span><span>${escapeHtml(log.status || 'Success')}</span></span></td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderAdminTable() {
@@ -2245,17 +2721,19 @@ function renderAdminTable() {
     return matchesStatus && matchesDocType && matchesSearch;
   });
 
-  const countEl = document.getElementById('adminRecordsCount');
-  if (countEl) {
-    countEl.textContent = `Showing 1-${filtered.length} of ${filtered.length} requests`;
-  }
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (manageCurrentPage > totalPages) manageCurrentPage = totalPages;
+  const paged = filtered.slice((manageCurrentPage - 1) * pageSize, manageCurrentPage * pageSize);
+
+  renderPagination('adminManagePagination', 'adminRecordsCount', filtered.length, manageCurrentPage, pageSize, 'setManagePage', 'requests');
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="8" class="table-empty">No document requests found matching filter criteria.</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = filtered.map((req, index) => {
+  tbody.innerHTML = paged.map((req, index) => {
     const formattedDate = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt);
     const shortId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || index + 1))));
     const status = req.status || 'Pending';
@@ -2296,6 +2774,76 @@ function renderAdminTable() {
     `;
   }).join('');
 }
+
+window.openAdminStatusMenu = function(reqIdentifier) {
+  const all = state.allRequests || [];
+  const req = all.find(r => (
+    r.tracking_number === reqIdentifier ||
+    r._id === reqIdentifier ||
+    String(r.id) === String(reqIdentifier) ||
+    ('REQ-00' + (230 + (r.id || 1))) === reqIdentifier ||
+    (r._id && ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) === reqIdentifier)
+  ));
+
+  const modal = document.getElementById('modalAdminStatusChange');
+  if (!modal) return;
+
+  const targetId = req ? (req._id || req.id || req.tracking_number) : reqIdentifier;
+  modal.setAttribute('data-request-id', targetId);
+
+  const trackingDisplay = req ? (req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))))) : targetId;
+  const docType = req ? (req.document_type || req.documentType || 'Official Document') : 'Official Document';
+
+  const subEl = document.getElementById('statusChangeSubtitle');
+  if (subEl) subEl.textContent = `Update status for ${trackingDisplay} (${docType})`;
+
+  const targetEl = document.getElementById('statusChangeTargetId');
+  if (targetEl) targetEl.value = targetId;
+
+  const sSel = document.getElementById('statusChangeSelect');
+  if (sSel && req) {
+    const curStatus = (req.status || 'Pending').trim().toLowerCase();
+    for (let opt of sSel.options) {
+      if (opt.value.trim().toLowerCase() === curStatus) {
+        sSel.value = opt.value;
+        break;
+      }
+    }
+  }
+
+  const rEl = document.getElementById('statusChangeRemarks');
+  if (rEl) rEl.value = (req && req.remarks) ? req.remarks : '';
+
+  modal.style.display = 'flex';
+};
+
+window.quickUpdateStatusFromModal = async function(newStatus) {
+  const reqIdEl = document.getElementById('detailsModalReqId');
+  const reqId = reqIdEl ? reqIdEl.textContent.trim() : null;
+  if (!reqId) return;
+
+  triggerAdminViewLoader();
+  try {
+    await updateRequestStatus(reqId, newStatus);
+    pushStudentNotification({
+      title: 'Document Request Updated',
+      message: `Your request (${reqId}) status has been updated to "${newStatus}".`,
+      type: 'request',
+      timestamp: new Date().toISOString()
+    });
+    if (typeof addAdminAuditLog === 'function') {
+      addAdminAuditLog(`Updated request #${reqId} status to ${newStatus}`, 'STATUS');
+    }
+    const modal = document.getElementById('modalRequestDetails');
+    if (modal) modal.style.display = 'none';
+    await fetchAllRequests();
+    renderAdminTable();
+    updateAdminDashboard();
+    showToast(`Request ${reqId} set to "${newStatus}"`, 'success');
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+};
 
 function renderTableErrors(msg) {
   const errorHtml = `<tr><td colspan="9" class="table-empty" style="color:#DC2626;">${escapeHtml(msg)}</td></tr>`;
@@ -2375,6 +2923,29 @@ function syncAdminProfileInfo() {
 
   const sideAvatar = document.getElementById('adminSidebarAvatar');
   if (sideAvatar) sideAvatar.textContent = initials;
+
+  // Load avatar if stored in localStorage
+  const savedAdminAvatar = localStorage.getItem('cca_admin_avatar');
+  if (savedAdminAvatar) {
+    applyAdminAvatarToElements(savedAdminAvatar);
+  }
+}
+
+function applyAdminAvatarToElements(dataUrl) {
+  const ids = ['adminSidebarAvatar', 'adminTopbarAvatar', 'adminSettingsAvatar'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.backgroundImage = 'url(' + dataUrl + ')';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.textContent = '';
+      const svg = el.querySelector('svg');
+      if (svg) svg.style.display = 'none';
+      const badge = el.querySelector('.avatar-edit-badge');
+      if (badge) badge.style.display = 'flex';
+    }
+  });
 }
 
 function initAdminRefPortal() {
@@ -2531,7 +3102,16 @@ function setupAdminRefPortalListeners() {
   // Modal: Create Announcement
   const createAnnModal = document.getElementById('modalAdminCreateAnnouncement');
   document.getElementById('btnAdminCreateAnnouncement')?.addEventListener('click', () => {
-    if (createAnnModal) createAnnModal.style.display = 'flex';
+    if (createAnnModal) {
+      const form = document.getElementById('formAdminCreateAnnouncement');
+      if (form) {
+        form.reset();
+        form.removeAttribute('data-edit-id');
+      }
+      const titleEl = createAnnModal.querySelector('.modal-title');
+      if (titleEl) titleEl.textContent = 'Create Campus Announcement';
+      createAnnModal.style.display = 'flex';
+    }
   });
   document.getElementById('btnCloseCreateAnnouncement')?.addEventListener('click', () => {
     if (createAnnModal) createAnnModal.style.display = 'none';
@@ -2548,30 +3128,105 @@ function setupAdminRefPortalListeners() {
     const category = document.getElementById('adminNewAnnCategory')?.value || 'General';
     const status = document.getElementById('adminNewAnnStatus')?.value || 'Published';
     const message = document.getElementById('adminNewAnnContent')?.value.trim();
+    const form = e.target;
+    const editId = form.getAttribute('data-edit-id');
 
     if (!title || !message) {
       showToast('Title and message content are required.', 'error');
       return;
     }
 
-    const newAnn = {
-      title,
-      category,
-      status,
-      message,
-      timestamp: new Date().toISOString()
-    };
-
+    let existing = [];
     try {
-      const existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
-      existing.unshift(newAnn);
-      localStorage.setItem('cca_announcements', JSON.stringify(existing));
+      existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
     } catch (err) {}
 
+    if (editId) {
+      const target = existing.find(a => a.id === editId || ('ann_' + a.id) === editId);
+      if (target) {
+        target.title = title;
+        target.category = category;
+        target.status = status;
+        target.message = message;
+        addAdminAuditLog(`Updated announcement: "${title}"`, 'ANNOUNCEMENT');
+      }
+      form.removeAttribute('data-edit-id');
+      const titleEl = document.getElementById('adminAnnModalTitle');
+      if (titleEl) titleEl.textContent = 'Create Campus Announcement';
+      showToast('Announcement updated successfully!', 'success');
+    } else {
+      const newAnn = {
+        id: 'ann_' + Date.now(),
+        title,
+        category,
+        status,
+        message,
+        timestamp: new Date().toISOString()
+      };
+      existing.unshift(newAnn);
+
+      if (status === 'Published') {
+        pushStudentNotification({
+          title: 'Announcement: ' + title,
+          message: message,
+          type: 'announcement',
+          timestamp: new Date().toISOString()
+        });
+        addAdminAuditLog(`Published announcement: "${title}"`, 'ANNOUNCEMENT');
+      }
+      showToast('Announcement published successfully!', 'success');
+    }
+
+    localStorage.setItem('cca_announcements', JSON.stringify(existing));
     triggerAdminViewLoader();
     renderAdminAnnouncements();
+    form.reset();
     if (createAnnModal) createAnnModal.style.display = 'none';
-    showToast('Announcement published successfully!', 'success');
+  });
+
+  // Modal: View Announcement Close Handlers
+  const viewAnnModal = document.getElementById('modalAdminViewAnnouncement');
+  const closeViewAnn = () => {
+    if (viewAnnModal) viewAnnModal.style.display = 'none';
+  };
+  document.getElementById('btnCloseViewAnnouncement')?.addEventListener('click', closeViewAnn);
+  document.getElementById('btnCloseViewAnnBtn')?.addEventListener('click', closeViewAnn);
+  document.getElementById('backdropViewAnnouncement')?.addEventListener('click', closeViewAnn);
+
+  // Modal: Admin Status Change Quick Modal
+  const statusModal = document.getElementById('modalAdminStatusChange');
+  const closeStatusModal = () => {
+    if (statusModal) statusModal.style.display = 'none';
+  };
+  document.getElementById('btnCloseStatusChangeModal')?.addEventListener('click', closeStatusModal);
+  document.getElementById('btnCancelStatusChangeModal')?.addEventListener('click', closeStatusModal);
+  document.getElementById('backdropAdminStatusChange')?.addEventListener('click', closeStatusModal);
+
+  document.getElementById('btnSaveStatusChangeModal')?.addEventListener('click', async () => {
+    const targetId = document.getElementById('statusChangeTargetId')?.value || statusModal?.getAttribute('data-request-id');
+    const newStatus = document.getElementById('statusChangeSelect')?.value;
+    const remarks = document.getElementById('statusChangeRemarks')?.value.trim();
+
+    if (!targetId || !newStatus) return;
+
+    triggerAdminViewLoader();
+    try {
+      await updateRequestStatus(targetId, newStatus);
+      pushStudentNotification({
+        title: 'Document Request Updated',
+        message: `Your request (${targetId}) status has been updated to "${newStatus}".`,
+        type: 'request',
+        timestamp: new Date().toISOString()
+      });
+      addAdminAuditLog(`Updated request #${targetId} status to ${newStatus}`, 'STATUS');
+      closeStatusModal();
+      await fetchAllRequests();
+      renderAdminTable();
+      updateAdminDashboard();
+      showToast(`Request ${targetId} status updated to "${newStatus}"`, 'success');
+    } catch (err) {
+      showToast('Error updating status: ' + err.message, 'error');
+    }
   });
 
   // Settings Save & Photo upload
@@ -2598,6 +3253,13 @@ function setupAdminRefPortalListeners() {
     showToast('Admin profile updated.', 'success');
   });
 
+  document.getElementById('btnAdminChangePhoto')?.addEventListener('click', () => {
+    document.getElementById('adminPhotoUploadInput')?.click();
+  });
+  document.getElementById('adminSettingsAvatar')?.addEventListener('click', () => {
+    document.getElementById('adminPhotoUploadInput')?.click();
+  });
+
   document.getElementById('adminPhotoUploadInput')?.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
@@ -2606,6 +3268,14 @@ function setupAdminRefPortalListeners() {
       };
       reader.readAsDataURL(e.target.files[0]);
     }
+  });
+
+  // Reports Generation and PDF Exports
+  document.getElementById('btnAdminGenerateReport')?.addEventListener('click', () => {
+    exportAdminReportsPdf('Official Academic Document Tracking Report');
+  });
+  document.getElementById('btnAdminExportAuditLogs')?.addEventListener('click', () => {
+    exportAdminReportsPdf('Audit Logs Report');
   });
 
   // Logout Modal Handlers
@@ -2774,9 +3444,9 @@ function setupAdminRefPortalListeners() {
     });
   }
 
-  // 10. Reports CSV Export
+  // 10. Reports PDF Export (Always PDF as requested)
   document.getElementById('btnExportReportCsv')?.addEventListener('click', () => {
-    exportAdminRequestsCsv();
+    exportAdminReportsPdf('Document Requests Report');
   });
 
   // 11. Audit Logs Filter
@@ -2982,6 +3652,7 @@ function initStudentRefPortal() {
   renderStudentDashboardData();
   renderStudentTrackingCards();
   renderStudentHistoryTable();
+  renderStudentNotifications();
 }
 
 function restoreDarkModeState() {
@@ -3105,11 +3776,121 @@ function applyAvatarToElements(dataUrl) {
   });
 }
 
+function getEstimatedReleaseDate(baseDateStr) {
+  const d = baseDateStr ? new Date(baseDateStr) : new Date();
+  if (isNaN(d.getTime())) return 'Within 2–3 business days (Registrar Window 2)';
+  const target = new Date(d);
+  target.setDate(target.getDate() + 2);
+  return `${formatDate(target.toISOString())} (Registrar Window 2)`;
+}
+
+function pushStudentNotification(notif) {
+  try {
+    const list = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
+    const newNotif = {
+      id: 'notif_' + Date.now(),
+      title: notif.title || 'New Notification',
+      message: notif.message || '',
+      type: notif.type || 'info',
+      timeAgo: 'Just now',
+      timestamp: notif.timestamp || new Date().toISOString(),
+      unread: true
+    };
+    list.unshift(newNotif);
+    localStorage.setItem('cca_student_notifications', JSON.stringify(list));
+    renderStudentNotifications();
+  } catch (e) {}
+}
+
+function renderStudentNotifications() {
+  const container = document.getElementById('studentNotifDropdownList');
+  const badge = document.getElementById('topbarBellBadge');
+  const sidebarBadge = document.getElementById('studentSidebarNotifBadge');
+  if (!container) return;
+
+  let list = [];
+  try {
+    list = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
+  } catch (e) {}
+
+  if (list.length === 0) {
+    const userRequests = state.allRequests || [];
+    if (userRequests.length > 0) {
+      const topReq = userRequests[0];
+      list = [
+        {
+          id: 'notif_init_1',
+          title: `Request ${topReq.tracking_number || ('REQ-' + topReq.id)}`,
+          message: `Current status is ${topReq.status || 'Pending'}.`,
+          type: 'request',
+          timeAgo: 'Today',
+          unread: true
+        }
+      ];
+    } else {
+      list = [
+        {
+          id: 'notif_init_0',
+          title: 'Welcome to CCA DocTrack',
+          message: 'Your official document tracking and request portal is active.',
+          type: 'announcement',
+          timeAgo: 'Today',
+          unread: true
+        }
+      ];
+    }
+    localStorage.setItem('cca_student_notifications', JSON.stringify(list));
+  }
+
+  const unreadCount = list.filter(n => n.unread).length;
+  if (badge) {
+    if (unreadCount > 0) {
+      badge.textContent = unreadCount;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  if (sidebarBadge) {
+    if (unreadCount > 0) {
+      sidebarBadge.textContent = unreadCount;
+      sidebarBadge.style.display = 'inline-block';
+    } else {
+      sidebarBadge.style.display = 'none';
+    }
+  }
+
+  container.innerHTML = list.map(item => {
+    let iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+    let tintClass = 'bg-blue-tint';
+    if (item.type === 'request' || (item.title && item.title.includes('Approved'))) {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      tintClass = 'bg-green-tint';
+    } else if (item.type === 'alert') {
+      iconSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>';
+      tintClass = 'bg-red-tint';
+    }
+
+    return `
+      <div class="notif-item ${item.unread ? 'unread' : ''}" data-notif-id="${escapeHtml(item.id)}">
+        <div class="notif-bullet-icon ${tintClass}">
+          ${iconSvg}
+        </div>
+        <div class="notif-text-col">
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.message)}</p>
+          <span class="notif-time-ago">${escapeHtml(item.timeAgo || 'Recently')}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderStudentDashboardData() {
   const all = state.allRequests || [];
-  const total = all.length || 3;
-  const inProcess = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length || 1;
-  const completed = all.filter(r => ['APPROVED', 'RELEASED', 'COMPLETED', 'FOR_RELEASE'].includes((r.status || '').toUpperCase())).length || 2;
+  const total = all.length;
+  const inProcess = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length;
+  const completed = all.filter(r => ['APPROVED', 'RELEASED', 'COMPLETED', 'FOR RELEASE'].includes((r.status || '').toUpperCase())).length;
 
   const statTotal = document.getElementById('overviewStatTotal');
   if (statTotal) statTotal.textContent = total;
@@ -3128,9 +3909,9 @@ function renderStudentDashboardData() {
       const status = (req.status || 'PENDING').toUpperCase();
       let badgeClass = 'gray';
       let statusLabel = 'Pending';
-      if (status.includes('APPROV')) { badgeClass = 'green'; statusLabel = 'Approved'; }
+      if (status.includes('APPROV') || status.includes('COMPLET')) { badgeClass = 'green'; statusLabel = status.includes('COMPLET') ? 'Completed' : 'Approved'; }
       else if (status.includes('PROCESS')) { badgeClass = 'blue'; statusLabel = 'Processing'; }
-      else if (status.includes('RELEASE')) { badgeClass = 'purple'; statusLabel = 'Released'; }
+      else if (status.includes('RELEASE')) { badgeClass = 'purple'; statusLabel = 'For Release'; }
 
       const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
 
@@ -3141,12 +3922,14 @@ function renderStudentDashboardData() {
           </div>
           <div class="req-main-info">
             <div class="req-type-title">${escapeHtml(req.document_type || 'Official Document')}</div>
-            <div class="req-id-tag">${escapeHtml(req.tracking_number || 'REQ-' + req.id)} &bull; <span class="badge-status-pill ${badgeClass}">${statusLabel}</span></div>
+            <div class="req-id-tag">${escapeHtml(req.tracking_number || ('REQ-' + req.id))} &bull; <span class="badge-status-pill ${badgeClass}">${statusLabel}</span></div>
           </div>
           <div class="req-date-text">${dateStr}</div>
         </div>
       `;
     }).join('');
+  } else {
+    listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#64748B; font-size:13px;">No document requests submitted yet.</div>`;
   }
 }
 
@@ -3155,62 +3938,71 @@ function renderStudentTrackingCards() {
   const container = document.getElementById('trackCardsList');
   if (!container) return;
 
-  // Default fallback mock requests if no db requests
-  const sampleCards = [
-    { id: 'REQ-00234', doc: 'TOR', date: 'May 20, 2025 10:24 AM', purpose: 'Enrollment Requirement', remarks: 'For enrollment', status: 'APPROVED', statusText: 'Approved', statusDate: 'May 20, 2025 02:15 PM', badge: 'green', claimDate: 'May 22, 2025 (Registrar Window 2)' },
-    { id: 'REQ-00233', doc: 'Certificate of Enrollment', date: 'May 18, 2025 02:15 PM', purpose: 'Scholarship Application', remarks: 'N/A', status: 'PROCESSING', statusText: 'Processing', statusDate: 'May 18, 2025 04:30 PM', badge: 'blue' },
-    { id: 'REQ-00232', doc: 'Good Moral Certificate', date: 'May 15, 2025 11:30 AM', purpose: 'Employment', remarks: 'N/A', status: 'FOR_RELEASE', statusText: 'For Release', statusDate: 'May 15, 2025 03:45 PM', badge: 'purple', claimDate: 'May 16, 2025 (Registrar Window 2)' },
-    { id: 'REQ-00231', doc: 'Report Card', date: 'May 12, 2025 09:20 AM', purpose: 'Transferring', remarks: 'N/A', status: 'PENDING', statusText: 'Pending', statusDate: 'May 12, 2025 09:20 AM', badge: 'gray' },
-    { id: 'REQ-00230', doc: 'Others', date: 'May 10, 2025 01:45 PM', purpose: 'Visa Application', remarks: 'N/A', status: 'APPROVED', statusText: 'Approved', statusDate: 'May 10, 2025 04:10 PM', badge: 'green', claimDate: 'May 12, 2025 (Registrar Window 2)' }
-  ];
-
-  let itemsToRender = sampleCards;
-  if (all.length > 0) {
-    itemsToRender = all.map(req => {
-      const statusRaw = (req.status || 'PENDING').toUpperCase();
-      let statusAttr = 'PENDING';
-      let badgeClass = 'gray';
-      let statusText = 'Pending';
-      let claim = null;
-
-      if (statusRaw.includes('APPROV')) {
-        statusAttr = 'APPROVED';
-        badgeClass = 'green';
-        statusText = 'Approved';
-        claim = 'May 22, 2025 (Registrar Window 2)';
-      } else if (statusRaw.includes('PROCESS')) {
-        statusAttr = 'PROCESSING';
-        badgeClass = 'blue';
-        statusText = 'Processing';
-      } else if (statusRaw.includes('RELEASE')) {
-        statusAttr = 'FOR_RELEASE';
-        badgeClass = 'purple';
-        statusText = 'For Release';
-        claim = 'Ready for Release (Registrar Window 2)';
-      }
-
-      const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
-      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
-
-      return {
-        id: reqId,
-        doc: req.document_type || 'Official Document',
-        date: dateStr + ' 10:24 AM',
-        purpose: req.purpose || 'Official Document Requirement',
-        remarks: req.remarks || 'N/A',
-        status: statusAttr,
-        statusText: statusText,
-        statusDate: dateStr + ' 02:00 PM',
-        badge: badgeClass,
-        claimDate: claim
-      };
-    });
+  if (all.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center; padding:48px 16px; background:#FFFFFF; border-radius:16px; border:1px solid #E2E8F0; color:#64748B;">
+        <svg style="width:48px;height:48px;color:#94A3B8;margin-bottom:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <h4 style="font-size:16px; font-weight:700; color:#1E293B; margin-bottom:6px;">No Document Requests Found</h4>
+        <p style="font-size:13px; color:#64748B;">You have no active document requests. Click "Document Request" to create one.</p>
+      </div>
+    `;
+    const elTot = document.getElementById('trackStatTotal'); if (elTot) elTot.textContent = '0';
+    const elProc = document.getElementById('trackStatProcessing'); if (elProc) elProc.textContent = '0';
+    const elApp = document.getElementById('trackStatApproved'); if (elApp) elApp.textContent = '0';
+    const elRel = document.getElementById('trackStatForRelease'); if (elRel) elRel.textContent = '0';
+    const elPend = document.getElementById('trackStatPending'); if (elPend) elPend.textContent = '0';
+    return;
   }
+
+  const itemsToRender = all.map(req => {
+    const statusRaw = (req.status || 'PENDING').toUpperCase();
+    let statusAttr = 'PENDING';
+    let badgeClass = 'gray';
+    let statusText = 'Pending';
+    let claim = null;
+
+    if (statusRaw.includes('APPROV')) {
+      statusAttr = 'APPROVED';
+      badgeClass = 'green';
+      statusText = 'Approved';
+      claim = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+    } else if (statusRaw.includes('RELEASE')) {
+      statusAttr = 'FOR_RELEASE';
+      badgeClass = 'purple';
+      statusText = 'For Release';
+      claim = 'Ready for Release (Registrar Window 2)';
+    } else if (statusRaw.includes('COMPLET')) {
+      statusAttr = 'COMPLETED';
+      badgeClass = 'green';
+      statusText = 'Completed';
+      claim = 'Claimed / Released';
+    } else if (statusRaw.includes('PROCESS')) {
+      statusAttr = 'PROCESSING';
+      badgeClass = 'blue';
+      statusText = 'Processing';
+    }
+
+    const reqId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))));
+    const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+
+    return {
+      id: reqId,
+      doc: req.document_type || 'Official Document',
+      date: dateStr + ' 10:24 AM',
+      purpose: req.purpose || 'Official Document Requirement',
+      remarks: req.remarks || 'N/A',
+      status: statusAttr,
+      statusText: statusText,
+      statusDate: dateStr + ' 02:00 PM',
+      badge: badgeClass,
+      claimDate: claim
+    };
+  });
 
   // Update Stats counts
   const total = itemsToRender.length;
   const proc = itemsToRender.filter(r => r.status === 'PROCESSING').length;
-  const apprv = itemsToRender.filter(r => r.status === 'APPROVED').length;
+  const apprv = itemsToRender.filter(r => r.status === 'APPROVED' || r.status === 'COMPLETED').length;
   const forRel = itemsToRender.filter(r => r.status === 'FOR_RELEASE').length;
   const pend = itemsToRender.filter(r => r.status === 'PENDING').length;
 
@@ -3232,7 +4024,7 @@ function renderStudentTrackingCards() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           Requested: ${escapeHtml(card.date)}
         </div>
-        ${card.claimDate ? `<div class="track-receive-date"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Pickup: <strong>${escapeHtml(card.claimDate)}</strong></div>` : ''}
+        ${card.claimDate ? `<div class="track-receive-date"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> When to Receive: <strong>${escapeHtml(card.claimDate)}</strong></div>` : ''}
       </div>
       <div class="track-col-purpose">
         <div class="meta-sub-lbl">Purpose:</div>
@@ -3262,52 +4054,52 @@ function renderStudentHistoryTable() {
   const tbody = document.getElementById('studentHistoryTableBody');
   if (!tbody) return;
 
-  const defaultRows = [
-    { id: 'REQ-00234', doc: 'TOR', date: 'May 20, 2025 10:24 AM', status: 'APPROVED', statusText: 'Approved', badge: 'green', claim: 'May 22, 2025 (Window 2)' },
-    { id: 'REQ-00233', doc: 'Certificate of Enrollment', date: 'May 18, 2025 02:15 PM', status: 'PROCESSING', statusText: 'Processing', badge: 'blue', claim: null },
-    { id: 'REQ-00232', doc: 'Good Moral Certificate', date: 'May 15, 2025 11:30 AM', status: 'FOR_RELEASE', statusText: 'For Release', badge: 'purple', claim: 'May 16, 2025 (Window 2)' },
-    { id: 'REQ-00231', doc: 'Report Card', date: 'May 12, 2025 09:20 AM', status: 'PENDING', statusText: 'Pending', badge: 'gray', claim: null }
-  ];
-
-  let rowsToRender = defaultRows;
-  if (all.length > 0) {
-    rowsToRender = all.map(req => {
-      const statusRaw = (req.status || 'PENDING').toUpperCase();
-      let badgeClass = 'gray';
-      let statusText = 'Pending';
-      let statusKey = 'PENDING';
-      let claim = null;
-
-      if (statusRaw.includes('APPROV')) {
-        badgeClass = 'green';
-        statusText = 'Approved';
-        statusKey = 'APPROVED';
-        claim = 'May 22, 2025 (Window 2)';
-      } else if (statusRaw.includes('PROCESS')) {
-        badgeClass = 'blue';
-        statusText = 'Processing';
-        statusKey = 'PROCESSING';
-      } else if (statusRaw.includes('RELEASE')) {
-        badgeClass = 'purple';
-        statusText = 'For Release';
-        statusKey = 'FOR_RELEASE';
-        claim = 'May 16, 2025 (Window 2)';
-      }
-
-      const reqId = req.tracking_number || ('REQ-00' + (230 + (req.id || 1)));
-      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
-
-      return {
-        id: reqId,
-        doc: req.document_type || 'Official Document',
-        date: dateStr + ' 10:24 AM',
-        status: statusKey,
-        statusText: statusText,
-        badge: badgeClass,
-        claim: claim
-      };
-    });
+  if (all.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No request history found.</td></tr>`;
+    return;
   }
+
+  const rowsToRender = all.map(req => {
+    const statusRaw = (req.status || 'PENDING').toUpperCase();
+    let badgeClass = 'gray';
+    let statusText = 'Pending';
+    let statusKey = 'PENDING';
+    let claim = null;
+
+    if (statusRaw.includes('APPROV')) {
+      badgeClass = 'green';
+      statusText = 'Approved';
+      statusKey = 'APPROVED';
+      claim = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+    } else if (statusRaw.includes('RELEASE')) {
+      badgeClass = 'purple';
+      statusText = 'For Release';
+      statusKey = 'FOR_RELEASE';
+      claim = 'Ready for Release (Window 2)';
+    } else if (statusRaw.includes('COMPLET')) {
+      badgeClass = 'green';
+      statusText = 'Completed';
+      statusKey = 'COMPLETED';
+      claim = 'Claimed / Released';
+    } else if (statusRaw.includes('PROCESS')) {
+      badgeClass = 'blue';
+      statusText = 'Processing';
+      statusKey = 'PROCESSING';
+    }
+
+    const reqId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))));
+    const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+
+    return {
+      id: reqId,
+      doc: req.document_type || 'Official Document',
+      date: dateStr + ' 10:24 AM',
+      status: statusKey,
+      statusText: statusText,
+      badge: badgeClass,
+      claim: claim
+    };
+  });
 
   tbody.innerHTML = rowsToRender.map(row => `
     <tr data-history-status="${row.status}">
@@ -3338,14 +4130,12 @@ function openRequestDetailsModal(reqId) {
     String(r.id) === String(reqId) ||
     ('REQ-00' + (230 + (r.id || 1))) === reqId ||
     (r._id && ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) === reqId)
-  )) || {
-    tracking_number: reqId || 'REQ-00234',
-    document_type: 'Transcript of Records (TOR)',
-    purpose: 'Enrollment Requirement',
-    date_submitted: 'May 20, 2025',
-    remarks: 'For enrollment',
-    status: 'Approved'
-  };
+  )) || (all.length > 0 ? all[0] : null);
+
+  if (!req) {
+    showToast('Document request details not found.', 'error');
+    return;
+  }
 
   const statusRaw = (req.status || 'PENDING').toUpperCase();
   let badgeClass = 'green';
@@ -3374,7 +4164,7 @@ function openRequestDetailsModal(reqId) {
   badgeEl.className = 'badge-status-pill ' + badgeClass;
   badgeEl.innerHTML = '&bull; ' + statusText;
 
-  document.getElementById('detailsModalDocType').textContent = req.document_type || req.documentType || 'Transcript of Records (TOR)';
+  document.getElementById('detailsModalDocType').textContent = req.document_type || req.documentType || 'Official Document';
   document.getElementById('detailsModalPurpose').textContent = req.purpose || 'Official Document Requirement';
   document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt || new Date().toISOString()) + ' 10:24 AM';
   document.getElementById('detailsModalRemarks').textContent = req.remarks || 'None specified';
@@ -3384,7 +4174,7 @@ function openRequestDetailsModal(reqId) {
   if (claimRow) {
     if (isComplete) {
       claimRow.style.display = 'flex';
-      document.getElementById('detailsModalClaimDate').textContent = 'May 22, 2025 (Registrar Window 2)';
+      document.getElementById('detailsModalClaimDate').textContent = getEstimatedReleaseDate(req.date_submitted || req.created_at);
     } else {
       claimRow.style.display = 'none';
     }
@@ -3414,8 +4204,8 @@ function openRequestDetailsModal(reqId) {
         <div class="text-muted">Document prepared with official seal and dry stamp</div>
       </div>
     </div>
-    <div class="timeline-step ${statusRaw.includes('RELEASE') ? 'completed' : ''}">
-      <div class="step-circle">${statusRaw.includes('RELEASE') ? '&#10003;' : '4'}</div>
+    <div class="timeline-step ${statusRaw.includes('RELEASE') || statusRaw.includes('COMPLET') ? 'completed' : ''}">
+      <div class="step-circle">${statusRaw.includes('RELEASE') || statusRaw.includes('COMPLET') ? '&#10003;' : '4'}</div>
       <div class="step-desc">
         <strong>4. Document Released / Claimed</strong>
         <div class="text-muted">Claimed at Registrar Counter Window 2</div>
@@ -3585,16 +4375,24 @@ function setupImageCropperListeners() {
     if (!croppedUrl) return;
 
     const user = state.currentUser || {};
-    const id = user.studentId || 'REQ-00234';
+    const adminPortal = document.getElementById('viewAdminPortal');
+    const isAdmin = user.role === 'admin' || (adminPortal && adminPortal.classList.contains('active') && adminPortal.style.display !== 'none');
 
-    localStorage.setItem('cca_student_avatar_' + id, croppedUrl);
-    localStorage.setItem('cca_student_avatar', croppedUrl);
-
-    applyAvatarToElements(croppedUrl);
-    triggerStudentViewLoader();
+    if (isAdmin) {
+      localStorage.setItem('cca_admin_avatar', croppedUrl);
+      applyAdminAvatarToElements(croppedUrl);
+      triggerAdminViewLoader();
+      showToast('Admin profile photo cropped and updated successfully!', 'success');
+    } else {
+      const id = user.studentId || user.email || 'REQ-00234';
+      localStorage.setItem('cca_student_avatar_' + id, croppedUrl);
+      localStorage.setItem('cca_student_avatar', croppedUrl);
+      applyAvatarToElements(croppedUrl);
+      triggerStudentViewLoader();
+      showToast('Profile photo cropped and saved successfully!', 'success');
+    }
 
     if (modal) modal.style.display = 'none';
-    showToast('Profile photo cropped and saved successfully!', 'success');
   });
 }
 
@@ -3619,6 +4417,11 @@ function setupStudentRefPortalListeners() {
     }
   });
 
+  // Sidebar Logout Button
+  document.getElementById('studentSidebarLogoutBtn')?.addEventListener('click', () => {
+    handleLogout();
+  });
+
   // 2. Notification Bell: Clicking toggles dropdown AND disappears the notification count badge!
   const bellBtn = document.getElementById('btnStudentTopbarBell');
   const notifDropdown = document.getElementById('topbarNotifDropdown');
@@ -3630,6 +4433,11 @@ function setupStudentRefPortalListeners() {
       // Hide badge count as requested
       if (bellBadge) bellBadge.style.display = 'none';
       notifDropdown.classList.toggle('show');
+      try {
+        const notifs = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
+        notifs.forEach(n => { n.unread = false; });
+        localStorage.setItem('cca_student_notifications', JSON.stringify(notifs));
+      } catch (err) {}
     });
 
     document.addEventListener('click', (e) => {
@@ -3640,6 +4448,12 @@ function setupStudentRefPortalListeners() {
 
     document.getElementById('btnClearNotifs')?.addEventListener('click', () => {
       document.querySelectorAll('.notif-item.unread').forEach(item => item.classList.remove('unread'));
+      try {
+        const notifs = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
+        notifs.forEach(n => { n.unread = false; });
+        localStorage.setItem('cca_student_notifications', JSON.stringify(notifs));
+      } catch (err) {}
+      if (bellBadge) bellBadge.style.display = 'none';
       showToast('Notifications marked as read.', 'info');
       notifDropdown.classList.remove('show');
     });
