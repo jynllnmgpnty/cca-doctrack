@@ -1967,7 +1967,8 @@
         </div>
       </div>
       <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-        <div id="detailsModalAdminActions" style="display:none; gap:6px; flex-wrap:wrap;">
+        <div id="detailsModalAdminActions" style="display:none; gap:6px; flex-wrap:wrap; align-items:center;">
+          <button type="button" class="btn-table-pill" style="background:#2563EB; color:#FFFFFF; font-weight:600;" onclick="openAdminStatusFromDetails()">Set Status &amp; Pickup Date &rarr;</button>
           <button type="button" class="btn-table-pill" style="background:#EFF6FF; color:#2563EB; font-weight:600;" onclick="quickUpdateStatusFromModal('Processing')">Set Processing</button>
           <button type="button" class="btn-table-pill" style="background:#F0FDF4; color:#16A34A; font-weight:600;" onclick="quickUpdateStatusFromModal('Approved')">Approve</button>
           <button type="button" class="btn-table-pill" style="background:#FAF5FF; color:#9333EA; font-weight:600;" onclick="quickUpdateStatusFromModal('For Release')">For Release</button>
@@ -3996,6 +3997,11 @@
             <option value="Completed">Completed (Claimed / Released)</option>
             <option value="Rejected">Rejected (Incomplete / Ineligible)</option>
           </select>
+        </div>
+        <div class="ref-input-group" id="statusChangePickupGroup" style="margin-bottom:16px;">
+          <label class="ref-field-label">Scheduled Pickup / Claim Date</label>
+          <input type="date" class="ref-input-box" id="statusChangePickupDate">
+          <small style="display:block; font-size:11.5px; color:#64748B; margin-top:4px;">Date when student will pick up the document at Registrar Window 2.</small>
         </div>
         <div class="ref-input-group" style="margin-bottom:16px;">
           <label class="ref-field-label">Registrar Remarks / Notes</label>

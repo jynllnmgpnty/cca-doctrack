@@ -198,7 +198,7 @@ router.get('/:id', async (req, res) => {
 router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, pickupDate, pickup_date } = req.body;
     let numericId = parseInt(id, 10);
     if (isNaN(numericId) || numericId <= 0) {
       const extracted = String(id).replace(/\D/g, '');
@@ -243,11 +243,19 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    // Update status in Turso
-    await db.execute({
-      sql: 'UPDATE document_requests SET status = ? WHERE id = ?',
-      args: [status, numericId]
-    });
+    // Update status and optional pickup date in Turso / SQLite
+    const resolvedPickupDate = pickupDate !== undefined ? pickupDate : pickup_date;
+    if (resolvedPickupDate !== undefined && resolvedPickupDate !== null) {
+      await db.execute({
+        sql: 'UPDATE document_requests SET status = ?, pickup_date = ? WHERE id = ?',
+        args: [status, String(resolvedPickupDate).trim(), numericId]
+      });
+    } else {
+      await db.execute({
+        sql: 'UPDATE document_requests SET status = ? WHERE id = ?',
+        args: [status, numericId]
+      });
+    }
 
     const updatedResult = await db.execute({
       sql: 'SELECT * FROM document_requests WHERE id = ?',

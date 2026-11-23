@@ -1061,12 +1061,16 @@ async function submitDocumentRequest(payload) {
   }
 }
 
-async function updateRequestStatus(id, newStatus) {
+async function updateRequestStatus(id, newStatus, pickupDate) {
   try {
+    const payload = { status: newStatus };
+    if (pickupDate !== undefined) {
+      payload.pickupDate = pickupDate;
+    }
     const res = await fetch(`/api/requests/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: newStatus })
+      body: JSON.stringify(payload)
     });
 
     const result = await res.json();
@@ -1074,7 +1078,8 @@ async function updateRequestStatus(id, newStatus) {
 
     showToast(`Status updated to "${newStatus}"`, 'success');
     if (typeof addAdminAuditLog === 'function') {
-      addAdminAuditLog(`Updated request #${id} status to ${newStatus}`, 'STATUS');
+      const pInfo = pickupDate ? ` (Pickup: ${pickupDate})` : '';
+      addAdminAuditLog(`Updated request #${id} status to ${newStatus}${pInfo}`, 'STATUS');
     }
     await fetchAllRequests();
   } catch (err) {
@@ -2811,10 +2816,38 @@ window.openAdminStatusMenu = function(reqIdentifier) {
     }
   }
 
+  const pEl = document.getElementById('statusChangePickupDate');
+  if (pEl) {
+    let pVal = (req && (req.pickup_date || req.pickupDate)) ? (req.pickup_date || req.pickupDate) : '';
+    if (pVal && pVal.length >= 10 && !isNaN(new Date(pVal).getTime())) {
+      try {
+        pEl.value = new Date(pVal).toISOString().split('T')[0];
+      } catch (e) {
+        pEl.value = pVal;
+      }
+    } else if (!pVal) {
+      const d = new Date();
+      d.setDate(d.getDate() + 2);
+      pEl.value = d.toISOString().split('T')[0];
+    } else {
+      pEl.value = pVal;
+    }
+  }
+
   const rEl = document.getElementById('statusChangeRemarks');
   if (rEl) rEl.value = (req && req.remarks) ? req.remarks : '';
 
   modal.style.display = 'flex';
+};
+
+window.openAdminStatusFromDetails = function() {
+  const reqIdEl = document.getElementById('detailsModalReqId');
+  const reqId = reqIdEl ? reqIdEl.textContent.trim() : null;
+  if (reqId) {
+    const modal = document.getElementById('modalRequestDetails');
+    if (modal) modal.style.display = 'none';
+    openAdminStatusMenu(reqId);
+  }
 };
 
 window.quickUpdateStatusFromModal = async function(newStatus) {
@@ -2822,17 +2855,38 @@ window.quickUpdateStatusFromModal = async function(newStatus) {
   const reqId = reqIdEl ? reqIdEl.textContent.trim() : null;
   if (!reqId) return;
 
+  const all = state.allRequests || [];
+  const req = all.find(r => (
+    r.tracking_number === reqId ||
+    r._id === reqId ||
+    String(r.id) === String(reqId) ||
+    ('REQ-00' + (230 + (r.id || 1))) === reqId ||
+    (r._id && ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) === reqId)
+  ));
+
+  let pickupDate = req ? (req.pickup_date || req.pickupDate) : '';
+  if (!pickupDate && (newStatus === 'Approved' || newStatus === 'For Release' || newStatus === 'Completed')) {
+    const d = new Date();
+    d.setDate(d.getDate() + 2);
+    pickupDate = d.toISOString().split('T')[0];
+  }
+
   triggerAdminViewLoader();
   try {
-    await updateRequestStatus(reqId, newStatus);
+    await updateRequestStatus(reqId, newStatus, pickupDate);
+    let notifMsg = `Your request (${reqId}) status has been updated to "${newStatus}".`;
+    if (pickupDate && (newStatus === 'Approved' || newStatus === 'For Release' || newStatus === 'Completed')) {
+      notifMsg += ` Scheduled pickup: ${formatDate(pickupDate)} at Registrar Window 2.`;
+    }
     pushStudentNotification({
       title: 'Document Request Updated',
-      message: `Your request (${reqId}) status has been updated to "${newStatus}".`,
+      message: notifMsg,
       type: 'request',
       timestamp: new Date().toISOString()
     });
     if (typeof addAdminAuditLog === 'function') {
-      addAdminAuditLog(`Updated request #${reqId} status to ${newStatus}`, 'STATUS');
+      const pText = pickupDate ? ` (Pickup: ${pickupDate})` : '';
+      addAdminAuditLog(`Updated request #${reqId} status to ${newStatus}${pText}`, 'STATUS');
     }
     const modal = document.getElementById('modalRequestDetails');
     if (modal) modal.style.display = 'none';
@@ -3205,20 +3259,26 @@ function setupAdminRefPortalListeners() {
   document.getElementById('btnSaveStatusChangeModal')?.addEventListener('click', async () => {
     const targetId = document.getElementById('statusChangeTargetId')?.value || statusModal?.getAttribute('data-request-id');
     const newStatus = document.getElementById('statusChangeSelect')?.value;
+    const pickupDate = document.getElementById('statusChangePickupDate')?.value;
     const remarks = document.getElementById('statusChangeRemarks')?.value.trim();
 
     if (!targetId || !newStatus) return;
 
     triggerAdminViewLoader();
     try {
-      await updateRequestStatus(targetId, newStatus);
+      await updateRequestStatus(targetId, newStatus, pickupDate);
+      let notifMsg = `Your request (${targetId}) status has been updated to "${newStatus}".`;
+      if (pickupDate && (newStatus === 'Approved' || newStatus === 'For Release' || newStatus === 'Completed')) {
+        notifMsg += ` Scheduled pickup: ${formatDate(pickupDate)} at Registrar Window 2.`;
+      }
       pushStudentNotification({
         title: 'Document Request Updated',
-        message: `Your request (${targetId}) status has been updated to "${newStatus}".`,
+        message: notifMsg,
         type: 'request',
         timestamp: new Date().toISOString()
       });
-      addAdminAuditLog(`Updated request #${targetId} status to ${newStatus}`, 'STATUS');
+      const pLog = pickupDate ? ` (Pickup: ${pickupDate})` : '';
+      addAdminAuditLog(`Updated request #${targetId} status to ${newStatus}${pLog}`, 'STATUS');
       closeStatusModal();
       await fetchAllRequests();
       renderAdminTable();
@@ -3609,7 +3669,8 @@ function showToast(msg, type = 'info') {
 
 function formatDate(dateString) {
   if (!dateString) return '--';
-  const d = new Date(dateString);
+  const cleanStr = (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) ? dateString + 'T00:00:00' : dateString;
+  const d = new Date(cleanStr);
   if (isNaN(d.getTime())) return dateString;
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
@@ -3965,17 +4026,23 @@ function renderStudentTrackingCards() {
       statusAttr = 'APPROVED';
       badgeClass = 'green';
       statusText = 'Approved';
-      claim = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+      claim = (req.pickup_date || req.pickupDate)
+        ? `${formatDate(req.pickup_date || req.pickupDate)} (Registrar Window 2)`
+        : getEstimatedReleaseDate(req.date_submitted || req.created_at);
     } else if (statusRaw.includes('RELEASE')) {
       statusAttr = 'FOR_RELEASE';
       badgeClass = 'purple';
       statusText = 'For Release';
-      claim = 'Ready for Release (Registrar Window 2)';
+      claim = (req.pickup_date || req.pickupDate)
+        ? `${formatDate(req.pickup_date || req.pickupDate)} (Registrar Window 2)`
+        : 'Ready for Release (Registrar Window 2)';
     } else if (statusRaw.includes('COMPLET')) {
       statusAttr = 'COMPLETED';
       badgeClass = 'green';
       statusText = 'Completed';
-      claim = 'Claimed / Released';
+      claim = (req.pickup_date || req.pickupDate)
+        ? `Claimed on ${formatDate(req.pickup_date || req.pickupDate)}`
+        : 'Claimed / Released';
     } else if (statusRaw.includes('PROCESS')) {
       statusAttr = 'PROCESSING';
       badgeClass = 'blue';
@@ -4070,17 +4137,23 @@ function renderStudentHistoryTable() {
       badgeClass = 'green';
       statusText = 'Approved';
       statusKey = 'APPROVED';
-      claim = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+      claim = (req.pickup_date || req.pickupDate)
+        ? `${formatDate(req.pickup_date || req.pickupDate)} (Window 2)`
+        : getEstimatedReleaseDate(req.date_submitted || req.created_at);
     } else if (statusRaw.includes('RELEASE')) {
       badgeClass = 'purple';
       statusText = 'For Release';
       statusKey = 'FOR_RELEASE';
-      claim = 'Ready for Release (Window 2)';
+      claim = (req.pickup_date || req.pickupDate)
+        ? `${formatDate(req.pickup_date || req.pickupDate)} (Window 2)`
+        : 'Ready for Release (Window 2)';
     } else if (statusRaw.includes('COMPLET')) {
       badgeClass = 'green';
       statusText = 'Completed';
       statusKey = 'COMPLETED';
-      claim = 'Claimed / Released';
+      claim = (req.pickup_date || req.pickupDate)
+        ? `Claimed on ${formatDate(req.pickup_date || req.pickupDate)}`
+        : 'Claimed / Released';
     } else if (statusRaw.includes('PROCESS')) {
       badgeClass = 'blue';
       statusText = 'Processing';
@@ -4174,10 +4247,21 @@ function openRequestDetailsModal(reqId) {
   if (claimRow) {
     if (isComplete) {
       claimRow.style.display = 'flex';
-      document.getElementById('detailsModalClaimDate').textContent = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+      const pDate = req.pickup_date || req.pickupDate;
+      if (pDate) {
+        document.getElementById('detailsModalClaimDate').textContent = `${formatDate(pDate)} (Registrar Window 2)`;
+      } else {
+        document.getElementById('detailsModalClaimDate').textContent = getEstimatedReleaseDate(req.date_submitted || req.created_at);
+      }
     } else {
       claimRow.style.display = 'none';
     }
+  }
+
+  // Toggle admin actions bar if logged in as admin
+  const adminActions = document.getElementById('detailsModalAdminActions');
+  if (adminActions) {
+    adminActions.style.display = (state.currentUser && state.currentUser.role === 'admin') ? 'flex' : 'none';
   }
 
   // Build timeline steps

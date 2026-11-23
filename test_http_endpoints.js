@@ -135,11 +135,12 @@ async function runHttpTests() {
     const patchRes = await fetch(`${baseUrl}/api/requests/${createdId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Processing' })
+      body: JSON.stringify({ status: 'Approved', pickupDate: '2026-11-29' })
     });
     assert(patchRes.status === 200, 'Returns 200 OK for status update');
     const patchJson = await patchRes.json();
-    assert(patchJson.data.status === 'Processing', 'Status is updated to Processing');
+    assert(patchJson.data.status === 'Approved', 'Status is updated to Approved');
+    assert(patchJson.data.pickupDate === '2026-11-29', 'Pickup date is updated to 2026-11-29');
 
     const patchInvalidStatusRes = await fetch(`${baseUrl}/api/requests/${createdId}`, {
       method: 'PATCH',

@@ -57,6 +57,8 @@ function formatRequest(row) {
     status: row.status,
     course: row.course || 'BS Information Technology',
     email: row.email || '',
+    pickupDate: row.pickup_date || '',
+    pickup_date: row.pickup_date || '',
     createdAt: row.created_at || row.date_submitted
   };
 }
@@ -196,9 +198,17 @@ async function initDB() {
         status TEXT NOT NULL DEFAULT 'Pending',
         course TEXT DEFAULT 'BS Information Technology',
         email TEXT DEFAULT '',
+        pickup_date TEXT DEFAULT '',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Ensure pickup_date column exists for existing tables
+    try {
+      await db.execute("ALTER TABLE document_requests ADD COLUMN pickup_date TEXT DEFAULT ''");
+    } catch (e) {
+      // Column may already exist
+    }
 
     // 2. Create users table for authentication
     await db.execute(`
