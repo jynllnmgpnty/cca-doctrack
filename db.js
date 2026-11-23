@@ -220,11 +220,32 @@ async function initDB() {
         password TEXT NOT NULL,
         course TEXT DEFAULT 'BS Information Technology',
         role TEXT DEFAULT 'student',
+        status TEXT DEFAULT 'Active',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
-    // 3. Seed default accounts & demo requests
+    // Ensure status column exists in users table
+    try {
+      await db.execute("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'Active'");
+    } catch (e) {
+      // Column may already exist
+    }
+
+    // 3. Create reactivation_requests table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS reactivation_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        student_id TEXT NOT NULL,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        status TEXT DEFAULT 'Pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // 4. Seed default accounts & demo requests
     await seedDefaultAccounts();
     await seedDefaultRequests();
 

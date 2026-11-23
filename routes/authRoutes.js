@@ -183,6 +183,18 @@ router.post('/login', async (req, res) => {
       });
     }
 
+    // Check if student account is deactivated
+    if (user.status && (user.status.toLowerCase() === 'inactive' || user.status.toLowerCase() === 'deactivated')) {
+      return res.status(403).json({
+        success: false,
+        isDeactivated: true,
+        message: 'Your student account has been deactivated. Access to CCA DocTrack is restricted. Please submit a reactivation request.',
+        studentId: user.student_id,
+        email: user.email,
+        fullName: user.full_name
+      });
+    }
+
     // Role check if logging in to admin portal
     if (targetPortal === 'admin' && user.role !== 'admin') {
       return res.status(403).json({
@@ -313,15 +325,14 @@ router.post('/change-password', async (req, res) => {
  */
 router.get('/students', async (req, res) => {
   try {
-    const result = await db.execute("SELECT id, full_name, student_id, email, course, role, created_at FROM users WHERE role != 'admin' ORDER BY id ASC");
+    const result = await db.execute("SELECT id, full_name, student_id, email, course, role, status, created_at FROM users WHERE role != 'admin' ORDER BY id ASC");
     const students = result.rows.map(r => ({
       id: r.id,
       name: r.full_name,
       studentId: r.student_id,
       email: r.email,
       course: r.course || 'BS Information Technology',
-      year: '3rd Year',
-      status: 'Active',
+      status: r.status || 'Active',
       createdAt: r.created_at
     }));
 
@@ -335,6 +346,145 @@ router.get('/students', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to retrieve students from database.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   PATCH /api/auth/students/:identifier/status
+ * @desc    Deactivate or reactivate a student account
+ * @access  Public (Admin)
+ */
+router.patch('/students/:identifier/status', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    const { status } = req.body;
+
+    if (!status || !['Active', 'Inactive'].includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status. Status must be "Active" or "Inactive".'
+      });
+    }
+
+    const target = identifier.trim().toLowerCase();
+
+    // Check if user exists
+    const checkUser = await db.execute({
+      sql: 'SELECT id, full_name, student_id, email FROM users WHERE LOWER(student_id) = ? OR LOWER(email) = ? OR id = ?',
+      args: [target, target, target]
+    });
+
+    if (checkUser.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: `Student '${identifier}' not found in database.`
+      });
+    }
+
+    await db.execute({
+      sql: 'UPDATE users SET status = ? WHERE LOWER(student_id) = ? OR LOWER(email) = ? OR id = ?',
+      args: [status, target, target, target]
+    });
+
+    // If reactivated, mark any pending reactivation requests as Approved
+    if (status === 'Active') {
+      try {
+        await db.execute({
+          sql: "UPDATE reactivation_requests SET status = 'Approved' WHERE LOWER(student_id) = ? OR LOWER(email) = ?",
+          args: [target, target]
+        });
+      } catch (err) {}
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Student account successfully ${status === 'Active' ? 'reactivated' : 'deactivated'}.`,
+      studentId: checkUser.rows[0].student_id,
+      status: status
+    });
+  } catch (error) {
+    console.error('Error updating student status:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update student account status.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/reactivation-request
+ * @desc    Student submits an account reactivation request
+ * @access  Public
+ */
+router.post('/reactivation-request', async (req, res) => {
+  try {
+    const { studentId, email, reason } = req.body;
+
+    if (!studentId || !email || !reason || !reason.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student ID, institutional email, and reason are required.'
+      });
+    }
+
+    const targetId = studentId.trim().toLowerCase();
+    const targetEmail = email.trim().toLowerCase();
+
+    // Verify user exists in database
+    const userCheck = await db.execute({
+      sql: 'SELECT id, full_name, student_id, email, status FROM users WHERE LOWER(student_id) = ? OR LOWER(email) = ?',
+      args: [targetId, targetEmail]
+    });
+
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No student account matches the provided Student ID or email.'
+      });
+    }
+
+    const studentUser = userCheck.rows[0];
+
+    await db.execute({
+      sql: 'INSERT INTO reactivation_requests (student_id, full_name, email, reason, status) VALUES (?, ?, ?, ?, ?)',
+      args: [studentUser.student_id, studentUser.full_name, studentUser.email, reason.trim(), 'Pending']
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: 'Your reactivation request has been submitted to the Registrar. You will be notified once reviewed.'
+    });
+  } catch (error) {
+    console.error('Reactivation request error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to submit reactivation request.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/auth/reactivation-requests
+ * @desc    Get all reactivation requests (for Admin review)
+ * @access  Public (Admin)
+ */
+router.get('/reactivation-requests', async (req, res) => {
+  try {
+    const result = await db.execute('SELECT * FROM reactivation_requests ORDER BY id DESC');
+    return res.status(200).json({
+      success: true,
+      count: result.rows.length,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching reactivation requests:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve reactivation requests.',
       error: error.message
     });
   }

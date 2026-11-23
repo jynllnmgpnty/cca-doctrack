@@ -100,6 +100,9 @@
             <span id="loginBtnLabel">Sign In</span>
           </button>
         </div>
+        <div style="text-align:center; margin-top:12px;">
+          <a href="javascript:void(0)" id="linkOpenReactivationFromLogin" style="font-size:12px; color:#2563EB; font-weight:600; text-decoration:none;">Account Deactivated? Request Reactivation &rarr;</a>
+        </div>
       </form>
 
       <!-- 2. CREATE ACCOUNT (REGISTER) FORM -->
@@ -2755,14 +2758,14 @@
               </svg>
             </div>
 
-            <div class="metric-wave-card">
+            <div class="metric-wave-card" id="cardStatInactiveStudents" style="cursor:pointer;" title="Click to view Deactivated Accounts" onclick="filterToDeactivatedStudents()">
               <div class="metric-wave-header">
                 <div class="metric-wave-icon cyan">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
                 </div>
               </div>
               <div class="metric-wave-value" id="studentStatInactive">0</div>
-              <div class="metric-wave-label">Inactive Students</div>
+              <div class="metric-wave-label">Deactivated Accounts</div>
               <svg class="metric-wave-svg" viewBox="0 0 200 40" preserveAspectRatio="none">
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18 L200,40 L0,40 Z" fill="rgba(245, 158, 11, 0.08)"/>
                 <path d="M0,22 C30,12 80,32 120,20 C160,8 180,26 200,18" fill="none" stroke="#F59E0B" stroke-width="2"/>
@@ -2799,12 +2802,17 @@
             </select>
             <select id="adminStudentStatusFilter" class="ref-filter-select">
               <option value="ALL">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="Active">Active Accounts</option>
+              <option value="Inactive">Deactivated Accounts</option>
             </select>
             <button type="button" class="btn-filter-primary" id="btnAdminApplyStudentFilter">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
               <span>Filter</span>
+            </button>
+            <button type="button" class="btn-filter-primary" id="btnViewReactivationRequests" style="background:#475569; display:inline-flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+              <span>Reactivation Requests</span>
+              <span id="badgeReactivationCount" style="display:none; background:#EF4444; color:#FFFFFF; font-size:11px; font-weight:700; padding:1px 6px; border-radius:10px;">0</span>
             </button>
             <button type="button" class="btn-filter-primary" id="btnOpenAddStudentModal" style="background:#2563EB;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -2821,13 +2829,12 @@
                     <th>Student ID</th>
                     <th>Full Name</th>
                     <th>Course</th>
-                    <th>Year Level</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="adminStudentsTableBody">
-                  <tr><td colspan="6" class="table-empty">Loading student records...</td></tr>
+                  <tr><td colspan="5" class="table-empty">Loading student records...</td></tr>
                 </tbody>
               </table>
             </div>
@@ -4076,6 +4083,72 @@
             <button type="submit" class="btn-ref-primary">Update Password &rarr;</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. STUDENT REACTIVATION REQUEST MODAL -->
+  <div class="modal" id="modalRequestReactivation" style="display:none;">
+    <div class="modal-backdrop" id="backdropRequestReactivation"></div>
+    <div class="modal-dialog ref-dialog-md" style="max-width: 460px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; display:flex; align-items:center; justify-content:center; color:#2563EB;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin:0;">Request Reactivation</h3>
+            <p style="font-size:12.5px; color:#64748B; margin:2px 0 0;">Submit details to the Registrar to reactivate your portal account.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btnCloseReactivationModal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:16px;">
+        <form id="formRequestReactivation">
+          <div class="ref-input-group" style="margin-bottom:14px;">
+            <label class="ref-field-label">Student ID <span class="required">*</span></label>
+            <input type="text" class="ref-input-box" id="reactivateStudentId" placeholder="e.g. 23-67894" required>
+          </div>
+          <div class="ref-input-group" style="margin-bottom:14px;">
+            <label class="ref-field-label">Institutional Email <span class="required">*</span></label>
+            <input type="email" class="ref-input-box" id="reactivateEmail" placeholder="e.g. student@cca.edu.ph" required>
+          </div>
+          <div class="ref-input-group" style="margin-bottom:16px;">
+            <label class="ref-field-label">Reason for Reactivation <span class="required">*</span></label>
+            <textarea class="ref-input-box" id="reactivateReason" rows="3" placeholder="Provide reason or current enrollment status for account reactivation..." required style="resize:vertical;"></textarea>
+          </div>
+          <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px; padding:0; border:none;">
+            <button type="button" class="btn-ref-outline" id="btnCancelReactivationModal">Cancel</button>
+            <button type="submit" class="btn-ref-primary" id="btnSubmitReactivation">Submit Request &rarr;</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. ADMIN REVIEW REACTIVATION REQUESTS MODAL -->
+  <div class="modal" id="modalReactivationRequests" style="display:none;">
+    <div class="modal-backdrop" id="backdropReactivationRequests"></div>
+    <div class="modal-dialog ref-dialog-md" style="max-width: 640px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; display:flex; align-items:center; justify-content:center; color:#2563EB;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          </div>
+          <div>
+            <h3 class="modal-title" style="margin:0;">Student Reactivation Requests</h3>
+            <p style="font-size:12.5px; color:#64748B; margin:2px 0 0;">Review pending reactivation requests submitted by students.</p>
+          </div>
+        </div>
+        <button class="modal-close" id="btnCloseReactivationRequestsModal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top:16px; max-height:420px; overflow-y:auto;">
+        <div id="reactivationRequestsList">
+          <p style="text-align:center; color:#64748B; font-size:13px; padding:24px;">Loading reactivation requests...</p>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:10px;">
+        <button type="button" class="btn-ref-outline" id="btnCloseReactivationRequestsBtn">Close</button>
       </div>
     </div>
   </div>

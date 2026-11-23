@@ -337,6 +337,23 @@ function restoreSession() {
         if (targetView === 'student') {
           switchStudentSubtab(state.studentActiveTab);
         }
+
+        // Verify that restored student account is still active
+        fetch('/api/auth/students').then(r => r.json()).then(data => {
+          if (data && data.success && Array.isArray(data.data)) {
+            const myAcc = data.data.find(s => 
+              (state.currentUser && state.currentUser.studentId && s.studentId === state.currentUser.studentId) ||
+              (state.currentUser && state.currentUser.email && s.email && s.email.toLowerCase() === state.currentUser.email.toLowerCase())
+            );
+            if (myAcc && myAcc.status && myAcc.status.toLowerCase() === 'inactive') {
+              localStorage.removeItem('cca_auth_user');
+              state.currentUser = null;
+              updateLandingAuthUI();
+              switchView('landing');
+              showToast('Your student account has been deactivated. Please submit a reactivation request.', 'error');
+            }
+          }
+        }).catch(() => {});
       }
     } catch (e) {
       console.warn('Session parse error:', e);
@@ -556,6 +573,13 @@ async function handleLoginSubmit(e) {
     const result = await response.json();
 
     if (!response.ok) {
+      if (result.isDeactivated) {
+        showAuthAlert(
+          `${escapeHtml(result.message)} <br><a href="javascript:void(0)" onclick="openReactivationModal('${escapeHtml(result.studentId || email)}', '${escapeHtml(result.email || email)}')" style="color:#2563EB; font-weight:700; text-decoration:underline; display:inline-block; margin-top:6px;">Submit Reactivation Request &rarr;</a>`,
+          'error'
+        );
+        return;
+      }
       throw new Error(result.message || 'Authentication failed.');
     }
 
@@ -1882,34 +1906,40 @@ function renderPagination(containerId, countLabelId, totalItems, currentPage, pa
   const endIdx = Math.min(safePage * pageSize, totalItems);
 
   if (countLabel) {
-    countLabel.textContent = `Showing ${startIdx}-${endIdx} of ${totalItems.toLocaleString()} ${itemLabel}`;
+    countLabel.textContent = `Showing ${startIdx}–${endIdx} of ${totalItems.toLocaleString()} ${itemLabel}`;
   }
 
   if (!container) return;
 
-  if (totalItems <= pageSize) {
-    container.innerHTML = `
-      <div class="pagination-btn-group">
-        <button type="button" class="btn-page-nav" disabled>&laquo;</button>
-        <button type="button" class="btn-page-num active">1</button>
-        <button type="button" class="btn-page-nav" disabled>&raquo;</button>
-      </div>
-    `;
-    return;
+  let html = `<div class="pagination-btn-group">`;
+  html += `<button type="button" class="btn-page-nav" ${safePage <= 1 ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage - 1})" aria-label="Previous page">&laquo;</button>`;
+
+  const maxButtons = 5;
+  let startPage = Math.max(1, safePage - Math.floor(maxButtons / 2));
+  let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+  if (endPage - startPage + 1 < maxButtons) {
+    startPage = Math.max(1, endPage - maxButtons + 1);
   }
 
-  let html = `<div class="pagination-btn-group">`;
-  html += `<button type="button" class="btn-page-nav" ${safePage === 1 ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage - 1})">&laquo;</button>`;
-
-  for (let p = 1; p <= totalPages; p++) {
-    if (p === 1 || p === totalPages || (p >= safePage - 1 && p <= safePage + 1)) {
-      html += `<button type="button" class="btn-page-num ${p === safePage ? 'active' : ''}" onclick="${onPageChangeFnName}(${p})">${p}</button>`;
-    } else if (p === safePage - 2 || p === safePage + 2) {
-      html += `<span class="pagination-ellipsis" style="padding:0 4px; color:#94A3B8;">...</span>`;
+  if (startPage > 1) {
+    html += `<button type="button" class="btn-page-num" onclick="${onPageChangeFnName}(1)">1</button>`;
+    if (startPage > 2) {
+      html += `<span class="pagination-ellipsis">&hellip;</span>`;
     }
   }
 
-  html += `<button type="button" class="btn-page-nav" ${safePage === totalPages ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage + 1})">&raquo;</button>`;
+  for (let p = startPage; p <= endPage; p++) {
+    html += `<button type="button" class="btn-page-num ${p === safePage ? 'active' : ''}" onclick="${onPageChangeFnName}(${p})">${p}</button>`;
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      html += `<span class="pagination-ellipsis">&hellip;</span>`;
+    }
+    html += `<button type="button" class="btn-page-num" onclick="${onPageChangeFnName}(${totalPages})">${totalPages}</button>`;
+  }
+
+  html += `<button type="button" class="btn-page-nav" ${safePage >= totalPages ? 'disabled' : ''} onclick="${onPageChangeFnName}(${safePage + 1})" aria-label="Next page">&raquo;</button>`;
   html += `</div>`;
   container.innerHTML = html;
 }
@@ -1966,6 +1996,9 @@ async function renderAdminStudentsTable() {
     await fetchRegisteredStudents();
   }
 
+  // Also check for pending reactivation requests to update badge count
+  checkPendingReactivationRequests();
+
   // Combine database registered students with any request submitters not yet in list
   const studentMap = new Map();
 
@@ -1975,7 +2008,6 @@ async function renderAdminStudentsTable() {
       studentId: s.studentId || '23-0000',
       name: s.name || s.fullName || 'Student',
       course: s.course || 'BSIT',
-      year: s.year || '3rd Year',
       status: s.status || 'Active',
       email: s.email || ''
     });
@@ -1992,7 +2024,6 @@ async function renderAdminStudentsTable() {
           studentId: sId || '23-10021',
           name: sName,
           course: r.course || 'BSIT',
-          year: '3rd Year',
           status: 'Active',
           email: ''
         });
@@ -2027,13 +2058,14 @@ async function renderAdminStudentsTable() {
   renderPagination('adminStudentsPagination', 'adminStudentsCountLabel', filtered.length, studentCurrentPage, pageSize, 'setStudentPage', 'students');
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="table-empty">No registered students found in database.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="table-empty">No registered students found matching filter criteria.</td></tr>`;
     return;
   }
 
   tbody.innerHTML = paged.map(s => {
     const initials = s.name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase() || 'ST';
-    const statusClass = s.status.toLowerCase() === 'active' ? 'status-approved' : 'status-pending';
+    const isActive = s.status.toLowerCase() === 'active';
+    const statusClass = isActive ? 'status-approved' : 'status-rejected';
 
     return `
       <tr>
@@ -2045,7 +2077,6 @@ async function renderAdminStudentsTable() {
           </div>
         </td>
         <td><span style="font-weight:500; color:#334155;">${escapeHtml(s.course)}</span></td>
-        <td><span style="color:#64748B; font-size:13px;">${escapeHtml(s.year || '3rd Year')}</span></td>
         <td>
           <span class="admin-status-pill ${statusClass}">
             <span class="pill-dot"></span>
@@ -2054,10 +2085,10 @@ async function renderAdminStudentsTable() {
         </td>
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
-            <button type="button" class="btn-table-pill" onclick="viewStudentDetails('${escapeHtml(s.studentId)}')">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>View</span>
-            </button>
+            ${isActive
+              ? `<button type="button" class="btn-table-pill btn-deactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Inactive', '${escapeHtml(s.name)}')">Deactivate</button>`
+              : `<button type="button" class="btn-table-pill btn-reactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Active', '${escapeHtml(s.name)}')">Reactivate</button>`
+            }
             <button type="button" class="btn-table-pill" onclick="editStudentDetails('${escapeHtml(s.studentId)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               <span>Edit</span>
@@ -2067,6 +2098,198 @@ async function renderAdminStudentsTable() {
       </tr>
     `;
   }).join('');
+}
+
+window.filterToDeactivatedStudents = function() {
+  const sel = document.getElementById('adminStudentStatusFilter');
+  if (sel) {
+    sel.value = 'Inactive';
+    studentCurrentPage = 1;
+    renderAdminStudentsTable();
+    showToast('Filtered to show Deactivated Accounts', 'info');
+  }
+};
+
+window.toggleStudentStatus = async function(studentId, newStatus, studentName) {
+  const isDeactivating = newStatus === 'Inactive';
+  const actionText = isDeactivating ? 'deactivate' : 'reactivate';
+  const confirmMsg = isDeactivating
+    ? `Are you sure you want to DEACTIVATE the student account for ${studentName || studentId}? They will not be able to log in to the student portal until reactivated.`
+    : `Are you sure you want to REACTIVATE the student account for ${studentName || studentId}?`;
+
+  if (!confirm(confirmMsg)) return;
+
+  triggerAdminViewLoader();
+  try {
+    const res = await fetch(`/api/auth/students/${encodeURIComponent(studentId)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || `Failed to ${actionText} account.`);
+
+    showToast(`Student account ${actionText}d successfully.`, 'success');
+    if (typeof addAdminAuditLog === 'function') {
+      addAdminAuditLog(`${isDeactivating ? 'Deactivated' : 'Reactivated'} student account #${studentId} (${studentName || ''})`, 'USER');
+    }
+
+    await fetchRegisteredStudents();
+    await checkPendingReactivationRequests();
+    renderAdminStudentsTable();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+};
+
+window.openReactivationModal = function(studentId = '', email = '') {
+  const modal = document.getElementById('modalRequestReactivation');
+  if (!modal) return;
+  const idEl = document.getElementById('reactivateStudentId');
+  if (idEl && studentId) idEl.value = studentId;
+  const emEl = document.getElementById('reactivateEmail');
+  if (emEl && email) emEl.value = email;
+  modal.style.display = 'flex';
+};
+
+window.closeReactivationModal = function() {
+  const modal = document.getElementById('modalRequestReactivation');
+  if (modal) modal.style.display = 'none';
+};
+
+window.openReactivationRequestsModal = async function() {
+  const modal = document.getElementById('modalReactivationRequests');
+  if (!modal) return;
+  modal.style.display = 'flex';
+
+  const listEl = document.getElementById('reactivationRequestsList');
+  if (!listEl) return;
+  listEl.innerHTML = '<p style="text-align:center; color:#64748B; font-size:13px; padding:24px;">Loading requests...</p>';
+
+  try {
+    const res = await fetch('/api/auth/reactivation-requests');
+    const result = await res.json();
+    const requests = result.data || [];
+
+    if (requests.length === 0) {
+      listEl.innerHTML = `
+        <div style="text-align:center; padding:32px 16px; color:#64748B;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" style="margin-bottom:8px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <h4 style="margin:0 0 4px; font-size:15px; color:#1E293B;">No Reactivation Requests</h4>
+          <p style="font-size:12.5px; margin:0;">All student accounts are up to date. No pending reactivation requests found.</p>
+        </div>
+      `;
+      return;
+    }
+
+    listEl.innerHTML = requests.map(r => {
+      const isPending = (r.status || 'Pending').toLowerCase() === 'pending';
+      return `
+        <div style="border:1px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:10px; background:#FFFFFF;">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+            <div>
+              <strong style="color:#0F172A; font-size:14px;">${escapeHtml(r.full_name)}</strong>
+              <div style="font-size:12px; color:#64748B; margin-top:2px;">
+                ID: <code class="ref-req-code">${escapeHtml(r.student_id)}</code> &bull; ${escapeHtml(r.email)}
+              </div>
+            </div>
+            <span class="badge-status-pill ${isPending ? 'pending' : 'green'}">&bull; ${escapeHtml(r.status || 'Pending')}</span>
+          </div>
+          <div style="background:#F8FAFC; border-radius:8px; padding:8px 12px; font-size:12.5px; color:#334155; margin-bottom:10px;">
+            <div style="font-weight:600; color:#475569; font-size:11px; margin-bottom:2px; text-transform:uppercase;">Reason for Reactivation:</div>
+            "${escapeHtml(r.reason)}"
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:11.5px; color:#94A3B8;">Submitted: ${formatDate(r.created_at)}</span>
+            ${isPending ? `<button type="button" class="btn-table-pill btn-reactivate" style="font-weight:700;" onclick="approveReactivationRequest('${escapeHtml(r.student_id)}', '${r.id}')">Approve &amp; Reactivate &rarr;</button>` : '<span style="font-size:12px; color:#16A34A; font-weight:600;">&#10003; Reactivated</span>'}
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    listEl.innerHTML = `<p style="color:#DC2626; text-align:center; padding:16px;">Error loading requests: ${escapeHtml(err.message)}</p>`;
+  }
+};
+
+window.closeReactivationRequestsModal = function() {
+  const modal = document.getElementById('modalReactivationRequests');
+  if (modal) modal.style.display = 'none';
+};
+
+window.approveReactivationRequest = async function(studentId, requestId) {
+  triggerAdminViewLoader();
+  try {
+    const res = await fetch(`/api/auth/students/${encodeURIComponent(studentId)}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Active' })
+    });
+    if (!res.ok) throw new Error('Failed to reactivate account.');
+    showToast(`Student ${studentId} reactivated successfully!`, 'success');
+    if (typeof addAdminAuditLog === 'function') {
+      addAdminAuditLog(`Approved reactivation request for student #${studentId}`, 'USER');
+    }
+    await fetchRegisteredStudents();
+    await checkPendingReactivationRequests();
+    renderAdminStudentsTable();
+    openReactivationRequestsModal();
+  } catch (err) {
+    showToast(err.message, 'error');
+  }
+};
+
+async function checkPendingReactivationRequests() {
+  try {
+    const res = await fetch('/api/auth/reactivation-requests');
+    if (res.ok) {
+      const data = await res.json();
+      const pending = (data.data || []).filter(r => (r.status || '').toLowerCase() === 'pending');
+      const badge = document.getElementById('badgeReactivationCount');
+      if (badge) {
+        if (pending.length > 0) {
+          badge.textContent = pending.length;
+          badge.style.display = 'inline-block';
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+async function handleReactivationSubmit(e) {
+  e.preventDefault();
+  const studentId = document.getElementById('reactivateStudentId')?.value.trim();
+  const email = document.getElementById('reactivateEmail')?.value.trim();
+  const reason = document.getElementById('reactivateReason')?.value.trim();
+
+  if (!studentId || !email || !reason) {
+    showToast('Please fill out all required fields.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('btnSubmitReactivation');
+  if (btn) btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/auth/reactivation-request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ studentId, email, reason })
+    });
+
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || 'Failed to submit reactivation request.');
+
+    showToast('Reactivation request submitted! The Registrar will review your account.', 'success');
+    closeReactivationModal();
+    checkPendingReactivationRequests();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 window.viewStudentDetails = function(studentId) {
@@ -3462,9 +3685,26 @@ function setupAdminRefPortalListeners() {
   // 7. Manage Requests Filters
   setupAdminFilters();
 
-  // 8. Manage Students Filters
+  // 8. Manage Students Filters & Reactivation Handlers
   document.getElementById('adminStudentSearchInput')?.addEventListener('input', renderAdminStudentsTable);
   document.getElementById('adminStudentProgramFilter')?.addEventListener('change', renderAdminStudentsTable);
+  document.getElementById('adminStudentStatusFilter')?.addEventListener('change', renderAdminStudentsTable);
+  document.getElementById('btnAdminApplyStudentFilter')?.addEventListener('click', renderAdminStudentsTable);
+  document.getElementById('btnViewReactivationRequests')?.addEventListener('click', openReactivationRequestsModal);
+  document.getElementById('btnCloseReactivationRequestsModal')?.addEventListener('click', closeReactivationRequestsModal);
+  document.getElementById('btnCloseReactivationRequestsBtn')?.addEventListener('click', closeReactivationRequestsModal);
+  document.getElementById('backdropReactivationRequests')?.addEventListener('click', closeReactivationRequestsModal);
+
+  // Student Reactivation Request Modal Handlers
+  document.getElementById('linkOpenReactivationFromLogin')?.addEventListener('click', () => {
+    closeAuthModal();
+    const loginEmailVal = document.getElementById('loginEmail')?.value.trim();
+    openReactivationModal(loginEmailVal, loginEmailVal && loginEmailVal.includes('@') ? loginEmailVal : '');
+  });
+  document.getElementById('btnCloseReactivationModal')?.addEventListener('click', closeReactivationModal);
+  document.getElementById('btnCancelReactivationModal')?.addEventListener('click', closeReactivationModal);
+  document.getElementById('backdropRequestReactivation')?.addEventListener('click', closeReactivationModal);
+  document.getElementById('formRequestReactivation')?.addEventListener('submit', handleReactivationSubmit);
 
   // 9. Announcements Form Submit
   const announceForm = document.getElementById('formAdminAnnouncement');
