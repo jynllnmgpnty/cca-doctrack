@@ -154,6 +154,35 @@ async function testNewFixes() {
     const getAdminFallbackJson = await getAdminFallbackRes.json();
     assert(getAdminFallbackJson.user.role === 'admin', 'Fallback returns admin user');
 
+    // 5. Requirement: Default Student Profile Update in Supabase
+    console.log('\n--- Test 5: Default Student Profile Update in Supabase ---');
+    const defaultStudentEmail = 'jaynellan@cca.edu.ph';
+    const updatedDefaultStudentName = 'Jaynellan Almary Magpantay (Updated)';
+    const patchStudentRes = await fetch(`${baseUrl}/api/auth/profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: defaultStudentEmail,
+        fullName: updatedDefaultStudentName,
+        course: 'BS Information Technology',
+        role: 'student'
+      })
+    });
+    assert(patchStudentRes.status === 200, 'PATCH /api/auth/profile for default student returns 200 OK');
+    const patchStudentJson = await patchStudentRes.json();
+    assert(patchStudentJson.success === true, 'Default student update returns success: true');
+    assert(patchStudentJson.user.fullName === updatedDefaultStudentName, 'Returned user has updated full name: ' + updatedDefaultStudentName);
+
+    // Verify in Supabase directly
+    const studentInDb = await dbUsers.findByEmailOrStudentId(defaultStudentEmail);
+    assert(studentInDb && studentInDb.full_name === updatedDefaultStudentName, 'Supabase directly shows updated student full_name: ' + studentInDb.full_name);
+
+    // Verify GET /api/auth/profile for default student (cross-session / reopen)
+    const getStudentProfileRes = await fetch(`${baseUrl}/api/auth/profile?identifier=${defaultStudentEmail}`);
+    assert(getStudentProfileRes.status === 200, 'GET /api/auth/profile returns 200 OK for default student');
+    const getStudentProfileJson = await getStudentProfileRes.json();
+    assert(getStudentProfileJson.user.fullName === updatedDefaultStudentName, 'Reopening session returns live updated student details');
+
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} NEW FIX TESTS PASSED!`);
     console.log('========================================================');

@@ -4140,8 +4140,41 @@ const cropperState = {
   dragStartY: 0
 };
 
-function initStudentRefPortal() {
+async function initStudentRefPortal() {
   restoreDarkModeState();
+
+  // Live refresh of student profile from Supabase database
+  try {
+    const sIdent = state.currentUser && (state.currentUser.studentId || state.currentUser.email || state.currentUser.id);
+    if (sIdent) {
+      const pRes = await fetch('/api/auth/profile?identifier=' + encodeURIComponent(sIdent));
+      if (pRes.ok) {
+        const pData = await pRes.json();
+        if (pData && pData.success && pData.user) {
+          if (!state.currentUser) state.currentUser = {};
+          state.currentUser.fullName = pData.user.fullName;
+          state.currentUser.email = pData.user.email;
+          state.currentUser.course = pData.user.course;
+          state.currentUser.role = pData.user.role || 'student';
+          if (pData.user.studentId) state.currentUser.studentId = pData.user.studentId;
+          localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+          const key = 'cca_student_profile_' + (state.currentUser.studentId || 'default');
+          const prof = {
+            fullName: state.currentUser.fullName,
+            email: state.currentUser.email,
+            course: state.currentUser.course,
+            studentId: state.currentUser.studentId
+          };
+          localStorage.setItem(key, JSON.stringify(prof));
+          localStorage.setItem('cca_student_profile', JSON.stringify(prof));
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Could not refresh live student profile:', err);
+  }
+
   syncStudentRefProfile();
   renderStudentDashboardData();
   renderStudentTrackingCards();
@@ -4171,10 +4204,10 @@ function triggerStudentViewLoader() {
 
 function syncStudentRefProfile() {
   const user = state.currentUser || {
-    fullName: 'Juan Dela Cruz',
-    studentId: 'REQ-00234',
-    course: 'BS Information Technology (BSIT)',
-    email: 'juan.delacruz@cca.edu.ph'
+    fullName: 'Jaynellan Almary O. Magpantay',
+    studentId: '23-67894',
+    course: 'BS Information Technology',
+    email: 'jaynellan@cca.edu.ph'
   };
 
   const storedKey = 'cca_student_profile_' + (user.studentId || 'default');
@@ -4187,10 +4220,10 @@ function syncStudentRefProfile() {
   }
 
   const profile = {
-    fullName: stored.fullName || user.fullName || 'Juan Dela Cruz',
-    studentId: stored.studentId || user.studentId || 'REQ-00234',
-    course: stored.course || user.course || 'BS Information Technology (BSIT)',
-    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph'
+    fullName: user.fullName || stored.fullName || 'Jaynellan Almary O. Magpantay',
+    studentId: user.studentId || stored.studentId || '23-67894',
+    course: user.course || stored.course || 'BS Information Technology',
+    email: user.email || stored.email || 'jaynellan@cca.edu.ph'
   };
 
   // Topbar
@@ -5161,9 +5194,9 @@ function setupStudentRefPortalListeners() {
   const editModal = document.getElementById('modalEditPersonalInfo');
   document.getElementById('btnEditPersonalInfo')?.addEventListener('click', () => {
     if (!editModal) return;
-    const curName = document.getElementById('personalFullName')?.textContent || '';
-    const curEmail = document.getElementById('personalEmail')?.textContent || '';
-    const curProg = document.getElementById('personalProgram')?.textContent || '';
+    const curName = (state.currentUser && state.currentUser.fullName) || document.getElementById('personalFullName')?.textContent || '';
+    const curEmail = (state.currentUser && state.currentUser.email) || document.getElementById('personalEmail')?.textContent || '';
+    const curProg = (state.currentUser && state.currentUser.course) || document.getElementById('personalProgram')?.textContent || '';
 
     const inName = document.getElementById('modalInputFullName'); if (inName) inName.value = curName;
     const inEmail = document.getElementById('modalInputEmail'); if (inEmail) inEmail.value = curEmail;
@@ -5190,11 +5223,7 @@ function setupStudentRefPortalListeners() {
     if (editModal) editModal.style.display = 'none';
   });
 
-  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', () => {
-    const name = document.getElementById('modalInputFullName')?.value.trim();
-    const email = document.getElementById('modalInputEmail')?.value.trim();
-    const prog = document.getElementById('modalInputProgram')?.value;
-
+  async function handleSaveStudentPersonalInfo(name, email, prog, modalEl = null) {
     if (!name || !email) {
       showToast('Name and Email are required.', 'error');
       return;
@@ -5202,66 +5231,66 @@ function setupStudentRefPortalListeners() {
 
     triggerStudentViewLoader();
 
-    if (state.currentUser) {
-      state.currentUser.fullName = name;
-      state.currentUser.email = email;
-      state.currentUser.course = prog;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-    }
+    // Use current user's studentId, email, or id as identifier before updating
+    const currentIdent = (state.currentUser && (state.currentUser.studentId || state.currentUser.email || state.currentUser.id)) || email;
 
-    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
-    let profile = {};
     try {
-      const raw = localStorage.getItem(key);
-      if (raw) profile = JSON.parse(raw);
-    } catch (e) {}
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: currentIdent,
+          fullName: name,
+          email: email,
+          course: prog,
+          role: 'student'
+        })
+      });
 
-    profile.fullName = name;
-    profile.email = email;
-    profile.course = prog;
-    localStorage.setItem(key, JSON.stringify(profile));
-    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+      const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.message || 'Database update failed.');
+      }
 
-    syncStudentRefProfile();
-    showToast('Profile information updated successfully!', 'success');
-    if (editModal) editModal.style.display = 'none';
+      if (!state.currentUser) state.currentUser = {};
+      state.currentUser.fullName = resData.user.fullName || name;
+      state.currentUser.email = resData.user.email || email;
+      state.currentUser.course = resData.user.course || prog;
+      if (resData.user.studentId) state.currentUser.studentId = resData.user.studentId;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+      const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
+      const profile = {
+        fullName: state.currentUser.fullName,
+        email: state.currentUser.email,
+        course: state.currentUser.course,
+        studentId: state.currentUser.studentId
+      };
+      localStorage.setItem(key, JSON.stringify(profile));
+      localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+      syncStudentRefProfile();
+      showToast('Student profile updated successfully in Supabase database!', 'success');
+      if (modalEl) modalEl.style.display = 'none';
+    } catch (err) {
+      console.error('Student profile update error:', err);
+      showToast('Failed to update student profile in database: ' + err.message, 'error');
+    }
+  }
+
+  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', async () => {
+    const name = document.getElementById('modalInputFullName')?.value.trim();
+    const email = document.getElementById('modalInputEmail')?.value.trim();
+    const prog = document.getElementById('modalInputProgram')?.value;
+    await handleSaveStudentPersonalInfo(name, email, prog, editModal);
   });
 
   // 10. Account Settings Save
-  document.getElementById('btnSettingsSave')?.addEventListener('click', () => {
+  document.getElementById('btnSettingsSave')?.addEventListener('click', async () => {
     const full = document.getElementById('settingsInputFullName')?.value.trim();
     const email = document.getElementById('settingsInputEmail')?.value.trim();
     const prog = document.getElementById('settingsInputProgram')?.value;
-
-    if (!full || !email) {
-      showToast('Full name and email are required.', 'error');
-      return;
-    }
-
-    triggerStudentViewLoader();
-
-    if (state.currentUser) {
-      state.currentUser.fullName = full;
-      state.currentUser.email = email;
-      state.currentUser.course = prog;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-    }
-
-    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
-    let profile = {};
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) profile = JSON.parse(raw);
-    } catch (e) {}
-
-    profile.fullName = full;
-    profile.email = email;
-    profile.course = prog;
-    localStorage.setItem(key, JSON.stringify(profile));
-    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
-
-    syncStudentRefProfile();
-    showToast('Account settings saved successfully!', 'success');
+    await handleSaveStudentPersonalInfo(full, email, prog);
   });
 
   document.getElementById('btnSettingsCancel')?.addEventListener('click', () => {
