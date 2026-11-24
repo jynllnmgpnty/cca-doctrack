@@ -21,3 +21,7 @@ yarn-debug.log*
 yarn-error.log*
 logs/
 *.log
+
+# Export and migration backups
+turso_export_backup_*.json
+

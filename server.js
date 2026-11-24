@@ -29,11 +29,11 @@ app.get('/api/health', async (req, res) => {
     uptime: `${Math.floor(process.uptime())}s`,
     database: {
       status: health.connected ? 'Connected' : 'Disconnected',
-      type: 'Turso Cloud Database (libSQL)',
+      type: health.type || 'Supabase Database (PostgreSQL)',
       mode: health.mode || 'Offline',
       description: health.connected
         ? `Connected to ${health.mode}`
-        : 'Not connected to database. Check TURSO_DATABASE_URL and TURSO_AUTH_TOKEN in .env'
+        : 'Not connected to Supabase database. Please check SUPABASE_URL and SUPABASE_SECRET_KEY in .env'
     },
     timestamp: new Date().toISOString()
   });
@@ -70,14 +70,14 @@ app.use((err, req, res, next) => {
 app.listen(PORT, async () => {
   console.log('========================================================');
   console.log('🎓 CCA DocTrack - Christ Centered Academy of Lipa City Inc.');
-  console.log('🏛️ Student Document Request Tracking System (Turso Cloud / libSQL)');
+  console.log('🏛️ Student Document Request Tracking System (Supabase PostgreSQL)');
   console.log(`🚀 Server running on port: ${PORT}`);
   console.log(`🌐 Local Web App URL:      http://localhost:${PORT}`);
   console.log(`🩺 Health-Check Endpoint:  http://localhost:${PORT}/api/health`);
   console.log(`📦 REST API Base:          http://localhost:${PORT}/api/requests`);
   console.log('========================================================');
 
-  // Initialize Turso tables and default records automatically
+  // Initialize database tables and default records automatically
   try {
     await initDB();
   } catch (error) {

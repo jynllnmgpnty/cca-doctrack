@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const { db, seedDefaultAccounts } = require('../db');
+const { dbUsers, dbReactivations, seedDefaultAccounts } = require('../db');
 
 /**
  * @route   POST /api/auth/register
- * @desc    Register a new Student or Admin account in Turso database
+ * @desc    Register a new Student or Admin account in database
  * @access  Public
  */
 router.post('/register', async (req, res) => {
@@ -55,14 +55,11 @@ router.post('/register', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     const normalizedStudentId = studentId ? studentId.trim() : '';
 
-    // Check if email or student ID is already registered in Turso
-    const existingUser = await db.execute({
-      sql: 'SELECT id, email, student_id FROM users WHERE LOWER(email) = ? OR (student_id != "" AND LOWER(student_id) = ?)',
-      args: [normalizedEmail, normalizedStudentId.toLowerCase()]
-    });
+    // Check if email or student ID is already registered
+    const existingUsers = await dbUsers.findDuplicate(normalizedEmail, normalizedStudentId);
 
-    if (existingUser.rows.length > 0) {
-      const match = existingUser.rows[0];
+    if (existingUsers && existingUsers.length > 0) {
+      const match = existingUsers[0];
       if (match.email && match.email.toLowerCase() === normalizedEmail) {
         return res.status(400).json({
           success: false,
@@ -82,38 +79,20 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(cleanPassword, salt);
 
-    // Insert user into Turso SQL database
-    const insertResult = await db.execute({
-      sql: `INSERT INTO users (full_name, student_id, email, password, course, role)
-            VALUES (?, ?, ?, ?, ?, ?)`,
-      args: [
-        fullName.trim(),
-        normalizedStudentId,
-        normalizedEmail,
-        hashedPassword,
-        course ? course.trim() : 'BS Information Technology',
-        userRole
-      ]
+    // Insert user into database
+    const newUser = await dbUsers.create({
+      fullName: fullName.trim(),
+      studentId: normalizedStudentId,
+      email: normalizedEmail,
+      password: hashedPassword,
+      course: course ? course.trim() : 'BS Information Technology',
+      role: userRole
     });
-
-    const createdUserResult = await db.execute({
-      sql: 'SELECT id, full_name, student_id, email, course, role FROM users WHERE id = ?',
-      args: [insertResult.lastInsertRowid]
-    });
-
-    const newUser = createdUserResult.rows[0];
 
     return res.status(201).json({
       success: true,
       message: 'Account registered successfully!',
-      user: {
-        id: newUser.id,
-        fullName: newUser.full_name,
-        studentId: newUser.student_id,
-        email: newUser.email,
-        course: newUser.course,
-        role: newUser.role
-      }
+      user: newUser
     });
   } catch (error) {
     console.error('Registration error:', error.message);
@@ -127,7 +106,7 @@ router.post('/register', async (req, res) => {
 
 /**
  * @route   POST /api/auth/login
- * @desc    Authenticate user & return credentials from Turso database (Accepts Email OR Student ID)
+ * @desc    Authenticate user & return credentials from database (Accepts Email OR Student ID)
  * @access  Public
  */
 router.post('/login', async (req, res) => {
@@ -145,30 +124,22 @@ router.post('/login', async (req, res) => {
     const rawPassword = password;
     const trimmedPassword = password.trim();
 
-    // Find user in Turso database by email OR student_id (case-insensitive)
-    let userResult = await db.execute({
-      sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
-      args: [normalizedInput, normalizedInput]
-    });
+    // Find user in database by email OR student_id (case-insensitive)
+    let user = await dbUsers.findByEmailOrStudentId(normalizedInput);
 
     // If default demo accounts missing, re-seed and query again
     const isDefaultSeed = ['admin@cca.edu.ph', 'jaynellan@cca.edu.ph', '23-67894', 'admin-001'].includes(normalizedInput);
-    if (userResult.rows.length === 0 && isDefaultSeed) {
+    if (!user && isDefaultSeed) {
       await seedDefaultAccounts();
-      userResult = await db.execute({
-        sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
-        args: [normalizedInput, normalizedInput]
-      });
+      user = await dbUsers.findByEmailOrStudentId(normalizedInput);
     }
 
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials. No account found matching this Email Address or Student ID.'
       });
     }
-
-    const user = userResult.rows[0];
 
     // Check password (try raw, and try trimmed as fallback)
     let isMatch = await bcrypt.compare(rawPassword, user.password);
@@ -245,19 +216,14 @@ router.post('/change-password', async (req, res) => {
     const normalizedInput = targetIdentifier.trim().toLowerCase();
 
     // Find user
-    const userResult = await db.execute({
-      sql: 'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(student_id) = ?',
-      args: [normalizedInput, normalizedInput]
-    });
+    const user = await dbUsers.findByEmailOrStudentId(normalizedInput);
 
-    if (userResult.rows.length === 0) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User account not found.'
       });
     }
-
-    const user = userResult.rows[0];
 
     // Verify current password
     const isCurrentMatch = await bcrypt.compare(currentPassword.trim(), user.password);
@@ -299,10 +265,7 @@ router.post('/change-password', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const newHash = await bcrypt.hash(cleanNewPw, salt);
 
-    await db.execute({
-      sql: 'UPDATE users SET password = ? WHERE id = ?',
-      args: [newHash, user.id]
-    });
+    await dbUsers.updatePassword(user.id, newHash);
 
     return res.status(200).json({
       success: true,
@@ -320,21 +283,12 @@ router.post('/change-password', async (req, res) => {
 
 /**
  * @route   GET /api/auth/students
- * @desc    Get all registered student accounts from Turso database (no fake data)
+ * @desc    Get all registered student accounts from database (no fake data)
  * @access  Public
  */
 router.get('/students', async (req, res) => {
   try {
-    const result = await db.execute("SELECT id, full_name, student_id, email, course, role, status, created_at FROM users WHERE role != 'admin' ORDER BY id ASC");
-    const students = result.rows.map(r => ({
-      id: r.id,
-      name: r.full_name,
-      studentId: r.student_id,
-      email: r.email,
-      course: r.course || 'BS Information Technology',
-      status: r.status || 'Active',
-      createdAt: r.created_at
-    }));
+    const students = await dbUsers.getStudents();
 
     return res.status(200).json({
       success: true,
@@ -368,41 +322,20 @@ router.patch('/students/:identifier/status', async (req, res) => {
       });
     }
 
-    const target = identifier.trim().toLowerCase();
+    const updated = await dbUsers.updateStatus(identifier, status);
 
-    // Check if user exists
-    const checkUser = await db.execute({
-      sql: 'SELECT id, full_name, student_id, email FROM users WHERE LOWER(student_id) = ? OR LOWER(email) = ? OR id = ?',
-      args: [target, target, target]
-    });
-
-    if (checkUser.rows.length === 0) {
+    if (!updated) {
       return res.status(404).json({
         success: false,
         message: `Student '${identifier}' not found in database.`
       });
     }
 
-    await db.execute({
-      sql: 'UPDATE users SET status = ? WHERE LOWER(student_id) = ? OR LOWER(email) = ? OR id = ?',
-      args: [status, target, target, target]
-    });
-
-    // If reactivated, mark any pending reactivation requests as Approved
-    if (status === 'Active') {
-      try {
-        await db.execute({
-          sql: "UPDATE reactivation_requests SET status = 'Approved' WHERE LOWER(student_id) = ? OR LOWER(email) = ?",
-          args: [target, target]
-        });
-      } catch (err) {}
-    }
-
     return res.status(200).json({
       success: true,
       message: `Student account successfully ${status === 'Active' ? 'reactivated' : 'deactivated'}.`,
-      studentId: checkUser.rows[0].student_id,
-      status: status
+      studentId: updated.studentId,
+      status: updated.status
     });
   } catch (error) {
     console.error('Error updating student status:', error.message);
@@ -434,23 +367,20 @@ router.post('/reactivation-request', async (req, res) => {
     const targetEmail = email.trim().toLowerCase();
 
     // Verify user exists in database
-    const userCheck = await db.execute({
-      sql: 'SELECT id, full_name, student_id, email, status FROM users WHERE LOWER(student_id) = ? OR LOWER(email) = ?',
-      args: [targetId, targetEmail]
-    });
+    const user = await dbUsers.findByEmailOrStudentId(targetId) || await dbUsers.findByEmailOrStudentId(targetEmail);
 
-    if (userCheck.rows.length === 0) {
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: 'No student account matches the provided Student ID or email.'
       });
     }
 
-    const studentUser = userCheck.rows[0];
-
-    await db.execute({
-      sql: 'INSERT INTO reactivation_requests (student_id, full_name, email, reason, status) VALUES (?, ?, ?, ?, ?)',
-      args: [studentUser.student_id, studentUser.full_name, studentUser.email, reason.trim(), 'Pending']
+    await dbReactivations.create({
+      studentId: user.student_id,
+      fullName: user.full_name,
+      email: user.email,
+      reason: reason.trim()
     });
 
     return res.status(201).json({
@@ -474,11 +404,11 @@ router.post('/reactivation-request', async (req, res) => {
  */
 router.get('/reactivation-requests', async (req, res) => {
   try {
-    const result = await db.execute('SELECT * FROM reactivation_requests ORDER BY id DESC');
+    const requests = await dbReactivations.getAll();
     return res.status(200).json({
       success: true,
-      count: result.rows.length,
-      data: result.rows
+      count: requests.length,
+      data: requests
     });
   } catch (error) {
     console.error('Error fetching reactivation requests:', error.message);

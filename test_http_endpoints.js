@@ -6,7 +6,7 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { initDB, checkHealth, db } = require('./db');
+const { initDB, checkHealth, dbRequests } = require('./db');
 const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 
@@ -30,7 +30,7 @@ async function runHttpTests() {
       uptime: `${Math.floor(process.uptime())}s`,
       database: {
         status: health.connected ? 'Connected' : 'Disconnected',
-        type: 'Turso Cloud Database (libSQL)',
+        type: health.type || 'Supabase Database (PostgreSQL)',
         mode: health.mode || 'Offline',
         description: health.connected ? `Connected to ${health.mode}` : 'Not connected'
       },
@@ -71,7 +71,7 @@ async function runHttpTests() {
     const healthJson = await healthRes.json();
     assert(healthJson.status === 'UP', 'Health status is UP');
     assert(healthJson.database.status === 'Connected', 'Database status is Connected');
-    assert(healthJson.database.type.includes('Turso'), 'Database type specifies Turso');
+    assert(healthJson.database.type.includes('Supabase') || healthJson.database.type.includes('Turso'), 'Database type specifies database engine');
 
     // 2. GET /api/requests
     console.log('\n--- Test 2: GET /api/requests ---');
@@ -175,10 +175,7 @@ async function runHttpTests() {
     assert(wrongPwRes.status === 401, 'Wrong password returns 401 Unauthorized');
 
     // Clean up created record
-    await db.execute({
-      sql: 'DELETE FROM document_requests WHERE id = ?',
-      args: [createdId]
-    });
+    await dbRequests.delete(createdId);
 
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} HTTP API INTEGRATION TESTS PASSED!`);

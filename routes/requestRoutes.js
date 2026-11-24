@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { db, formatRequest } = require('../db');
+const { dbRequests } = require('../db');
 
 // Allowed enum values for validation
 const ALLOWED_DOCUMENT_TYPES = [
@@ -26,24 +26,13 @@ const ALLOWED_STATUSES = [
 
 /**
  * @route   GET /api/requests
- * @desc    Retrieve student document requests from Turso Cloud / libSQL (supports ?studentId= filter)
+ * @desc    Retrieve student document requests (supports ?studentId= filter)
  * @access  Public
  */
 router.get('/', async (req, res) => {
   try {
     const { studentId } = req.query;
-    let result;
-
-    if (studentId && studentId.trim()) {
-      result = await db.execute({
-        sql: 'SELECT * FROM document_requests WHERE student_id = ? ORDER BY id DESC',
-        args: [studentId.trim()]
-      });
-    } else {
-      result = await db.execute('SELECT * FROM document_requests ORDER BY id DESC');
-    }
-
-    const requests = result.rows.map(formatRequest);
+    const requests = await dbRequests.getAll(studentId);
 
     return res.status(200).json({
       success: true,
@@ -62,7 +51,7 @@ router.get('/', async (req, res) => {
 
 /**
  * @route   POST /api/requests
- * @desc    Create a new student document request in Turso
+ * @desc    Create a new student document request
  * @access  Public
  */
 router.post('/', async (req, res) => {
@@ -106,31 +95,15 @@ router.post('/', async (req, res) => {
       }
     }
 
-    const courseVal = course ? course.trim() : 'BS Information Technology';
-    const emailVal = email ? email.trim() : '';
-
-    // Insert new request record into Turso SQL database
-    const insertResult = await db.execute({
-      sql: `INSERT INTO document_requests (student_name, student_id, document_type, purpose, date_submitted, status, course, email)
-            VALUES (?, ?, ?, ?, ?, 'Pending', ?, ?)`,
-      args: [
-        studentName.trim(),
-        studentId.trim(),
-        documentType.trim(),
-        purpose.trim(),
-        submissionDate,
-        courseVal,
-        emailVal
-      ]
+    const savedRequest = await dbRequests.create({
+      studentName,
+      studentId,
+      course,
+      email,
+      documentType,
+      purpose,
+      dateSubmitted: submissionDate
     });
-
-    const newId = insertResult.lastInsertRowid;
-    const fetchResult = await db.execute({
-      sql: 'SELECT * FROM document_requests WHERE id = ?',
-      args: [newId]
-    });
-
-    const savedRequest = formatRequest(fetchResult.rows[0]);
 
     return res.status(201).json({
       success: true,
@@ -149,7 +122,7 @@ router.post('/', async (req, res) => {
 
 /**
  * @route   GET /api/requests/:id
- * @desc    Retrieve a specific document request by ID from Turso
+ * @desc    Retrieve a specific document request by numeric ID
  * @access  Public
  */
 router.get('/:id', async (req, res) => {
@@ -164,12 +137,9 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    const result = await db.execute({
-      sql: 'SELECT * FROM document_requests WHERE id = ?',
-      args: [numericId]
-    });
+    const request = await dbRequests.getById(numericId);
 
-    if (result.rows.length === 0) {
+    if (!request) {
       return res.status(404).json({
         success: false,
         message: `Document request with ID '${id}' was not found.`
@@ -178,7 +148,7 @@ router.get('/:id', async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      data: formatRequest(result.rows[0])
+      data: request
     });
   } catch (error) {
     console.error('Error fetching request by ID:', error.message);
@@ -192,7 +162,7 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @route   PATCH /api/requests/:id
- * @desc    Update the status of a specific document request in Turso
+ * @desc    Update the status of a specific document request
  * @access  Public (Admin)
  */
 router.patch('/:id', async (req, res) => {
@@ -230,39 +200,15 @@ router.patch('/:id', async (req, res) => {
       });
     }
 
-    // Check if record exists
-    const checkResult = await db.execute({
-      sql: 'SELECT id FROM document_requests WHERE id = ?',
-      args: [numericId]
-    });
+    const resolvedPickupDate = pickupDate !== undefined ? pickupDate : pickup_date;
+    const updatedRequest = await dbRequests.updateStatus(numericId, status, resolvedPickupDate);
 
-    if (checkResult.rows.length === 0) {
+    if (!updatedRequest) {
       return res.status(404).json({
         success: false,
         message: `Document request with ID '${id}' was not found.`
       });
     }
-
-    // Update status and optional pickup date in Turso / SQLite
-    const resolvedPickupDate = pickupDate !== undefined ? pickupDate : pickup_date;
-    if (resolvedPickupDate !== undefined && resolvedPickupDate !== null) {
-      await db.execute({
-        sql: 'UPDATE document_requests SET status = ?, pickup_date = ? WHERE id = ?',
-        args: [status, String(resolvedPickupDate).trim(), numericId]
-      });
-    } else {
-      await db.execute({
-        sql: 'UPDATE document_requests SET status = ? WHERE id = ?',
-        args: [status, numericId]
-      });
-    }
-
-    const updatedResult = await db.execute({
-      sql: 'SELECT * FROM document_requests WHERE id = ?',
-      args: [numericId]
-    });
-
-    const updatedRequest = formatRequest(updatedResult.rows[0]);
 
     return res.status(200).json({
       success: true,
