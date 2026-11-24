@@ -39,7 +39,21 @@ router.post('/register', async (req, res) => {
       errors.push('Passwords do not match.');
     }
 
-    const userRole = role === 'admin' ? 'admin' : 'student';
+    // Privilege Escalation Prevention: Restrict public registration to students
+    let userRole = 'student';
+    if (role === 'admin') {
+      const adminSecret = req.body.adminSecret;
+      const expectedSecret = process.env.ADMIN_REGISTRATION_SECRET;
+      if (expectedSecret && adminSecret === expectedSecret) {
+        userRole = 'admin';
+      } else {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied: Public creation of Administrator accounts is strictly prohibited.'
+        });
+      }
+    }
+
     if (userRole === 'student' && (!studentId || !studentId.trim())) {
       errors.push('Student ID number is required for student registration.');
     }
@@ -421,10 +435,16 @@ router.get('/reactivation-requests', async (req, res) => {
 });
 
 /**
- * @route   GET /api/auth/seed
- * @desc    Trigger default accounts seeding
+ * @route   POST /api/auth/seed
+ * @desc    Trigger default accounts seeding (Restricted to non-production or authorized setup)
  */
-router.get('/seed', async (req, res) => {
+router.post('/seed', async (req, res) => {
+  if (process.env.NODE_ENV === 'production' && !process.env.ALLOW_PROD_SEED) {
+    return res.status(403).json({
+      success: false,
+      message: 'Access denied: Seeding endpoint is disabled in production.'
+    });
+  }
   await seedDefaultAccounts();
   return res.json({ success: true, message: 'Seeded default demo accounts.' });
 });

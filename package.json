@@ -13,16 +13,13 @@
     "cca-doctrack",
     "student-document-tracking",
     "express",
-    "turso-cloud",
-    "libsql",
-    "sqlite",
+    "supabase-postgresql",
     "render-deployment",
     "it412"
   ],
   "author": "IT 412 Student Developer",
   "license": "ISC",
   "dependencies": {
-    "@libsql/client": "^0.18.0",
     "@supabase/supabase-js": "^2.119.2",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -30,6 +27,7 @@
     "express": "^4.19.2"
   },
   "devDependencies": {
+    "@libsql/client": "^0.18.0",
     "nodemon": "^3.1.0"
   },
   "engines": {
