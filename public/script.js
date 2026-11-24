@@ -363,8 +363,21 @@ function restoreSession() {
                 state.currentUser.fullName = res.user.fullName;
                 state.currentUser.email = res.user.email;
                 state.currentUser.course = res.user.course;
+                if (res.user.studentId) state.currentUser.studentId = res.user.studentId;
                 localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+                const key = 'cca_student_profile_' + (state.currentUser.studentId || 'default');
+                const prof = {
+                  fullName: state.currentUser.fullName,
+                  email: state.currentUser.email,
+                  course: state.currentUser.course,
+                  studentId: state.currentUser.studentId
+                };
+                localStorage.setItem(key, JSON.stringify(prof));
+                localStorage.setItem('cca_student_profile', JSON.stringify(prof));
+
                 syncStudentProfileFromAuth();
+                syncStudentRefProfile();
               }
             })
             .catch(() => {});
@@ -618,6 +631,20 @@ async function handleLoginSubmit(e) {
     // Save user session
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
+
+    // Seed profile caches immediately so new devices don't show stale/default values
+    if (result.user.role === 'student') {
+      const initStudentProfile = {
+        fullName: result.user.fullName,
+        email: result.user.email,
+        course: result.user.course,
+        studentId: result.user.studentId
+      };
+      if (result.user.studentId) {
+        localStorage.setItem('cca_student_profile_' + result.user.studentId, JSON.stringify(initStudentProfile));
+      }
+      localStorage.setItem('cca_student_profile', JSON.stringify(initStudentProfile));
+    }
 
     // Smooth loading overlay for login
     showAppLoading('Signing In...', 'Authenticating credentials and preparing workspace...');
@@ -5194,9 +5221,10 @@ function setupStudentRefPortalListeners() {
   const editModal = document.getElementById('modalEditPersonalInfo');
   document.getElementById('btnEditPersonalInfo')?.addEventListener('click', () => {
     if (!editModal) return;
-    const curName = (state.currentUser && state.currentUser.fullName) || document.getElementById('personalFullName')?.textContent || '';
-    const curEmail = (state.currentUser && state.currentUser.email) || document.getElementById('personalEmail')?.textContent || '';
-    const curProg = (state.currentUser && state.currentUser.course) || document.getElementById('personalProgram')?.textContent || '';
+    const u = state.currentUser || {};
+    const curName = u.fullName || (document.getElementById('personalFullName')?.textContent !== '---' ? document.getElementById('personalFullName')?.textContent : '') || '';
+    const curEmail = u.email || (document.getElementById('personalEmail')?.textContent !== '---' ? document.getElementById('personalEmail')?.textContent : '') || '';
+    const curProg = u.course || (document.getElementById('personalProgram')?.textContent !== '---' ? document.getElementById('personalProgram')?.textContent : '') || '';
 
     const inName = document.getElementById('modalInputFullName'); if (inName) inName.value = curName;
     const inEmail = document.getElementById('modalInputEmail'); if (inEmail) inEmail.value = curEmail;
