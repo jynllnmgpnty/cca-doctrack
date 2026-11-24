@@ -16,7 +16,7 @@ router.post('/register', async (req, res) => {
     const errors = [];
     if (!fullName || !fullName.trim()) errors.push('Full name is required.');
     if (!email || !email.trim()) errors.push('Email address is required.');
-    
+
     // Password validation: at least 8 characters (supports up to 64 characters)
     if (!password) {
       errors.push('Password is required.');
