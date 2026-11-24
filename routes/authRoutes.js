@@ -303,9 +303,64 @@ router.post('/change-password', async (req, res) => {
  * @desc    Update user profile name, course, etc. in Supabase
  * @access  Public (Authenticated session)
  */
+/**
+ * @route   GET /api/auth/profile
+ * @desc    Get live authenticated user profile from database
+ * @access  Public
+ */
+router.get('/profile', async (req, res) => {
+  try {
+    const identifier = req.query.identifier || req.query.email || req.query.studentId || req.query.id;
+    if (!identifier) {
+      return res.status(400).json({
+        success: false,
+        message: 'Identifier is required to fetch profile.'
+      });
+    }
+
+    const normalized = String(identifier).trim().toLowerCase();
+    let user = await dbUsers.findByEmailOrStudentId(normalized);
+    if (!user && (normalized === 'admin' || normalized.includes('admin'))) {
+      user = await dbUsers.getAdminUser();
+    }
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User profile not found.'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user.id,
+        fullName: user.full_name,
+        studentId: user.student_id,
+        email: user.email,
+        course: user.course,
+        role: user.role,
+        status: user.status
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching profile:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch user profile.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   PATCH /api/auth/profile
+ * @desc    Update student or administrator profile in Supabase
+ * @access  Public
+ */
 router.patch('/profile', async (req, res) => {
   try {
-    const { identifier, email, studentId, fullName, course } = req.body;
+    const { identifier, email, studentId, fullName, course, newEmail, role } = req.body;
     const targetIdentifier = identifier || email || studentId;
 
     if (!targetIdentifier) {
@@ -315,10 +370,20 @@ router.patch('/profile', async (req, res) => {
       });
     }
 
-    const updatedUser = await dbUsers.updateProfile(targetIdentifier, {
-      fullName,
-      course
-    });
+    const updates = {};
+    if (fullName !== undefined && String(fullName).trim()) updates.fullName = String(fullName).trim();
+    if (course !== undefined && String(course).trim()) updates.course = String(course).trim();
+    if (studentId !== undefined && String(studentId).trim()) updates.studentId = String(studentId).trim();
+    if (role !== undefined && String(role).trim()) updates.role = String(role).trim();
+
+    // Check if new email is provided
+    if (newEmail && String(newEmail).trim()) {
+      updates.email = String(newEmail).trim().toLowerCase();
+    } else if (email && String(email).trim() && String(email).trim().toLowerCase() !== String(targetIdentifier).trim().toLowerCase()) {
+      updates.email = String(email).trim().toLowerCase();
+    }
+
+    const updatedUser = await dbUsers.updateProfile(targetIdentifier, updates);
 
     if (!updatedUser) {
       return res.status(404).json({

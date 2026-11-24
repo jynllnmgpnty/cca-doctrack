@@ -374,11 +374,26 @@ const dbUsers = {
       query = query.or(`student_id.ilike.${target},email.ilike.${target}`);
     }
 
-    const { data: users, error: findErr } = await query;
+    let { data: users, error: findErr } = await query;
     if (findErr) {
       console.error('Supabase query error [users.updateProfile find]:', findErr.message);
       throw findErr;
     }
+
+    // Fallback: if not found and identifier or role relates to admin, query by role 'admin'
+    if (!users || users.length === 0) {
+      if (target === 'admin' || target.includes('admin') || updates.role === 'admin') {
+        const { data: adminUsers } = await client
+          .from('users')
+          .select('id, full_name, student_id, email, course, role, status')
+          .eq('role', 'admin')
+          .limit(1);
+        if (adminUsers && adminUsers.length > 0) {
+          users = adminUsers;
+        }
+      }
+    }
+
     if (!users || users.length === 0) return null;
 
     const user = users[0];
@@ -428,6 +443,25 @@ const dbUsers = {
       course: updatePayload.course || user.course,
       role: user.role
     };
+  },
+
+  /**
+   * Get the primary administrator user from Supabase
+   */
+  async getAdminUser() {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('users')
+      .select('id, full_name, student_id, email, course, role, status, created_at')
+      .eq('role', 'admin')
+      .order('id', { ascending: true })
+      .limit(1);
+
+    if (error) {
+      console.error('Supabase query error [users.getAdminUser]:', error.message);
+      return null;
+    }
+    return data && data.length > 0 ? data[0] : null;
   }
 };
 

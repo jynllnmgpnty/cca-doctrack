@@ -120,6 +120,40 @@ async function testNewFixes() {
     // Clean up test request
     await dbRequests.delete(reqA.id);
 
+    // 4. Requirement: Admin Profile Update & Cross-Account/Session Visibility
+    console.log('\n--- Test 4: Admin Profile Update & Cross-Account Visibility ---');
+    const updatedAdminName = 'Office of the College Registrar (Head)';
+    const patchAdminRes = await fetch(`${baseUrl}/api/auth/profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: 'admin@cca.edu.ph',
+        fullName: updatedAdminName,
+        email: 'admin@cca.edu.ph',
+        role: 'admin'
+      })
+    });
+    assert(patchAdminRes.status === 200, 'PATCH /api/auth/profile for admin returns 200 OK');
+    const patchAdminJson = await patchAdminRes.json();
+    assert(patchAdminJson.success === true, 'Admin update returns success: true');
+    assert(patchAdminJson.user.fullName === updatedAdminName, 'Returned user has updated admin full name: ' + updatedAdminName);
+
+    // Verify admin in Supabase directly
+    const adminFromDb = await dbUsers.getAdminUser();
+    assert(adminFromDb && adminFromDb.full_name === updatedAdminName, 'Supabase directly shows updated admin full_name: ' + adminFromDb.full_name);
+
+    // Verify GET /api/auth/profile simulates opening in another session/account
+    const getProfileRes = await fetch(`${baseUrl}/api/auth/profile?identifier=admin@cca.edu.ph`);
+    assert(getProfileRes.status === 200, 'GET /api/auth/profile returns 200 OK for other session');
+    const getProfileJson = await getProfileRes.json();
+    assert(getProfileJson.user.fullName === updatedAdminName, 'Cross-session GET returns live updated admin name: ' + getProfileJson.user.fullName);
+
+    // Also test fallback lookup with identifier=admin
+    const getAdminFallbackRes = await fetch(`${baseUrl}/api/auth/profile?identifier=admin`);
+    assert(getAdminFallbackRes.status === 200, 'GET /api/auth/profile?identifier=admin fallback works');
+    const getAdminFallbackJson = await getAdminFallbackRes.json();
+    assert(getAdminFallbackJson.user.role === 'admin', 'Fallback returns admin user');
+
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} NEW FIX TESTS PASSED!`);
     console.log('========================================================');

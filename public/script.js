@@ -330,12 +330,44 @@ function restoreSession() {
         if (targetView === 'admin') {
           switchAdminSubtab(state.adminActiveTab);
         }
+
+        // Live refresh of admin profile from Supabase database
+        const aIdent = state.currentUser.email || state.currentUser.id || 'admin@cca.edu.ph';
+        fetch('/api/auth/profile?identifier=' + encodeURIComponent(aIdent))
+          .then(r => r.json())
+          .then(res => {
+            if (res && res.success && res.user) {
+              state.currentUser.fullName = res.user.fullName;
+              state.currentUser.email = res.user.email;
+              state.currentUser.role = res.user.role || 'admin';
+              localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+              syncAdminProfileInfo();
+            }
+          })
+          .catch(() => {});
       } else {
         const targetView = (savedView === 'landing') ? 'landing' : 'student';
         state.studentActiveTab = savedStudentTab || 'profile';
         switchView(targetView);
         if (targetView === 'student') {
           switchStudentSubtab(state.studentActiveTab);
+        }
+
+        // Live refresh of student profile from Supabase database
+        const sIdent = state.currentUser.studentId || state.currentUser.email || state.currentUser.id;
+        if (sIdent) {
+          fetch('/api/auth/profile?identifier=' + encodeURIComponent(sIdent))
+            .then(r => r.json())
+            .then(res => {
+              if (res && res.success && res.user) {
+                state.currentUser.fullName = res.user.fullName;
+                state.currentUser.email = res.user.email;
+                state.currentUser.course = res.user.course;
+                localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+                syncStudentProfileFromAuth();
+              }
+            })
+            .catch(() => {});
         }
 
         // Verify that restored student account is still active
@@ -2871,7 +2903,7 @@ window.exportAdminReportsPdf = function(reportTitle = 'CCA DocTrack Official Rep
 
       <div class="footer-sign">
         <div class="sign-box">
-          <strong>Admin Reyes</strong><br>
+          <strong>${escapeHtml(state.currentUser?.fullName || 'Office of the College Registrar')}</strong><br>
           CCA System Administrator
         </div>
         <div class="sign-box">
@@ -3227,7 +3259,7 @@ function restoreAdminDarkModeState() {
 
 function syncAdminProfileInfo() {
   const user = state.currentUser || {};
-  const adminName = user.fullName || 'Admin Reyes';
+  const adminName = user.fullName || 'Office of the College Registrar';
   const adminEmail = user.email || 'admin@cca.edu.ph';
   const adminRole = user.role === 'admin' ? 'System Administrator' : (user.role || 'System Administrator');
 
@@ -3248,6 +3280,16 @@ function syncAdminProfileInfo() {
 
   const dropEmail = document.getElementById('adminDropdownUserEmail');
   if (dropEmail) dropEmail.textContent = adminEmail;
+
+  // Sync the actual admin settings input fields
+  const setFullName = document.getElementById('adminSettingsFullName');
+  if (setFullName) setFullName.value = adminName;
+
+  const setEmail = document.getElementById('adminSettingsEmail');
+  if (setEmail) setEmail.value = adminEmail;
+
+  const setContact = document.getElementById('adminSettingsContact');
+  if (setContact && user.phone) setContact.value = user.phone;
 
   const inName = document.getElementById('adminInputFullName');
   if (inName) inName.value = adminName;
@@ -3300,8 +3342,28 @@ function applyAdminAvatarToElements(dataUrl) {
   });
 }
 
-function initAdminRefPortal() {
+async function initAdminRefPortal() {
   restoreAdminDarkModeState();
+
+  // Fetch live fresh admin profile from Supabase database
+  try {
+    const ident = (state.currentUser && (state.currentUser.email || state.currentUser.id)) || 'admin@cca.edu.ph';
+    const pRes = await fetch('/api/auth/profile?identifier=' + encodeURIComponent(ident));
+    if (pRes.ok) {
+      const pData = await pRes.json();
+      if (pData && pData.success && pData.user) {
+        if (!state.currentUser) state.currentUser = {};
+        state.currentUser.fullName = pData.user.fullName;
+        state.currentUser.email = pData.user.email;
+        state.currentUser.role = pData.user.role || 'admin';
+        state.currentUser.course = pData.user.course;
+        localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      }
+    }
+  } catch (err) {
+    console.warn('Could not refresh live admin profile:', err);
+  }
+
   syncAdminProfileInfo();
   updateAdminDashboard();
   renderAdminTable();
@@ -3588,55 +3650,59 @@ function setupAdminRefPortalListeners() {
   });
 
   // Settings Save & Photo upload
-  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', async () => {
+  async function handleSaveAdminProfileAndSettings() {
     const full = document.getElementById('adminSettingsFullName')?.value.trim();
     const email = document.getElementById('adminSettingsEmail')?.value.trim();
-    if (full && state.currentUser) {
-      state.currentUser.fullName = full;
-      if (email) state.currentUser.email = email;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-      syncAdminProfileInfo();
+    const contact = document.getElementById('adminSettingsContact')?.value.trim();
 
-      try {
-        await fetch('/api/auth/profile', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            identifier: state.currentUser.email || 'admin@cca.edu.ph',
-            fullName: full
-          })
-        });
-      } catch (e) {
-        console.warn('Admin settings DB sync error:', e);
-      }
+    if (!full) {
+      showToast('Administrator full name cannot be empty.', 'error');
+      return;
     }
+    if (!email) {
+      showToast('Administrator email address cannot be empty.', 'error');
+      return;
+    }
+
     triggerAdminViewLoader();
-    showToast('Admin account and system preferences saved in database!', 'success');
-  });
 
-  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', async () => {
-    const full = document.getElementById('adminSettingsFullName')?.value.trim();
-    if (full && state.currentUser) {
-      state.currentUser.fullName = full;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-      syncAdminProfileInfo();
+    // Use current session's email / user id as identifier before updating
+    const currentIdent = (state.currentUser && (state.currentUser.email || state.currentUser.id || state.currentUser.studentId)) || 'admin@cca.edu.ph';
 
-      try {
-        triggerAdminViewLoader();
-        await fetch('/api/auth/profile', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            identifier: state.currentUser.email || 'admin@cca.edu.ph',
-            fullName: full
-          })
-        });
-        showToast('Admin profile & name updated in Supabase database!', 'success');
-      } catch (e) {
-        showToast('Admin profile updated locally.', 'info');
+    try {
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: currentIdent,
+          fullName: full,
+          email: email,
+          role: 'admin'
+        })
+      });
+
+      const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.message || 'Database update failed.');
       }
+
+      if (!state.currentUser) state.currentUser = {};
+      state.currentUser.fullName = resData.user.fullName || full;
+      state.currentUser.email = resData.user.email || email;
+      if (contact) state.currentUser.phone = contact;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+      syncAdminProfileInfo();
+      addAdminAuditLog(`Updated administrator profile: ${full} (${email})`, 'CONFIG');
+      showToast('Admin details updated successfully in Supabase database!', 'success');
+    } catch (err) {
+      console.error('Admin profile update error:', err);
+      showToast('Failed to save admin details in database: ' + err.message, 'error');
     }
-  });
+  }
+
+  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', handleSaveAdminProfileAndSettings);
+  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', handleSaveAdminProfileAndSettings);
 
   document.getElementById('btnAdminChangePhoto')?.addEventListener('click', () => {
     document.getElementById('adminPhotoUploadInput')?.click();
@@ -3858,19 +3924,7 @@ function setupAdminRefPortalListeners() {
 
   // 12. Settings: Save Administrator Account
   document.getElementById('btnSaveAdminAccount')?.addEventListener('click', () => {
-    const fullName = document.getElementById('adminInputFullName')?.value.trim();
-    if (!fullName) {
-      showToast('Administrator full name cannot be empty.', 'error');
-      return;
-    }
-
-    triggerAdminViewLoader();
-    if (state.currentUser) {
-      state.currentUser.fullName = fullName;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-    }
-    syncAdminProfileInfo();
-    showToast('Administrator account updated successfully.', 'success');
+    handleSaveAdminProfileAndSettings();
   });
 
   // 13. Settings: Dark Mode Toggle
