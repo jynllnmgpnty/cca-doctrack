@@ -45,13 +45,19 @@ function formatRequest(row) {
 // ==============================================================================
 const dbRequests = {
   /**
-   * Retrieve all requests, optionally filtered by studentId
+   * Retrieve all requests, optionally filtered by studentId or email
    */
-  async getAll(studentId) {
+  async getAll(studentId, email) {
     const client = getSupabaseClient();
     let query = client.from('document_requests').select('*').order('id', { ascending: false });
-    if (studentId && studentId.trim()) {
-      query = query.eq('student_id', studentId.trim());
+    const sId = studentId ? studentId.trim() : '';
+    const em = email ? email.trim().toLowerCase() : '';
+    if (sId && em) {
+      query = query.or(`student_id.eq.${sId},email.ilike.${em}`);
+    } else if (sId) {
+      query = query.eq('student_id', sId);
+    } else if (em) {
+      query = query.ilike('email', em);
     }
     const { data, error } = await query;
     if (error) {
@@ -350,6 +356,77 @@ const dbUsers = {
     return {
       studentId: user.student_id,
       status: status
+    };
+  },
+
+  /**
+   * Update student or administrator profile (full_name, course, etc.) in Supabase
+   */
+  async updateProfile(identifier, updates = {}) {
+    const target = String(identifier).trim().toLowerCase();
+    const numId = parseInt(identifier, 10);
+    const client = getSupabaseClient();
+
+    let query = client.from('users').select('id, full_name, student_id, email, course, role, status');
+    if (!isNaN(numId) && numId > 0) {
+      query = query.or(`student_id.ilike.${target},email.ilike.${target},id.eq.${numId}`);
+    } else {
+      query = query.or(`student_id.ilike.${target},email.ilike.${target}`);
+    }
+
+    const { data: users, error: findErr } = await query;
+    if (findErr) {
+      console.error('Supabase query error [users.updateProfile find]:', findErr.message);
+      throw findErr;
+    }
+    if (!users || users.length === 0) return null;
+
+    const user = users[0];
+    const updatePayload = {};
+    if (updates.fullName !== undefined && updates.fullName.trim()) {
+      updatePayload.full_name = updates.fullName.trim();
+    }
+    if (updates.course !== undefined && updates.course.trim()) {
+      updatePayload.course = updates.course.trim();
+    }
+    if (updates.studentId !== undefined && updates.studentId.trim()) {
+      updatePayload.student_id = updates.studentId.trim();
+    }
+    if (updates.email !== undefined && updates.email.trim()) {
+      updatePayload.email = updates.email.trim().toLowerCase();
+    }
+
+    if (Object.keys(updatePayload).length > 0) {
+      const { error: updErr } = await client
+        .from('users')
+        .update(updatePayload)
+        .eq('id', user.id);
+
+      if (updErr) {
+        console.error('Supabase update error [users.updateProfile update]:', updErr.message);
+        throw updErr;
+      }
+
+      // Synchronize full_name to existing document_requests for this student
+      if (updatePayload.full_name && user.student_id) {
+        try {
+          await client
+            .from('document_requests')
+            .update({ student_name: updatePayload.full_name })
+            .eq('student_id', user.student_id);
+        } catch (e) {
+          // Non-critical if requests table pending
+        }
+      }
+    }
+
+    return {
+      id: user.id,
+      fullName: updatePayload.full_name || user.full_name,
+      studentId: updatePayload.student_id || user.student_id,
+      email: updatePayload.email || user.email,
+      course: updatePayload.course || user.course,
+      role: user.role
     };
   }
 };

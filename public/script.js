@@ -1028,20 +1028,45 @@ async function fetchHealthCheck() {
 
 async function fetchAllRequests() {
   try {
-    const res = await fetch('/api/requests');
+    let endpoint = '/api/requests';
+    const isStudent = state.currentUser && state.currentUser.role !== 'admin';
+    if (isStudent) {
+      const sId = (state.currentUser.studentId || getActiveStudentId() || '').trim();
+      const sEmail = (state.currentUser.email || '').trim();
+      const params = new URLSearchParams();
+      if (sId) params.append('studentId', sId);
+      if (sEmail) params.append('email', sEmail);
+      if (params.toString()) {
+        endpoint += `?${params.toString()}`;
+      }
+    }
+
+    const res = await fetch(endpoint);
     const result = await res.json();
 
     if (!res.ok) throw new Error(result.message || 'Failed to fetch requests.');
 
-    state.allRequests = result.data || [];
+    const fetchedData = result.data || [];
+    if (isStudent) {
+      state.studentRequests = fetchedData;
+      // Isolate student state so other users' requests are never stored in student session
+      state.allRequests = fetchedData;
+    } else {
+      state.allRequests = fetchedData;
+    }
 
     if (elements.adminTotalBadge) {
       elements.adminTotalBadge.textContent = state.allRequests.length;
     }
 
-    updateAdminDashboard();
-    renderAdminTable();
+    if (!isStudent) {
+      updateAdminDashboard();
+      renderAdminTable();
+    }
     filterStudentRequests();
+    renderStudentDashboardData();
+    renderStudentTrackingCards();
+    renderStudentHistoryTable();
   } catch (err) {
     console.error('Fetch requests error:', err);
     renderTableErrors(err.message);
@@ -1372,7 +1397,7 @@ function populateFormWithProfile(profile) {
   }
 }
 
-function handleSaveProfileManual() {
+async function handleSaveProfileManual() {
   const name = elements.profileInputName ? elements.profileInputName.value.trim() : 'User';
   const id = elements.profileInputId ? elements.profileInputId.value.trim() : '23-0000';
   const course = elements.profileInputCourse ? elements.profileInputCourse.value : 'BS Information Technology';
@@ -1408,6 +1433,36 @@ function handleSaveProfileManual() {
     parentAddress
   };
 
+  const oldIdentifier = (state.currentUser && (state.currentUser.email || state.currentUser.studentId)) || email || id;
+
+  try {
+    triggerStudentViewLoader();
+    const res = await fetch('/api/auth/profile', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: oldIdentifier,
+        fullName: name,
+        course: course,
+        studentId: id,
+        email: email
+      })
+    });
+
+    const result = await res.json();
+    if (res.ok && result.user) {
+      if (state.currentUser) {
+        state.currentUser.fullName = result.user.fullName;
+        state.currentUser.course = result.user.course;
+        if (result.user.studentId) state.currentUser.studentId = result.user.studentId;
+        if (result.user.email) state.currentUser.email = result.user.email;
+        localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      }
+    }
+  } catch (err) {
+    console.warn('Profile sync to database error:', err);
+  }
+
   if (state.currentUser) {
     state.currentUser.fullName = name;
     state.currentUser.studentId = id;
@@ -1420,34 +1475,45 @@ function handleSaveProfileManual() {
   localStorage.setItem('cca_student_profile', JSON.stringify(profileData));
 
   syncStudentProfileFromAuth();
+  syncStudentRefProfile();
   filterStudentRequests();
+  renderStudentDashboardData();
+  renderStudentHistoryTable();
 
   if (elements.profileSaveStatus) {
     elements.profileSaveStatus.classList.remove('error');
-    elements.profileSaveStatus.textContent = 'Profile & Guardian records saved!';
+    elements.profileSaveStatus.textContent = 'Profile & name updated in Supabase database!';
     setTimeout(() => {
       if (elements.profileSaveStatus) elements.profileSaveStatus.textContent = '';
     }, 4000);
   }
 
-  showToast('Student credentials and guardian records updated!', 'success');
+  showToast('Student credentials & name updated in Supabase database!', 'success');
 }
 
 function filterStudentRequests() {
-  const activeId = getActiveStudentId().trim().toLowerCase();
+  const user = state.currentUser || {};
+  const activeId = (user.studentId || getActiveStudentId() || '').trim().toLowerCase();
+  const activeEmail = (user.email || '').trim().toLowerCase();
 
-  state.studentRequests = state.allRequests.filter((req) => {
-    return req.studentId && req.studentId.trim().toLowerCase() === activeId;
-  });
+  if (user.role !== 'admin') {
+    state.studentRequests = (state.allRequests || []).filter((req) => {
+      const rId = (req.studentId || req.student_id || '').trim().toLowerCase();
+      const rEmail = (req.email || '').trim().toLowerCase();
+      return (activeId && rId === activeId) || (activeEmail && rEmail === activeEmail);
+    });
+  } else {
+    state.studentRequests = state.allRequests || [];
+  }
 
   if (elements.studentMyRequestsBadge) {
     elements.studentMyRequestsBadge.textContent = state.studentRequests.length;
   }
 
   const total = state.studentRequests.length;
-  const pending = state.studentRequests.filter((r) => r.status === 'Pending').length;
-  const processing = state.studentRequests.filter((r) => r.status === 'Processing').length;
-  const completed = state.studentRequests.filter((r) => r.status === 'Completed').length;
+  const pending = state.studentRequests.filter((r) => (r.status || '').toLowerCase() === 'pending').length;
+  const processing = state.studentRequests.filter((r) => (r.status || '').toLowerCase() === 'processing').length;
+  const completed = state.studentRequests.filter((r) => ['approved', 'completed', 'for release', 'released'].includes((r.status || '').toLowerCase())).length;
 
   if (elements.statStudentTotal) elements.statStudentTotal.textContent = total;
   if (elements.statStudentPending) elements.statStudentPending.textContent = pending;
@@ -2866,7 +2932,7 @@ function renderAdminAuditLogs() {
 
   if (logs.length === 0) {
     logs = [
-      { id: 'log_init', time: 'Today 10:24 AM', timestamp: new Date().toISOString(), user: 'admin@cca.edu.ph', action: 'Synchronized live records with database', module: 'System', type: 'CONFIG', details: 'Database connection verified', ip: '192.168.1.10', status: 'Success' }
+      { id: 'log_init', time: 'Today ' + new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }), timestamp: new Date().toISOString(), user: 'admin@cca.edu.ph', action: 'Synchronized live records with database', module: 'System', type: 'CONFIG', details: 'Database connection verified', ip: '192.168.1.10', status: 'Success' }
     ];
   }
 
@@ -3192,6 +3258,12 @@ function syncAdminProfileInfo() {
   const inRole = document.getElementById('adminInputRole');
   if (inRole) inRole.value = adminRole;
 
+  const lastUp = document.getElementById('adminSettingsLastUpdated');
+  if (lastUp) {
+    const now = new Date();
+    lastUp.textContent = `Last updated: ${now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at ${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+  }
+
   const initials = adminName
     ? (adminName.trim().split(/\s+/).length > 1
         ? (adminName.trim().split(/\s+/)[0][0] + adminName.trim().split(/\s+/)[1][0]).toUpperCase()
@@ -3516,7 +3588,7 @@ function setupAdminRefPortalListeners() {
   });
 
   // Settings Save & Photo upload
-  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', () => {
+  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', async () => {
     const full = document.getElementById('adminSettingsFullName')?.value.trim();
     const email = document.getElementById('adminSettingsEmail')?.value.trim();
     if (full && state.currentUser) {
@@ -3524,19 +3596,46 @@ function setupAdminRefPortalListeners() {
       if (email) state.currentUser.email = email;
       localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
       syncAdminProfileInfo();
+
+      try {
+        await fetch('/api/auth/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: state.currentUser.email || 'admin@cca.edu.ph',
+            fullName: full
+          })
+        });
+      } catch (e) {
+        console.warn('Admin settings DB sync error:', e);
+      }
     }
     triggerAdminViewLoader();
-    showToast('Admin account and system preferences saved!', 'success');
+    showToast('Admin account and system preferences saved in database!', 'success');
   });
 
-  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', () => {
+  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', async () => {
     const full = document.getElementById('adminSettingsFullName')?.value.trim();
     if (full && state.currentUser) {
       state.currentUser.fullName = full;
       localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
       syncAdminProfileInfo();
+
+      try {
+        triggerAdminViewLoader();
+        await fetch('/api/auth/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: state.currentUser.email || 'admin@cca.edu.ph',
+            fullName: full
+          })
+        });
+        showToast('Admin profile & name updated in Supabase database!', 'success');
+      } catch (e) {
+        showToast('Admin profile updated locally.', 'info');
+      }
     }
-    showToast('Admin profile updated.', 'success');
   });
 
   document.getElementById('btnAdminChangePhoto')?.addEventListener('click', () => {
@@ -3942,6 +4041,19 @@ function formatDate(dateString) {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+function formatDateTime(dateString) {
+  if (!dateString) return '--';
+  const cleanStr = (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) ? dateString + 'T00:00:00' : dateString;
+  const d = new Date(cleanStr);
+  if (isNaN(d.getTime())) return dateString;
+  const dateFormatted = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  if (String(dateString).includes('T') || String(dateString).includes(':') || String(dateString).includes(' ')) {
+    const timeFormatted = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return `${dateFormatted} ${timeFormatted}`;
+  }
+  return dateFormatted;
+}
+
 function truncateText(str, max) {
   if (!str) return '';
   return str.length > max ? str.substring(0, max) + '...' : str;
@@ -4215,7 +4327,8 @@ function renderStudentNotifications() {
 }
 
 function renderStudentDashboardData() {
-  const all = state.allRequests || [];
+  const isStudent = state.currentUser && state.currentUser.role !== 'admin';
+  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
   const total = all.length;
   const inProcess = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length;
   const completed = all.filter(r => ['APPROVED', 'RELEASED', 'COMPLETED', 'FOR RELEASE'].includes((r.status || '').toUpperCase())).length;
@@ -4241,7 +4354,7 @@ function renderStudentDashboardData() {
       else if (status.includes('PROCESS')) { badgeClass = 'blue'; statusLabel = 'Processing'; }
       else if (status.includes('RELEASE')) { badgeClass = 'purple'; statusLabel = 'For Release'; }
 
-      const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+      const dateStr = formatDateTime(req.date_submitted || req.created_at || new Date().toISOString());
 
       return `
         <div class="recent-req-row">
@@ -4262,7 +4375,8 @@ function renderStudentDashboardData() {
 }
 
 function renderStudentTrackingCards() {
-  const all = state.allRequests || [];
+  const isStudent = state.currentUser && state.currentUser.role !== 'admin';
+  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
   const container = document.getElementById('trackCardsList');
   if (!container) return;
 
@@ -4317,17 +4431,19 @@ function renderStudentTrackingCards() {
     }
 
     const reqId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))));
-    const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+    const dateSubmitted = req.date_submitted || req.created_at || new Date().toISOString();
+    const dateStr = formatDateTime(dateSubmitted);
+    const updatedDate = formatDateTime(req.updated_at || dateSubmitted);
 
     return {
       id: reqId,
       doc: req.document_type || 'Official Document',
-      date: dateStr + ' 10:24 AM',
+      date: dateStr,
       purpose: req.purpose || 'Official Document Requirement',
       remarks: req.remarks || 'N/A',
       status: statusAttr,
       statusText: statusText,
-      statusDate: dateStr + ' 02:00 PM',
+      statusDate: updatedDate,
       badge: badgeClass,
       claimDate: claim
     };
@@ -4384,7 +4500,8 @@ function renderStudentTrackingCards() {
 }
 
 function renderStudentHistoryTable() {
-  const all = state.allRequests || [];
+  const isStudent = state.currentUser && state.currentUser.role !== 'admin';
+  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
   const tbody = document.getElementById('studentHistoryTableBody');
   if (!tbody) return;
 
@@ -4428,12 +4545,13 @@ function renderStudentHistoryTable() {
     }
 
     const reqId = req.tracking_number || (req._id ? ('REQ-' + req._id.substring(req._id.length - 5).toUpperCase()) : ('REQ-00' + (230 + (req.id || 1))));
-    const dateStr = formatDate(req.date_submitted || req.created_at || new Date().toISOString());
+    const dateSubmitted = req.date_submitted || req.created_at || new Date().toISOString();
+    const dateStr = formatDateTime(dateSubmitted);
 
     return {
       id: reqId,
       doc: req.document_type || 'Official Document',
-      date: dateStr + ' 10:24 AM',
+      date: dateStr,
       status: statusKey,
       statusText: statusText,
       badge: badgeClass,
@@ -4463,14 +4581,15 @@ function openRequestDetailsModal(reqId) {
   const modal = document.getElementById('modalRequestDetails');
   if (!modal) return;
 
-  const all = state.allRequests || [];
-  const req = all.find(r => (
+  const isStudent = state.currentUser && state.currentUser.role !== 'admin';
+  const pool = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
+  const req = pool.find(r => (
     r.tracking_number === reqId ||
     r._id === reqId ||
     String(r.id) === String(reqId) ||
     ('REQ-00' + (230 + (r.id || 1))) === reqId ||
     (r._id && ('REQ-' + r._id.substring(r._id.length - 5).toUpperCase()) === reqId)
-  )) || (all.length > 0 ? all[0] : null);
+  ));
 
   if (!req) {
     showToast('Document request details not found.', 'error');
@@ -4506,7 +4625,7 @@ function openRequestDetailsModal(reqId) {
 
   document.getElementById('detailsModalDocType').textContent = req.document_type || req.documentType || 'Official Document';
   document.getElementById('detailsModalPurpose').textContent = req.purpose || 'Official Document Requirement';
-  document.getElementById('detailsModalDate').textContent = formatDate(req.date_submitted || req.dateSubmitted || req.createdAt || new Date().toISOString()) + ' 10:24 AM';
+  document.getElementById('detailsModalDate').textContent = formatDateTime(req.date_submitted || req.dateSubmitted || req.createdAt || new Date().toISOString());
   document.getElementById('detailsModalRemarks').textContent = req.remarks || 'None specified';
 
   // When to receive / Pickup Schedule: ONLY show once approved / completed as requested
@@ -4531,6 +4650,9 @@ function openRequestDetailsModal(reqId) {
     adminActions.style.display = (state.currentUser && state.currentUser.role === 'admin') ? 'flex' : 'none';
   }
 
+  const dateSub = req.date_submitted || req.created_at || new Date().toISOString();
+  const subTimeStr = formatDateTime(dateSub);
+
   // Build timeline steps
   const tlEl = document.getElementById('detailsModalTimeline');
   tlEl.innerHTML = `
@@ -4538,7 +4660,7 @@ function openRequestDetailsModal(reqId) {
       <div class="step-circle">&#10003;</div>
       <div class="step-desc">
         <strong>1. Request Submitted</strong>
-        <div class="text-muted">${formatDate(req.date_submitted || new Date().toISOString())} 10:24 AM &bull; Student submission verified</div>
+        <div class="text-muted">${subTimeStr} &bull; Student submission verified</div>
       </div>
     </div>
     <div class="timeline-step ${statusRaw.includes('PROCESS') || isComplete ? 'completed' : 'current'}">

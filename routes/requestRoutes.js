@@ -31,8 +31,8 @@ const ALLOWED_STATUSES = [
  */
 router.get('/', async (req, res) => {
   try {
-    const { studentId } = req.query;
-    const requests = await dbRequests.getAll(studentId);
+    const { studentId, email } = req.query;
+    const requests = await dbRequests.getAll(studentId, email);
 
     return res.status(200).json({
       success: true,
@@ -144,6 +144,18 @@ router.get('/:id', async (req, res) => {
         success: false,
         message: `Document request with ID '${id}' was not found.`
       });
+    }
+
+    // Access control: if studentId is provided and caller is not admin, verify ownership
+    if (req.query.studentId && req.query.role !== 'admin') {
+      const qStudentId = req.query.studentId.trim().toLowerCase();
+      const reqStudentId = (request.studentId || '').trim().toLowerCase();
+      if (reqStudentId && qStudentId !== reqStudentId) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. You can only view your own document requests.'
+        });
+      }
     }
 
     return res.status(200).json({

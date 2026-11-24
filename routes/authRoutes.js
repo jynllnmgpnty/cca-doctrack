@@ -299,6 +299,50 @@ router.post('/change-password', async (req, res) => {
 });
 
 /**
+ * @route   PATCH /api/auth/profile
+ * @desc    Update user profile name, course, etc. in Supabase
+ * @access  Public (Authenticated session)
+ */
+router.patch('/profile', async (req, res) => {
+  try {
+    const { identifier, email, studentId, fullName, course } = req.body;
+    const targetIdentifier = identifier || email || studentId;
+
+    if (!targetIdentifier) {
+      return res.status(400).json({
+        success: false,
+        message: 'User identifier is required to update profile.'
+      });
+    }
+
+    const updatedUser = await dbUsers.updateProfile(targetIdentifier, {
+      fullName,
+      course
+    });
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: 'User account not found.'
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully in database.',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Error updating profile:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile in database.',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   GET /api/auth/students
  * @desc    Get all registered student accounts from database (no fake data)
  * @access  Public
