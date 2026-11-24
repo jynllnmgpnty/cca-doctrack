@@ -87,7 +87,7 @@ async function runMigration() {
   // 3. Verify Supabase configuration
   console.log('\n🔍 Step 3: Verifying Supabase target connection...');
 
-  const isPlaceholderKey = 
+  const isPlaceholderKey =
     !SUPABASE_SECRET_KEY ||
     SUPABASE_SECRET_KEY === 'YOUR_NEW_SECRET_KEY' ||
     SUPABASE_SECRET_KEY.includes('your_supabase_secret_key') ||

@@ -461,7 +461,7 @@ const dbUsers = {
             .from('reactivation_requests')
             .update({ status: 'Approved' })
             .ilike('student_id', user.student_id);
-        } catch (e) {}
+        } catch (e) { }
       }
 
       return {
@@ -488,7 +488,7 @@ const dbUsers = {
             sql: "UPDATE reactivation_requests SET status = 'Approved' WHERE LOWER(student_id) = ? OR LOWER(email) = ?",
             args: [target, target]
           });
-        } catch (err) {}
+        } catch (err) { }
       }
 
       return {
@@ -788,7 +788,7 @@ async function initDB() {
 
     try {
       await tursoDb.execute("ALTER TABLE document_requests ADD COLUMN pickup_date TEXT DEFAULT ''");
-    } catch (e) {}
+    } catch (e) { }
 
     await tursoDb.execute(`
       CREATE TABLE IF NOT EXISTS users (
@@ -806,7 +806,7 @@ async function initDB() {
 
     try {
       await tursoDb.execute("ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'Active'");
-    } catch (e) {}
+    } catch (e) { }
 
     await tursoDb.execute(`
       CREATE TABLE IF NOT EXISTS reactivation_requests (
