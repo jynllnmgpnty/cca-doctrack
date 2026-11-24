@@ -160,9 +160,9 @@
           </div>
 
           <div class="form-group" id="groupRegPassword">
-            <label for="regPassword">Password (8-12 chars) <span class="required">*</span></label>
+            <label for="regPassword">Password (at least 8 chars) <span class="required">*</span></label>
             <div class="pw-wrapper">
-              <input type="password" id="regPassword" placeholder="Aa1..." minlength="8" maxlength="12" required>
+              <input type="password" id="regPassword" placeholder="Aa1..." minlength="8" maxlength="64" required>
               <button type="button" class="pw-toggle-btn" id="btnToggleRegPw" title="Show/Hide Password"
                 aria-label="Toggle password visibility"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"
                   stroke="currentColor" stroke-width="2">
@@ -175,7 +175,7 @@
           <div class="form-group" id="groupRegConfirmPassword">
             <label for="regConfirmPassword">Confirm Password <span class="required">*</span></label>
             <div class="pw-wrapper">
-              <input type="password" id="regConfirmPassword" placeholder="Confirm password" minlength="8" maxlength="12"
+              <input type="password" id="regConfirmPassword" placeholder="Confirm password" minlength="8" maxlength="64"
                 required>
               <button type="button" class="pw-toggle-btn" id="btnToggleRegConfirmPw" title="Show/Hide Password"
                 aria-label="Toggle confirm password visibility"><svg viewBox="0 0 24 24" width="16" height="16"
@@ -2245,7 +2245,7 @@
                     class="text-red">*</span></label>
                 <div class="ref-password-input-wrap">
                   <input type="password" class="ref-input-box" id="inputNewPassword"
-                    placeholder="Enter your new password" required autocomplete="new-password">
+                    placeholder="Enter your new password" minlength="8" maxlength="64" required autocomplete="new-password">
                   <button type="button" class="btn-toggle-eye" data-target="inputNewPassword"
                     aria-label="Toggle password visibility">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2263,7 +2263,7 @@
                     <span class="str-bar" id="strBar3"></span>
                     <span class="str-bar" id="strBar4"></span>
                   </div>
-                  <span class="pw-strength-text" id="pwStrengthText">Strong</span>
+                  <span class="pw-strength-text" id="pwStrengthText"></span>
                 </div>
               </div>
 
@@ -2272,7 +2272,7 @@
                     class="text-red">*</span></label>
                 <div class="ref-password-input-wrap">
                   <input type="password" class="ref-input-box" id="inputConfirmNewPassword"
-                    placeholder="Re-enter your new password" required autocomplete="new-password">
+                    placeholder="Re-enter your new password" minlength="8" maxlength="64" required autocomplete="new-password">
                   <button type="button" class="btn-toggle-eye" data-target="inputConfirmNewPassword"
                     aria-label="Toggle password visibility">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2281,6 +2281,7 @@
                     </svg>
                   </button>
                 </div>
+                <div class="pw-match-indicator" id="pwMatchIndicator" style="display:none; font-size:12.5px; margin-top:6px; font-weight:600;"></div>
               </div>
 
               <!-- Password Requirements Box -->
@@ -2296,20 +2297,36 @@
                 </div>
                 <div class="req-checklist">
                   <div class="req-check-item" id="reqLen">
-                    <span class="check-circle-icon">&bull;</span>
-                    <span>8-12 characters long</span>
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>At least 8 characters long</span>
                   </div>
                   <div class="req-check-item" id="reqUpper">
-                    <span class="check-circle-icon">&bull;</span>
-                    <span>Include at least one uppercase letter</span>
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one uppercase letter (A-Z)</span>
                   </div>
                   <div class="req-check-item" id="reqLower">
-                    <span class="check-circle-icon">&bull;</span>
-                    <span>Include at least one lowercase letter</span>
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one lowercase letter (a-z)</span>
                   </div>
                   <div class="req-check-item" id="reqNum">
-                    <span class="check-circle-icon">&bull;</span>
-                    <span>Include at least one number or special character (e.g. !@#$%)</span>
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one number or special character (!@#$%)</span>
                   </div>
                 </div>
               </div>
@@ -4617,10 +4634,10 @@
                     class="required">*</span></label>
                 <div class="ref-pw-box-wrapper">
                   <input type="password" class="ref-input-box" id="adminNewPassword"
-                    placeholder="Enter your new password" required>
+                    placeholder="Enter your new password" minlength="8" maxlength="64" required>
                   <button type="button" class="btn-pw-eye" id="btnToggleAdminNewPw">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z" />
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
                   </button>
@@ -4633,7 +4650,7 @@
                     <div class="str-bar" id="adminStrBar3"></div>
                     <div class="str-bar" id="adminStrBar4"></div>
                   </div>
-                  <span class="strength-status-text" id="adminStrText">Weak</span>
+                  <span class="strength-status-text" id="adminStrText"></span>
                 </div>
               </div>
 
@@ -4642,7 +4659,7 @@
                     class="required">*</span></label>
                 <div class="ref-pw-box-wrapper">
                   <input type="password" class="ref-input-box" id="adminConfirmNewPassword"
-                    placeholder="Re-enter your new password" required>
+                    placeholder="Re-enter your new password" minlength="8" maxlength="64" required>
                   <button type="button" class="btn-pw-eye" id="btnToggleAdminConfPw">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8z" />
@@ -4650,23 +4667,52 @@
                     </svg>
                   </button>
                 </div>
+                <div class="pw-match-indicator" id="adminPwMatchIndicator" style="display:none; font-size:12.5px; margin-top:6px; font-weight:600;"></div>
               </div>
 
               <!-- Password Requirements List -->
               <div class="ref-pw-requirements-card" style="margin-top:20px;">
-                <div class="req-title-row">
+                <div class="req-title-row" style="display:flex; align-items:center; gap:8px; font-size:13.5px; color:#0F172A; font-weight:700; margin-bottom:10px;">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563EB">
                     <path
                       d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                   </svg>
                   <span>Password Requirements:</span>
                 </div>
-                <ul class="req-list-items">
-                  <li id="adminReqLength">&bull; 8 to 12 characters long</li>
-                  <li id="adminReqUpper">&bull; Include at least one uppercase letter (A-Z)</li>
-                  <li id="adminReqLower">&bull; Include at least one lowercase letter (a-z)</li>
-                  <li id="adminReqNumber">&bull; Include at least one number (0-9)</li>
-                </ul>
+                <div class="req-checklist">
+                  <div class="req-check-item" id="adminReqLength">
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>At least 8 characters long</span>
+                  </div>
+                  <div class="req-check-item" id="adminReqUpper">
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one uppercase letter (A-Z)</span>
+                  </div>
+                  <div class="req-check-item" id="adminReqLower">
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one lowercase letter (a-z)</span>
+                  </div>
+                  <div class="req-check-item" id="adminReqNumber">
+                    <span class="check-circle-icon">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    </span>
+                    <span>Include at least one number or special character (!@#$%)</span>
+                  </div>
+                </div>
               </div>
 
               <div class="form-actions-row" style="margin-top:24px; display:flex; justify-content:flex-end; gap:12px;">
@@ -4925,88 +4971,7 @@
     </div>
   </div>
 
-  <!-- 5. CHANGE PASSWORD MODAL (MATCHING REFERENCE IMAGE 1) -->
-  <div class="modal" id="modalAdminChangePassword" style="display:none;">
-    <div class="modal-backdrop" id="backdropAdminChangePassword"></div>
-    <div class="modal-dialog ref-dialog-md"
-      style="max-width: 540px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; padding:24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-      <div class="modal-header">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <div
-            style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; display:flex; align-items:center; justify-content:center; color:#2563EB;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-          </div>
-          <div>
-            <h3 class="modal-title" style="margin:0;">Update Your Password</h3>
-            <p style="font-size:12.5px; color:#64748B; margin:2px 0 0;">Enter your current password and set a new one.
-            </p>
-          </div>
-        </div>
-        <button class="modal-close" id="btnCloseAdminChangePw">&times;</button>
-      </div>
-      <div class="modal-body" style="padding-top:16px;">
-        <form id="formAdminChangePassword">
-          <div class="form-group" style="margin-bottom:14px;">
-            <label class="ref-field-label">Current Password <span class="required">*</span></label>
-            <input type="password" class="ref-input-box" id="adminCurPassword" placeholder="Enter your current password"
-              required>
-          </div>
-          <div class="form-group" style="margin-bottom:14px;">
-            <label class="ref-field-label">New Password <span class="required">*</span></label>
-            <input type="password" class="ref-input-box" id="adminNewPassword" placeholder="Enter your new password"
-              required>
-            <div style="display:flex; gap:4px; margin-top:8px;" id="adminPwStrengthBars">
-              <div style="height:4px; flex:1; background:#10B981; border-radius:2px;"></div>
-              <div style="height:4px; flex:1; background:#10B981; border-radius:2px;"></div>
-              <div style="height:4px; flex:1; background:#E2E8F0; border-radius:2px;"></div>
-              <div style="height:4px; flex:1; background:#E2E8F0; border-radius:2px;"></div>
-              <span style="font-size:11px; font-weight:700; color:#10B981; margin-left:6px;">Strong</span>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:16px;">
-            <label class="ref-field-label">Confirm New Password <span class="required">*</span></label>
-            <input type="password" class="ref-input-box" id="adminConfirmNewPassword"
-              placeholder="Re-enter your new password" required>
-          </div>
 
-          <div
-            style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:16px;">
-            <div
-              style="font-size:12.5px; font-weight:700; color:#1E293B; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-              <span>Password Requirements:</span>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:5px; font-size:12px; color:#475569;">
-              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span> At
-                least 8 characters long</div>
-              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span>
-                Include at least one uppercase letter</div>
-              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span>
-                Include at least one lowercase letter</div>
-              <div style="display:flex; align-items:center; gap:6px;"><span style="color:#2563EB;">&#10004;</span>
-                Include at least one number or special character</div>
-            </div>
-          </div>
-
-          <div
-            style="background:#ECFDF5; border:1px solid #A7F3D0; border-radius:10px; padding:10px 14px; display:flex; align-items:center; gap:8px; margin-bottom:18px;">
-            <span style="color:#059669; font-weight:700;">&#10004;</span>
-            <span style="font-size:12px; color:#065F46; font-weight:600;">Your password will be updated securely.</span>
-          </div>
-
-          <div class="modal-actions" style="display:flex; justify-content:flex-end; gap:10px;">
-            <button type="button" class="btn-ref-outline" id="btnCancelAdminChangePw">Cancel</button>
-            <button type="submit" class="btn-ref-primary">Update Password &rarr;</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
 
   <!-- 6. STUDENT REACTIVATION REQUEST MODAL -->
   <div class="modal" id="modalRequestReactivation" style="display:none;">

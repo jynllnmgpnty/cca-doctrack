@@ -17,12 +17,12 @@ router.post('/register', async (req, res) => {
     if (!fullName || !fullName.trim()) errors.push('Full name is required.');
     if (!email || !email.trim()) errors.push('Email address is required.');
     
-    // Password validation: 8-12 characters, uppercase, lowercase, number
+    // Password validation: at least 8 characters (supports up to 64 characters)
     if (!password) {
       errors.push('Password is required.');
     } else {
-      if (password.length < 8 || password.length > 12) {
-        errors.push('Password must be between 8 and 12 characters long.');
+      if (password.length < 8 || password.length > 64) {
+        errors.push('Password must be at least 8 characters long (up to 64 characters).');
       }
       if (!/[A-Z]/.test(password)) {
         errors.push('Password must include at least one uppercase letter (A-Z).');
@@ -30,8 +30,8 @@ router.post('/register', async (req, res) => {
       if (!/[a-z]/.test(password)) {
         errors.push('Password must include at least one lowercase letter (a-z).');
       }
-      if (!/[0-9]/.test(password)) {
-        errors.push('Password must include at least one number (0-9).');
+      if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
+        errors.push('Password must include at least one number or special character.');
       }
     }
 
@@ -239,8 +239,11 @@ router.post('/change-password', async (req, res) => {
       });
     }
 
-    // Verify current password
-    const isCurrentMatch = await bcrypt.compare(currentPassword.trim(), user.password);
+    // Verify current password (with trimmed fallback)
+    let isCurrentMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isCurrentMatch && currentPassword.trim() !== currentPassword) {
+      isCurrentMatch = await bcrypt.compare(currentPassword.trim(), user.password);
+    }
     if (!isCurrentMatch) {
       return res.status(401).json({
         success: false,
@@ -248,12 +251,12 @@ router.post('/change-password', async (req, res) => {
       });
     }
 
-    // Validate new password rules: 8-12 characters, uppercase, lowercase, number/special
+    // Validate new password rules: at least 8 characters, uppercase, lowercase, number/special
     const cleanNewPw = newPassword.trim();
-    if (cleanNewPw.length < 8 || cleanNewPw.length > 12) {
+    if (cleanNewPw.length < 8 || cleanNewPw.length > 64) {
       return res.status(400).json({
         success: false,
-        message: 'New password must be between 8 and 12 characters long.'
+        message: 'New password must be at least 8 characters long (up to 64 characters).'
       });
     }
     if (!/[A-Z]/.test(cleanNewPw)) {
@@ -268,7 +271,7 @@ router.post('/change-password', async (req, res) => {
         message: 'New password must contain at least one lowercase letter (a-z).'
       });
     }
-    if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(cleanNewPw)) {
+    if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(cleanNewPw)) {
       return res.status(400).json({
         success: false,
         message: 'New password must contain at least one number or special character.'

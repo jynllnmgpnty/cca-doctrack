@@ -639,9 +639,9 @@ async function handleRegisterSubmit(e) {
     return;
   }
 
-  // Password rules validation: 8-12 characters, uppercase, lowercase, number
-  if (password.length < 8 || password.length > 12) {
-    showAuthAlert('Password must be between 8 and 12 characters long.', 'error');
+  // Password rules validation: at least 8 characters
+  if (password.length < 8 || password.length > 64) {
+    showAuthAlert('Password must be at least 8 characters long.', 'error');
     return;
   }
   if (!/[A-Z]/.test(password)) {
@@ -947,6 +947,9 @@ function switchStudentSubtab(tabName) {
   } else if (tabName === 'change-password') {
     const pwForm = document.getElementById('refChangePasswordForm');
     if (pwForm) pwForm.reset();
+    if (typeof evalPwStrength === 'function') evalPwStrength('');
+    const matchInd = document.getElementById('pwMatchIndicator');
+    if (matchInd) matchInd.style.display = 'none';
   }
 }
 
@@ -3237,10 +3240,10 @@ function initAdminRefPortal() {
 }
 
 function evalAdminPwStrength(pw) {
-  const isLen = pw.length >= 8 && pw.length <= 12;
+  const isLen = pw.length >= 8 && pw.length <= 64;
   const isUp = /[A-Z]/.test(pw);
   const isLow = /[a-z]/.test(pw);
-  const isNumSpec = /[0-9]|[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+  const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
 
   document.getElementById('adminReqLength')?.classList.toggle('valid', isLen);
   document.getElementById('adminReqUpper')?.classList.toggle('valid', isUp);
@@ -3794,9 +3797,28 @@ function setupAdminRefPortalListeners() {
   const adminCurPw = document.getElementById('adminCurrentPassword');
   const adminConfPw = document.getElementById('adminConfirmNewPassword');
 
+  const checkAdminPwMatch = () => {
+    const matchEl = document.getElementById('adminPwMatchIndicator');
+    if (!matchEl) return;
+    const np = adminNewPw?.value || '';
+    const cp = adminConfPw?.value || '';
+    if (!cp) {
+      matchEl.style.display = 'none';
+      return;
+    }
+    matchEl.style.display = 'flex';
+    if (np === cp) {
+      matchEl.innerHTML = '<span style="color:#16A34A; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Passwords match</span>';
+    } else {
+      matchEl.innerHTML = '<span style="color:#DC2626; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Passwords do not match</span>';
+    }
+  };
+
   adminNewPw?.addEventListener('input', () => {
     evalAdminPwStrength(adminNewPw.value);
+    checkAdminPwMatch();
   });
+  adminConfPw?.addEventListener('input', checkAdminPwMatch);
 
   const togglePwVisibility = (btnId, inputId) => {
     document.getElementById(btnId)?.addEventListener('click', () => {
@@ -3834,12 +3856,17 @@ function setupAdminRefPortalListeners() {
         return;
       }
 
-      if (newPassword.length < 8 || newPassword.length > 12) {
-        showToast('Password must be between 8 and 12 characters.', 'error');
+      if (newPassword.length < 8) {
+        showToast('Password must be at least 8 characters long.', 'error');
         return;
       }
 
-      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]|[!@#$%^&*]/.test(newPassword))) {
+      if (newPassword.length > 64) {
+        showToast('Password cannot exceed 64 characters.', 'error');
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
         showToast('Password must contain upper, lower, and number/special char.', 'error');
         return;
       }
@@ -5086,11 +5113,28 @@ function setupStudentRefPortalListeners() {
   const curPwInput = document.getElementById('inputCurrentPassword');
   const confPwInput = document.getElementById('inputConfirmNewPassword');
 
+  const checkStudentPwMatch = () => {
+    const matchEl = document.getElementById('pwMatchIndicator');
+    if (!matchEl) return;
+    const np = newPwInput?.value || '';
+    const cp = confPwInput?.value || '';
+    if (!cp) {
+      matchEl.style.display = 'none';
+      return;
+    }
+    matchEl.style.display = 'flex';
+    if (np === cp) {
+      matchEl.innerHTML = '<span style="color:#16A34A; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Passwords match</span>';
+    } else {
+      matchEl.innerHTML = '<span style="color:#DC2626; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Passwords do not match</span>';
+    }
+  };
+
   function evalPwStrength(pw) {
-    const isLen = pw.length >= 8 && pw.length <= 12;
+    const isLen = pw.length >= 8 && pw.length <= 64;
     const isUp = /[A-Z]/.test(pw);
     const isLow = /[a-z]/.test(pw);
-    const isNumSpec = /[0-9]|[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pw);
+    const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
 
     document.getElementById('reqLen')?.classList.toggle('valid', isLen);
     document.getElementById('reqUpper')?.classList.toggle('valid', isUp);
@@ -5134,7 +5178,9 @@ function setupStudentRefPortalListeners() {
 
   newPwInput?.addEventListener('input', () => {
     evalPwStrength(newPwInput.value);
+    checkStudentPwMatch();
   });
+  confPwInput?.addEventListener('input', checkStudentPwMatch);
 
   // Eye toggle buttons
   document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
@@ -5173,12 +5219,17 @@ function setupStudentRefPortalListeners() {
         return;
       }
 
-      if (newPassword.length < 8 || newPassword.length > 12) {
-        showToast('Password must be between 8 and 12 characters.', 'error');
+      if (newPassword.length < 8) {
+        showToast('Password must be at least 8 characters long.', 'error');
         return;
       }
 
-      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]|[!@#$%^&*]/.test(newPassword)) {
+      if (newPassword.length > 64) {
+        showToast('Password cannot exceed 64 characters.', 'error');
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
         showToast('Password must contain upper, lower, and number/special char.', 'error');
         return;
       }
