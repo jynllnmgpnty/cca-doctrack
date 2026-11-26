@@ -262,14 +262,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Role check if logging in to admin portal
-    if (targetPortal === 'admin' && user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Access denied. Administrator privileges are required to access the Registrar Admin Portal. Please switch the portal indicator to "Student".'
-      });
-    }
-
     return res.status(200).json({
       success: true,
       message: `Welcome back, ${user.full_name}!`,

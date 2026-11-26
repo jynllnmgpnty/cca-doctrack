@@ -446,42 +446,19 @@ function setRoleIndicator(role = 'student') {
   state.authTargetPortal = role;
   const isStudent = role === 'student';
 
-  if (elements.btnIndicatorStudent && elements.btnIndicatorAdmin) {
-    if (isStudent) {
-      elements.btnIndicatorStudent.classList.add('active');
-      elements.btnIndicatorAdmin.classList.remove('active');
-    } else {
-      elements.btnIndicatorAdmin.classList.add('active');
-      elements.btnIndicatorStudent.classList.remove('active');
-    }
+  if (elements.authRoleIndicators) {
+    elements.authRoleIndicators.style.display = 'none';
   }
 
-  // If Admin role is selected, hide the "Create Account" tab completely and switch to Sign In
-  if (elements.authTabRegister) {
-    if (!isStudent) {
-      elements.authTabRegister.style.display = 'none';
-      if (elements.authTabRegister.classList.contains('active')) {
-        elements.authTabSignIn?.classList.add('active');
-        elements.authTabRegister.classList.remove('active');
-        elements.formSignIn?.classList.add('active');
-        elements.formRegister?.classList.remove('active');
-      }
-    } else {
-      elements.authTabRegister.style.display = '';
-    }
-  }
-
-  // Update inputs placeholder and button labels
+  // Unified Single Login: Standard placeholder and label
   if (elements.loginEmail) {
-    elements.loginEmail.placeholder = isStudent ? 'e.g., student@cca.edu.ph or 23-0000' : 'e.g., admin@cca.edu.ph';
+    elements.loginEmail.placeholder = 'e.g., student@cca.edu.ph, 23-0000, or admin@cca.edu.ph';
   }
   if (elements.loginBtnLabel) {
-    elements.loginBtnLabel.textContent = isStudent ? 'Sign In as Student' : 'Sign In as Admin';
+    elements.loginBtnLabel.textContent = 'Sign In';
   }
   if (elements.authModalSubtext) {
-    elements.authModalSubtext.textContent = isStudent
-      ? 'Student Document Portal • CCA DocTrack'
-      : 'Registrar Admin Management • CCA DocTrack';
+    elements.authModalSubtext.textContent = 'Office of the Registrar • CCA DocTrack';
   }
 
   // Registration is strictly for students
@@ -510,10 +487,7 @@ function setRoleIndicator(role = 'student') {
 }
 
 function openAuthModal(mode = 'signin', targetPortal = 'student') {
-  if (targetPortal === 'admin') {
-    mode = 'signin'; // Admin can only sign in, never register
-  }
-  setRoleIndicator(targetPortal);
+  setRoleIndicator('student');
   clearAuthAlert();
 
   // Clear password inputs on open to prevent stale browser autocomplete issues
@@ -524,28 +498,27 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
   const heading = document.getElementById('authModalHeading');
   const subtext = document.getElementById('authModalSubtext');
 
+  if (elements.authRoleIndicators) {
+    elements.authRoleIndicators.style.display = 'none';
+  }
+
   if (mode === 'signin') {
     elements.authTabSignIn.classList.add('active');
     elements.authTabRegister.classList.remove('active');
     elements.formSignIn.classList.add('active');
     elements.formRegister.classList.remove('active');
-    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = '';
     if (heading) heading.textContent = 'Sign In to CCA DocTrack';
-    if (subtext) {
-      subtext.textContent = targetPortal === 'admin'
-        ? 'Registrar Admin Management • CCA DocTrack'
-        : 'Student Document Portal • CCA DocTrack';
-    }
+    if (subtext) subtext.textContent = 'Office of the Registrar • CCA DocTrack';
+    if (elements.loginBtnLabel) elements.loginBtnLabel.textContent = 'Sign In';
   } else {
-    // Register mode: lock strictly to student
-    setRoleIndicator('student');
-    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = 'none';
+    // Register mode: strictly student registration
     elements.authTabRegister.classList.add('active');
     elements.authTabSignIn.classList.remove('active');
     elements.formRegister.classList.add('active');
     elements.formSignIn.classList.remove('active');
     if (heading) heading.textContent = 'Register for CCA DocTrack';
     if (subtext) subtext.textContent = 'Create Student Account • CCA DocTrack';
+    if (elements.registerBtnLabel) elements.registerBtnLabel.textContent = 'Register';
   }
 
   const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
@@ -718,7 +691,7 @@ async function handleLoginSubmit(e) {
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password, targetPortal: state.authTargetPortal })
+      body: JSON.stringify({ email, password })
     });
 
     const result = await response.json();

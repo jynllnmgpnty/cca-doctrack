@@ -90,15 +90,15 @@
         <button type="button" class="auth-tab-btn" id="authTabRegister">Register</button>
       </div>
 
-      <!-- 2 Indicators: Student vs Admin Role Selector -->
-      <div class="auth-role-indicators" id="authRoleIndicators">
+      <!-- Single Unified Login: Role Selector Hidden -->
+      <div class="auth-role-indicators" id="authRoleIndicators" style="display: none !important;">
         <button type="button" class="role-indicator-tab active" id="btnIndicatorStudent" data-role="student"
-          aria-label="Student portal indicator">
+          aria-label="Student portal indicator" style="display: none !important;">
           <span class="role-indicator-dot"></span>
           <span class="role-indicator-title">Student</span>
         </button>
         <button type="button" class="role-indicator-tab" id="btnIndicatorAdmin" data-role="admin"
-          aria-label="Admin portal indicator">
+          aria-label="Admin portal indicator" style="display: none !important;">
           <span class="role-indicator-dot"></span>
           <span class="role-indicator-title">Admin</span>
         </button>
