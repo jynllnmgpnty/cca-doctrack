@@ -186,6 +186,16 @@ const dbUsers = {
     const target = identifier.trim().toLowerCase();
     const client = getSupabaseClient();
 
+    // Direct match for common administrator / student aliases
+    if (target === 'admin' || target === 'admin-001' || target === 'administrator') {
+      const admin = await dbUsers.getAdminUser();
+      if (admin) return admin;
+    }
+    if (target === 'student') {
+      const student = await dbUsers.findByEmailOrStudentId('student@cca.edu.ph');
+      if (student) return student;
+    }
+
     const { data, error } = await client
       .from('users')
       .select('*')
@@ -557,22 +567,22 @@ async function seedDefaultAccounts() {
     const { data: studentExists, error: studentErr } = await client
       .from('users')
       .select('id')
-      .eq('email', 'jaynellan@cca.edu.ph');
+      .or('email.eq.jaynellan@cca.edu.ph,email.eq.student@cca.edu.ph');
 
     if (!studentErr && (!studentExists || studentExists.length === 0)) {
       const defaultStudentPw = process.env.DEFAULT_STUDENT_PASSWORD || 'student123';
       const hashedStudentPw = await bcrypt.hash(defaultStudentPw, 10);
       const { error: insStudentErr } = await client.from('users').insert([{
-        full_name: 'Jaynellan Almary O. Magpantay',
+        full_name: 'Student Portal User',
         student_id: '23-67894',
-        email: 'jaynellan@cca.edu.ph',
+        email: 'student@cca.edu.ph',
         password: hashedStudentPw,
         course: 'BS Information Technology',
         role: 'student',
         status: 'Active'
       }]);
       if (!insStudentErr) {
-        console.log('✅ [Supabase] Seeded default student: jaynellan@cca.edu.ph');
+        console.log('✅ [Supabase] Seeded default student: student@cca.edu.ph');
       } else {
         console.warn('⚠️ Could not insert default student:', insStudentErr.message);
       }

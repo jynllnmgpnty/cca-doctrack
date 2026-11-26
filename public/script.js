@@ -502,7 +502,7 @@ function setRoleIndicator(role = 'student') {
     groupEmail.classList.remove('full-width');
   }
   if (elements.registerBtnLabel) {
-    elements.registerBtnLabel.textContent = 'Create Student Account & Sign In';
+    elements.registerBtnLabel.textContent = 'Register';
   }
 }
 
@@ -518,12 +518,21 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
   if (elements.regPassword) elements.regPassword.value = '';
   if (elements.regConfirmPassword) elements.regConfirmPassword.value = '';
 
+  const heading = document.getElementById('authModalHeading');
+  const subtext = document.getElementById('authModalSubtext');
+
   if (mode === 'signin') {
     elements.authTabSignIn.classList.add('active');
     elements.authTabRegister.classList.remove('active');
     elements.formSignIn.classList.add('active');
     elements.formRegister.classList.remove('active');
     if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = '';
+    if (heading) heading.textContent = 'Sign In to CCA DocTrack';
+    if (subtext) {
+      subtext.textContent = targetPortal === 'admin'
+        ? 'Registrar Admin Management • CCA DocTrack'
+        : 'Student Document Portal • CCA DocTrack';
+    }
   } else {
     // Register mode: lock strictly to student
     setRoleIndicator('student');
@@ -532,12 +541,19 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
     elements.authTabSignIn.classList.remove('active');
     elements.formRegister.classList.add('active');
     elements.formSignIn.classList.remove('active');
+    if (heading) heading.textContent = 'Register for CCA DocTrack';
+    if (subtext) subtext.textContent = 'Create Student Account • CCA DocTrack';
   }
 
   const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
   if (overlay) {
     overlay.classList.remove('hidden');
-    overlay.style.display = 'flex';
+    overlay.style.removeProperty('display');
+    overlay.style.removeProperty('visibility');
+    overlay.style.removeProperty('pointer-events');
+    overlay.style.setProperty('display', 'flex', 'important');
+    overlay.style.setProperty('visibility', 'visible', 'important');
+    overlay.style.setProperty('pointer-events', 'auto', 'important');
   }
 }
 window.openAuthModal = openAuthModal;
@@ -546,7 +562,9 @@ function closeAuthModal() {
   const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
   if (overlay) {
     overlay.classList.add('hidden');
-    overlay.style.display = 'none';
+    overlay.style.setProperty('display', 'none', 'important');
+    overlay.style.setProperty('visibility', 'hidden', 'important');
+    overlay.style.setProperty('pointer-events', 'none', 'important');
   }
   clearAuthAlert();
 }
@@ -590,9 +608,23 @@ function setupAuthHandlers() {
   // Modal Closers
   const closeBtn = document.getElementById('btnAuthClose') || elements.btnAuthClose;
   if (closeBtn) {
-    closeBtn.onclick = closeAuthModal;
-    closeBtn.addEventListener('click', closeAuthModal);
+    closeBtn.onclick = (e) => {
+      if (e) e.preventDefault();
+      closeAuthModal();
+    };
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeAuthModal();
+    });
+    closeBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      closeAuthModal();
+    }, { passive: false });
     closeBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      closeAuthModal();
+    }, { passive: false });
+    closeBtn.addEventListener('pointerdown', (e) => {
       e.preventDefault();
       closeAuthModal();
     });
@@ -619,6 +651,15 @@ function setupAuthHandlers() {
     elements.formSignIn.classList.add('active');
     elements.formRegister.classList.remove('active');
     if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = '';
+    const heading = document.getElementById('authModalHeading');
+    if (heading) heading.textContent = 'Sign In to CCA DocTrack';
+    const isStudent = state.authTargetPortal !== 'admin';
+    const subtext = document.getElementById('authModalSubtext');
+    if (subtext) {
+      subtext.textContent = isStudent
+        ? 'Student Document Portal • CCA DocTrack'
+        : 'Registrar Admin Management • CCA DocTrack';
+    }
     clearAuthAlert();
   });
 
@@ -629,6 +670,10 @@ function setupAuthHandlers() {
     elements.authTabSignIn.classList.remove('active');
     elements.formRegister.classList.add('active');
     elements.formSignIn.classList.remove('active');
+    const heading = document.getElementById('authModalHeading');
+    if (heading) heading.textContent = 'Register for CCA DocTrack';
+    const subtext = document.getElementById('authModalSubtext');
+    if (subtext) subtext.textContent = 'Create Student Account • CCA DocTrack';
     clearAuthAlert();
   });
 
@@ -748,6 +793,13 @@ async function handleRegisterSubmit(e) {
 
   if (!fullName || !email || !password || !confirmPassword) {
     showAuthAlert('Please fill in all required fields.', 'error');
+    return;
+  }
+
+  // Enforce CCA Institutional Email domain (@cca.edu.ph)
+  const normalizedEmail = email.toLowerCase();
+  if (!normalizedEmail.endsWith('@cca.edu.ph')) {
+    showAuthAlert('Institutional email must use the @cca.edu.ph domain (e.g., student@cca.edu.ph).', 'error');
     return;
   }
 
