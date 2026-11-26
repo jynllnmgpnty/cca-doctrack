@@ -313,6 +313,10 @@ async function testNewFixes() {
     // 2. Mobile hero banner graphic hidden
     assert(cssContent.includes('.hero-banner-graphic'), 'CSS targets .hero-banner-graphic for responsive hiding');
     assert(cssContent.includes('.ref-form-two-col'), 'CSS targets .ref-form-two-col for mobile 1-column layout');
+    assert(cssContent.includes('.flowize-hero-section'), 'CSS contains dedicated mobile styling for .flowize-hero-section');
+    assert(cssContent.includes('.auth-modal .form-grid') && cssContent.includes('grid-template-columns: 1fr'), 'CSS enforces single-column layout for registration on mobile');
+    assert(cssContent.includes('#btnConfirmLogoutModal'), 'CSS contains dedicated mobile styling for logout confirmation buttons');
+    assert(cssContent.includes('#studentSidebarLogoutBtn'), 'CSS contains distinct mobile styling for sidebar logout');
 
     // 3. Table horizontal touch scroll
     assert(cssContent.includes('.table-responsive') && cssContent.includes('-webkit-overflow-scrolling'), 'CSS includes touch scrolling for data tables');
