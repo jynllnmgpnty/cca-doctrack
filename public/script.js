@@ -431,14 +431,25 @@ function restoreSession() {
 }
 
 function updateLandingAuthUI() {
-  if (!elements.landingAuthActions) return;
-
-  if (state.currentUser) {
-    elements.landingAuthActions.innerHTML = `
-      <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
-    `;
-
-    document.getElementById('btnLandingSignIn')?.addEventListener('click', () => openAuthModal('signin', 'student'));
+  const signInBtn = document.getElementById('btnLandingSignIn');
+  if (signInBtn) {
+    if (state.currentUser) {
+      signInBtn.textContent = 'Portal';
+      signInBtn.onclick = (e) => {
+        e.preventDefault();
+        if (state.currentUser.role === 'admin') {
+          switchView('admin');
+        } else {
+          switchView('student');
+        }
+      };
+    } else {
+      signInBtn.textContent = 'Log in';
+      signInBtn.onclick = (e) => {
+        e.preventDefault();
+        openAuthModal('signin');
+      };
+    }
   }
 }
 
@@ -4475,7 +4486,7 @@ function setupMobileDrawers() {
         switchView('student');
         switchStudentSubtab('request');
       } else {
-        openAuthModal('signin', 'student');
+        openAuthModal('signin');
       }
     });
 
@@ -4485,18 +4496,20 @@ function setupMobileDrawers() {
         switchView('student');
         switchStudentSubtab('tracking');
       } else {
-        openAuthModal('signin', 'student');
+        openAuthModal('signin');
       }
     });
 
-    document.getElementById('btnLandingMenuSignIn')?.addEventListener('click', () => {
+    const mobileSignIn = document.getElementById('btnLandingMobileSignIn') || document.getElementById('btnLandingMenuSignIn');
+    mobileSignIn?.addEventListener('click', () => {
       landingMenu.classList.add('hidden');
-      openAuthModal('signin', 'student');
+      openAuthModal('signin');
     });
 
-    document.getElementById('btnLandingMenuRegister')?.addEventListener('click', () => {
+    const mobileRegister = document.getElementById('btnLandingMobileRegister') || document.getElementById('btnLandingMenuRegister');
+    mobileRegister?.addEventListener('click', () => {
       landingMenu.classList.add('hidden');
-      openAuthModal('register', 'student');
+      openAuthModal('register');
     });
   }
 }

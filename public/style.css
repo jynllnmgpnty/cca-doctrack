@@ -2018,15 +2018,9 @@ input:focus, select:focus, textarea:focus {
   box-shadow: var(--shadow-sm);
 }
 
-/* 2 Role Indicators (Student vs Admin) */
+/* Single Unified Login - Role Indicators completely hidden */
 .auth-role-indicators {
-  display: flex;
-  background: var(--slate-100, #f1f5f9);
-  border: 1px solid var(--slate-200, #e2e8f0);
-  padding: 3px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  gap: 4px;
+  display: none !important;
 }
 
 .role-indicator-tab {
@@ -4950,45 +4944,73 @@ input:focus, select:focus, textarea:focus {
   .admin-topbar-search {
     display: none !important;
   }
-  .student-ref-sidebar {
-    width: 100%;
-    min-height: auto;
-    border-right: none;
-    border-bottom: 1px solid #E2E8F0;
-    padding: 14px 12px;
-    gap: 10px;
+  /* Off-Canvas Sidebar Drawers on Mobile */
+  .student-ref-sidebar,
+  .admin-ref-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    max-width: 82vw !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    background: #FFFFFF !important;
+    z-index: 10050 !important;
+    box-shadow: 6px 0 28px rgba(15, 23, 42, 0.22) !important;
+    transform: translateX(-105%) !important;
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 24px 16px 20px !important;
+    box-sizing: border-box !important;
+    border-right: 1px solid #E2E8F0 !important;
+    border-bottom: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .student-ref-sidebar.open,
+  .admin-ref-sidebar.open {
+    transform: translateX(0) !important;
   }
   .student-sidebar-profile {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-align: left;
-    padding-bottom: 4px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: left !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid #F1F5F9 !important;
+    margin-bottom: 12px !important;
   }
   .student-avatar-lg-wrap {
-    margin: 0;
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
+    margin: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    flex-shrink: 0 !important;
   }
   .student-avatar-lg {
-    width: 48px;
-    height: 48px;
+    width: 44px !important;
+    height: 44px !important;
   }
-  .student-ref-nav {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 6px;
-    width: 100%;
+  .student-ref-sidebar .student-ref-nav,
+  .admin-ref-sidebar .student-ref-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    grid-template-columns: none !important;
   }
-  .ref-nav-item {
-    width: auto;
-    flex: 1 1 calc(50% - 6px);
-    min-width: 120px;
-    padding: 8px 10px;
-    font-size: 12.5px;
-    justify-content: flex-start;
+  .student-ref-sidebar .ref-nav-item,
+  .admin-ref-sidebar .ref-nav-item {
+    width: 100% !important;
+    flex: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 10px 14px !important;
+    font-size: 13.5px !important;
+    gap: 12px !important;
+    border-radius: 8px !important;
   }
   .student-ref-main {
     padding: 16px 12px !important;
@@ -5114,21 +5136,23 @@ input:focus, select:focus, textarea:focus {
     display: none !important;
   }
   .student-ref-nav {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 6px !important;
+    grid-template-columns: none !important;
+    width: 100% !important;
   }
   .ref-nav-item {
     width: 100% !important;
-    flex: 1 1 100% !important;
-    padding: 8px 6px !important;
-    font-size: 11.5px !important;
+    flex: none !important;
+    padding: 9px 12px !important;
+    font-size: 13px !important;
     justify-content: flex-start !important;
-    gap: 6px !important;
+    gap: 10px !important;
   }
   .ref-nav-item svg {
-    width: 16px !important;
-    height: 16px !important;
+    width: 18px !important;
+    height: 18px !important;
   }
   .ref-quick-grid,
   .available-doc-grid,
@@ -7736,8 +7760,7 @@ html, body {
     font-size: 12px !important;
   }
   .auth-role-indicators {
-    margin-bottom: 8px !important;
-    gap: 6px !important;
+    display: none !important;
   }
   .role-indicator-tab {
     padding: 5px 8px !important;
@@ -7886,10 +7909,13 @@ html, body {
     justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
-    grid-column: 1 / -1 !important;
+    grid-column: auto !important;
     width: 100% !important;
     gap: 8px !important;
-    margin: 4px 0 0 !important;
+    padding: 12px 16px !important;
+    margin: 16px 0 0 !important;
+    border-radius: 10px !important;
+    box-sizing: border-box !important;
   }
   #studentSidebarLogoutBtn:hover,
   #adminSidebarLogoutBtn:hover,
@@ -7995,17 +8021,23 @@ html, body {
     gap: 8px !important;
   }
   .student-ref-nav {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    gap: 6px !important;
+    width: 100% !important;
   }
   .ref-nav-item {
-    padding: 7px 6px !important;
-    font-size: 11px !important;
-    gap: 4px !important;
+    width: 100% !important;
+    flex: none !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
   }
   .ref-nav-item svg {
-    width: 15px !important;
-    height: 15px !important;
+    width: 18px !important;
+    height: 18px !important;
   }
   .ref-hero-title,
   .hero-title {
