@@ -274,8 +274,14 @@ const elements = {
 // Initialization
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Check for existing session in localStorage
-  restoreSession();
+  dismissInitialLoader();
+  try {
+    // Check for existing session in localStorage
+    restoreSession();
+  } catch (err) {
+    console.warn('Session restoration failed:', err);
+    dismissInitialLoader();
+  }
 
   // Set default date to today
   const today = new Date().toISOString().split('T')[0];
@@ -4224,7 +4230,7 @@ const cropperState = {
   dragStartY: 0
 };
 
-function initStudentRefPortal() {
+async function initStudentRefPortal() {
   restoreDarkModeState();
 
   // Reset Student Account Settings edit state to viewing mode
@@ -5340,65 +5346,76 @@ function setupStudentRefPortalListeners() {
     if (editModal) editModal.style.display = 'none';
   });
 
-  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', () => {
-    const name = document.getElementById('modalInputFullName')?.value.trim();
-    const email = document.getElementById('modalInputEmail')?.value.trim();
-    const prog = document.getElementById('modalInputProgram')?.value;
-
+  async function handleSaveStudentPersonalInfo(name, email, prog, modalEl = null) {
     if (!name || !email) {
       showToast('Name and Email are required.', 'error');
-      return;
+      return false;
     }
 
-    triggerStudentViewLoader();
-
-    if (state.currentUser) {
-      state.currentUser.fullName = name;
-      state.currentUser.email = email;
-      state.currentUser.course = prog;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-    }
-
-    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
-    let profile = {};
     try {
-      const raw = localStorage.getItem(key);
-      if (raw) profile = JSON.parse(raw);
-    } catch (e) { }
+      triggerStudentViewLoader();
 
-    profile.fullName = name;
-    profile.email = email;
-    profile.course = prog;
-    localStorage.setItem(key, JSON.stringify(profile));
-    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+      const ident = (state.currentUser && (state.currentUser.studentId || state.currentUser.email || state.currentUser.id)) || email;
+      const res = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identifier: ident,
+          fullName: name,
+          email: email,
+          course: prog
+        })
+      });
 
-    if (!state.currentUser) state.currentUser = {};
-    state.currentUser.fullName = resData.user.fullName || name;
-    state.currentUser.email = resData.user.email || email;
-    state.currentUser.course = resData.user.course || prog;
-    if (resData.user.studentId) state.currentUser.studentId = resData.user.studentId;
-    localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.message || 'Failed to update profile in database.');
+      }
 
-    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
-    const profile = {
-      fullName: state.currentUser.fullName,
-      email: state.currentUser.email,
-      course: state.currentUser.course,
-      studentId: state.currentUser.studentId
-    };
-    localStorage.setItem(key, JSON.stringify(profile));
-    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+      if (state.currentUser) {
+        state.currentUser.fullName = name;
+        state.currentUser.email = email;
+        state.currentUser.course = prog;
+        localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      }
 
-    syncStudentRefProfile();
-    showToast('Student profile updated successfully in Supabase database!', 'success');
-    if (modalEl) modalEl.style.display = 'none';
-    return true;
-  } catch (err) {
-    console.error('Student profile update error:', err);
-    showToast('Failed to update student profile in database: ' + err.message, 'error');
-    return false;
+      const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
+      let profile = {};
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) profile = JSON.parse(raw);
+      } catch (e) { }
+
+      profile.fullName = name;
+      profile.email = email;
+      profile.course = prog;
+      localStorage.setItem(key, JSON.stringify(profile));
+      localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+      if (!state.currentUser) state.currentUser = {};
+      state.currentUser.fullName = resData.user.fullName || name;
+      state.currentUser.email = resData.user.email || email;
+      state.currentUser.course = resData.user.course || prog;
+      if (resData.user.studentId) state.currentUser.studentId = resData.user.studentId;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+      profile.fullName = state.currentUser.fullName;
+      profile.email = state.currentUser.email;
+      profile.course = state.currentUser.course;
+      profile.studentId = state.currentUser.studentId;
+      localStorage.setItem(key, JSON.stringify(profile));
+      localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+      syncStudentRefProfile();
+      showToast('Student profile updated successfully in Supabase database!', 'success');
+      if (modalEl) modalEl.style.display = 'none';
+      return true;
+    } catch (err) {
+      console.error('Student profile update error:', err);
+      showToast('Failed to update student profile in database: ' + err.message, 'error');
+      return false;
+    }
   }
-}
 
 document.getElementById('btnSaveEditPersonal')?.addEventListener('click', async () => {
   const name = document.getElementById('modalInputFullName')?.value.trim();

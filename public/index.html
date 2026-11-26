@@ -46,6 +46,20 @@
       <div class="loader-caption">Loading portal workspace...</div>
     </div>
   </div>
+  <script>
+    // Fail-safe auto-dismissal for initial app loader
+    (function() {
+      function safeDismiss() {
+        var el = document.getElementById('appInitialLoader');
+        if (el && !el.classList.contains('fade-out')) {
+          el.classList.add('fade-out');
+          setTimeout(function() { if (el && el.parentNode) el.style.display = 'none'; }, 350);
+        }
+      }
+      window.addEventListener('load', function() { setTimeout(safeDismiss, 200); });
+      setTimeout(safeDismiss, 900);
+    })();
+  </script>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
