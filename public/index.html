@@ -1964,15 +1964,15 @@
               <div class="account-fields-side">
                 <div class="settings-field-row">
                   <label class="settings-row-lbl">Full Name</label>
-                  <input type="text" class="ref-input-box" id="settingsInputFullName" placeholder="Enter student full name">
+                  <input type="text" class="ref-input-box" id="settingsInputFullName" placeholder="Enter student full name" disabled readonly>
                 </div>
                 <div class="settings-field-row">
                   <label class="settings-row-lbl">Email Address</label>
-                  <input type="email" class="ref-input-box" id="settingsInputEmail" placeholder="student@cca.edu.ph">
+                  <input type="email" class="ref-input-box" id="settingsInputEmail" placeholder="student@cca.edu.ph" disabled readonly>
                 </div>
                 <div class="settings-field-row">
                   <label class="settings-row-lbl">Academic Program</label>
-                  <select class="ref-select-lg" id="settingsInputProgram">
+                  <select class="ref-select-lg" id="settingsInputProgram" disabled>
                     <option value="BS Information Technology">BS Information Technology (BSIT)</option>
                     <option value="BS Computer Science">BS Computer Science (BSCS)</option>
                     <option value="BS Hospitality Management">BS Hospitality Management (BSHM)</option>
@@ -1982,9 +1982,15 @@
                   </select>
                 </div>
 
-                <div class="ref-form-btn-row">
-                  <button type="button" class="btn-ref-outline" id="btnSettingsCancel">Cancel</button>
-                  <button type="button" class="btn-ref-primary" id="btnSettingsSave">Save Changes &rarr;</button>
+                <div style="margin-top:auto; padding-top:16px; display:flex; justify-content:flex-end;">
+                  <button type="button" class="btn-ref-outline" id="btnStudentToggleEditSettings"
+                    style="color:#2563EB; border-color:#BFDBFE; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                    <span id="btnStudentToggleEditSettingsLabel">Edit Profile</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -2099,25 +2105,6 @@
                   </div>
                 </div>
                 <button class="btn-ref-outline" id="btnSettingsToChangePw">Change Password &rarr;</button>
-              </div>
-
-              <div class="toggle-row-item">
-                <div class="toggle-item-info">
-                  <div class="toggle-icon-wrap blue-tint">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2">
-                      <path d="M21 2l-2 2m-1-1l-2 2M15 8l-2 2m-1-1l-2 2M7.5 13.5a5 5 0 1 0 7 7l5.5-5.5-3.5-3.5-9 2z">
-                      </path>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 class="toggle-item-title">Two-Factor Authentication</h4>
-                    <p class="toggle-item-sub">Add an extra layer of security to your account.</p>
-                  </div>
-                </div>
-                <label class="ref-switch">
-                  <input type="checkbox" id="toggleTwoFactor">
-                  <span class="ref-slider round"></span>
-                </label>
               </div>
             </div>
           </div>
@@ -2639,7 +2626,7 @@
           </button>
           <div class="student-user-dropdown" id="adminUserDropdown">
             <div class="dropdown-header">
-              <div class="dropdown-user-name" id="adminDropdownUserName">Admin Reyes</div>
+              <div class="dropdown-user-name" id="adminDropdownUserName">---</div>
               <div class="dropdown-user-email" id="adminDropdownUserEmail">admin@cca.edu.ph</div>
             </div>
             <div class="dropdown-divider"></div>
@@ -2724,7 +2711,7 @@
               </svg>
             </div>
           </div>
-          <h3 class="student-sidebar-name" id="adminSidebarName">Admin Reyes</h3>
+          <h3 class="student-sidebar-name" id="adminSidebarName">---</h3>
           <p class="student-sidebar-meta" id="adminSidebarMeta">System Administrator</p>
           <div class="admin-status-online">
             <span class="online-dot"></span>
@@ -2807,7 +2794,7 @@
           <div class="ref-hero-banner" style="background: linear-gradient(135deg, #F0F6FF 0%, #FFFFFF 100%);">
             <div class="hero-banner-content">
               <h1 class="hero-title" style="font-size:28px;">Welcome back, <span class="hero-name-blue"
-                  id="adminHeroGreetingName">Admin Reyes!</span></h1>
+                  id="adminHeroGreetingName">Admin!</span></h1>
               <p class="hero-subtitle">Here's what's happening with CCA DocTrack today.</p>
             </div>
             <div class="hero-banner-graphic">
@@ -4166,27 +4153,27 @@
                   <div class="settings-field-row">
                     <label class="settings-row-lbl">Full Name</label>
                     <input type="text" class="ref-input-box" id="adminSettingsFullName"
-                      placeholder="Office of the College Registrar">
+                      placeholder="Office of the College Registrar" disabled readonly>
                   </div>
                   <div class="settings-field-row">
                     <label class="settings-row-lbl">Email Address</label>
-                    <input type="email" class="ref-input-box" id="adminSettingsEmail" placeholder="admin@cca.edu.ph">
+                    <input type="email" class="ref-input-box" id="adminSettingsEmail" placeholder="admin@cca.edu.ph" disabled readonly>
                   </div>
                   <div class="settings-field-row">
                     <label class="settings-row-lbl">Contact Number</label>
-                    <input type="text" class="ref-input-box" id="adminSettingsContact" value="+63 912 345 6789">
+                    <input type="text" class="ref-input-box" id="adminSettingsContact" placeholder="+63 900 000 0000" disabled readonly>
                   </div>
                 </div>
               </div>
 
               <div style="margin-top:auto; padding-top:16px; display:flex; justify-content:flex-end;">
                 <button type="button" class="btn-filter-outline" id="btnAdminUpdateProfile"
-                  style="color:#2563EB; border-color:#BFDBFE; font-weight:600;">
+                  style="color:#2563EB; border-color:#BFDBFE; font-weight:600; display:inline-flex; align-items:center; gap:6px;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 20h9" />
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
-                  <span>Update Profile</span>
+                  <span id="btnAdminUpdateProfileLabel">Edit Profile</span>
                 </button>
               </div>
             </div>
@@ -4294,25 +4281,6 @@
                 <button type="button" class="btn-ref-outline-sm" id="btnAdminGoChangePassword"
                   style="border-radius:20px; font-weight:600; padding:6px 14px;">Change Password &rarr;</button>
               </div>
-
-              <div class="settings-toggle-item">
-                <div class="settings-toggle-left">
-                  <div class="settings-toggle-icon" style="background:#F0FDF4; color:#16A34A;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      <polyline points="9 12 11 14 15 10" />
-                    </svg>
-                  </div>
-                  <div>
-                    <div class="settings-toggle-title">Two-Factor Authentication</div>
-                    <div class="settings-toggle-desc">Add an extra layer of security.</div>
-                  </div>
-                </div>
-                <label class="switch-toggle-pill">
-                  <input type="checkbox" id="admin2FAToggle">
-                  <span class="switch-slider"></span>
-                </label>
-              </div>
             </div>
 
             <!-- Card 4: Appearance Settings -->
@@ -4363,17 +4331,6 @@
                 <line x1="12" y1="8" x2="12.01" y2="8" />
               </svg>
               <span id="adminSettingsLastUpdated">System synchronized with database</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-              <button type="button" class="btn-filter-outline" id="btnCancelAdminSettings">Cancel</button>
-              <button type="button" class="btn-filter-primary" id="btnSaveAdminSettings" style="gap:6px;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                  <polyline points="17 21 17 13 7 13 7 21" />
-                  <polyline points="7 3 7 8 15 8" />
-                </svg>
-                <span>Save Changes</span>
-              </button>
             </div>
           </div>
         </div>

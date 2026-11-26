@@ -1,7 +1,57 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 const { dbUsers, dbReactivations, seedDefaultAccounts } = require('../db');
+
+// Persistent Avatar File Storage
+const avatarsFilePath = path.resolve(__dirname, '..', 'data', 'avatars.json');
+
+function getStoredAvatars() {
+  try {
+    if (!fs.existsSync(avatarsFilePath)) return {};
+    const raw = fs.readFileSync(avatarsFilePath, 'utf8');
+    return JSON.parse(raw || '{}');
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveStoredAvatar(identifier, avatarData, secondaryIdentifier = null) {
+  try {
+    const dir = path.dirname(avatarsFilePath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const avatars = getStoredAvatars();
+    const key = String(identifier).trim().toLowerCase();
+    avatars[key] = avatarData;
+    if (secondaryIdentifier) {
+      avatars[String(secondaryIdentifier).trim().toLowerCase()] = avatarData;
+    }
+    if (key.includes('admin') || key === 'admin@cca.edu.ph') {
+      avatars['admin'] = avatarData;
+      avatars['admin@cca.edu.ph'] = avatarData;
+    }
+    fs.writeFileSync(avatarsFilePath, JSON.stringify(avatars), 'utf8');
+  } catch (e) {
+    console.warn('Could not save avatar file:', e.message);
+  }
+}
+
+function getStoredAvatar(identifier, secondaryIdentifier = null) {
+  if (!identifier && !secondaryIdentifier) return null;
+  const avatars = getStoredAvatars();
+  const k1 = identifier ? String(identifier).trim().toLowerCase() : '';
+  const k2 = secondaryIdentifier ? String(secondaryIdentifier).trim().toLowerCase() : '';
+
+  if (k1 && avatars[k1]) return avatars[k1];
+  if (k2 && avatars[k2]) return avatars[k2];
+
+  if (k1.includes('admin') || k2.includes('admin')) {
+    return avatars['admin'] || avatars['admin@cca.edu.ph'] || null;
+  }
+  return null;
+}
 
 /**
  * @route   POST /api/auth/register
@@ -197,7 +247,8 @@ router.post('/login', async (req, res) => {
         studentId: user.student_id,
         email: user.email,
         course: user.course,
-        role: user.role
+        role: user.role,
+        avatar: getStoredAvatar(user.email || user.student_id)
       }
     });
   } catch (error) {
@@ -340,7 +391,8 @@ router.get('/profile', async (req, res) => {
         email: user.email,
         course: user.course,
         role: user.role,
-        status: user.status
+        status: user.status,
+        avatar: getStoredAvatar(user.email, user.student_id)
       }
     });
   } catch (error) {
@@ -348,6 +400,75 @@ router.get('/profile', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch user profile.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/avatar
+ * @desc    Persist user profile photo/avatar across devices
+ * @access  Public (Authenticated session)
+ */
+router.post('/avatar', async (req, res) => {
+  try {
+    const { identifier, avatar } = req.body;
+    if (!identifier || !avatar) {
+      return res.status(400).json({
+        success: false,
+        message: 'Identifier and avatar data are required.'
+      });
+    }
+
+    let secondary = null;
+    try {
+      const found = await dbUsers.findByEmailOrStudentId(identifier);
+      if (found) {
+        secondary = (found.student_id && String(found.student_id).toLowerCase() !== String(identifier).toLowerCase())
+          ? found.student_id
+          : found.email;
+      }
+    } catch (e) {}
+
+    saveStoredAvatar(identifier, avatar, secondary);
+    return res.status(200).json({
+      success: true,
+      message: 'Profile avatar saved and synchronized successfully!'
+    });
+  } catch (error) {
+    console.error('Error saving avatar:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to save avatar.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   GET /api/auth/avatar
+ * @desc    Get user profile photo/avatar across devices
+ * @access  Public
+ */
+router.get('/avatar', (req, res) => {
+  try {
+    const identifier = req.query.identifier || req.query.email || req.query.studentId;
+    if (!identifier) {
+      return res.status(400).json({
+        success: false,
+        message: 'Identifier is required.'
+      });
+    }
+
+    const avatar = getStoredAvatar(identifier);
+    return res.status(200).json({
+      success: true,
+      avatar
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch avatar.',
       error: error.message
     });
   }
@@ -383,6 +504,10 @@ router.patch('/profile', async (req, res) => {
       updates.email = String(email).trim().toLowerCase();
     }
 
+    if (req.body.avatar) {
+      saveStoredAvatar(targetIdentifier, req.body.avatar);
+    }
+
     const updatedUser = await dbUsers.updateProfile(targetIdentifier, updates);
 
     if (!updatedUser) {
@@ -395,7 +520,10 @@ router.patch('/profile', async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully in database.',
-      user: updatedUser
+      user: {
+        ...updatedUser,
+        avatar: getStoredAvatar(updatedUser.email || updatedUser.studentId || targetIdentifier)
+      }
     });
   } catch (error) {
     console.error('Error updating profile:', error.message);

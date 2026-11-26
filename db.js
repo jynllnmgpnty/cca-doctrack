@@ -364,11 +364,12 @@ const dbUsers = {
    */
   async updateProfile(identifier, updates = {}) {
     const target = String(identifier).trim().toLowerCase();
-    const numId = parseInt(identifier, 10);
+    const isPureNum = /^\d+$/.test(String(identifier).trim());
     const client = getSupabaseClient();
 
     let query = client.from('users').select('id, full_name, student_id, email, course, role, status');
-    if (!isNaN(numId) && numId > 0) {
+    if (isPureNum) {
+      const numId = parseInt(identifier, 10);
       query = query.or(`student_id.ilike.${target},email.ilike.${target},id.eq.${numId}`);
     } else {
       query = query.or(`student_id.ilike.${target},email.ilike.${target}`);
@@ -407,7 +408,7 @@ const dbUsers = {
     if (updates.studentId !== undefined && updates.studentId.trim()) {
       updatePayload.student_id = updates.studentId.trim();
     }
-    if (updates.email !== undefined && updates.email.trim()) {
+    if (updates.email !== undefined && updates.email.trim() && updates.email.trim().toLowerCase() !== String(user.email || '').toLowerCase()) {
       updatePayload.email = updates.email.trim().toLowerCase();
     }
 

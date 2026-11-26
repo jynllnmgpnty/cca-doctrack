@@ -340,6 +340,11 @@ function restoreSession() {
               state.currentUser.fullName = res.user.fullName;
               state.currentUser.email = res.user.email;
               state.currentUser.role = res.user.role || 'admin';
+              if (res.user.avatar) {
+                state.currentUser.avatar = res.user.avatar;
+                localStorage.setItem('cca_admin_avatar', res.user.avatar);
+                applyAdminAvatarToElements(res.user.avatar);
+              }
               localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
               syncAdminProfileInfo();
             }
@@ -364,6 +369,14 @@ function restoreSession() {
                 state.currentUser.email = res.user.email;
                 state.currentUser.course = res.user.course;
                 if (res.user.studentId) state.currentUser.studentId = res.user.studentId;
+                if (res.user.avatar) {
+                  state.currentUser.avatar = res.user.avatar;
+                  localStorage.setItem('cca_student_avatar', res.user.avatar);
+                  if (state.currentUser.studentId) {
+                    localStorage.setItem('cca_student_avatar_' + state.currentUser.studentId, res.user.avatar);
+                  }
+                  applyAvatarToElements(res.user.avatar);
+                }
                 localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
 
                 const key = 'cca_student_profile_' + (state.currentUser.studentId || 'default');
@@ -631,6 +644,20 @@ async function handleLoginSubmit(e) {
     // Save user session
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
+
+    // Apply & cache user avatar across devices if returned from server
+    if (result.user.avatar) {
+      if (result.user.role === 'admin') {
+        localStorage.setItem('cca_admin_avatar', result.user.avatar);
+        applyAdminAvatarToElements(result.user.avatar);
+      } else {
+        localStorage.setItem('cca_student_avatar', result.user.avatar);
+        if (result.user.studentId) {
+          localStorage.setItem('cca_student_avatar_' + result.user.studentId, result.user.avatar);
+        }
+        applyAvatarToElements(result.user.avatar);
+      }
+    }
 
     // Seed profile caches immediately so new devices don't show stale/default values
     if (result.user.role === 'student') {
@@ -3316,7 +3343,7 @@ function syncAdminProfileInfo() {
   if (setEmail) setEmail.value = adminEmail;
 
   const setContact = document.getElementById('adminSettingsContact');
-  if (setContact && user.phone) setContact.value = user.phone;
+  if (setContact) setContact.value = user.phone || '';
 
   const inName = document.getElementById('adminInputFullName');
   if (inName) inName.value = adminName;
@@ -3345,8 +3372,8 @@ function syncAdminProfileInfo() {
   const sideAvatar = document.getElementById('adminSidebarAvatar');
   if (sideAvatar) sideAvatar.textContent = initials;
 
-  // Load avatar if stored in localStorage
-  const savedAdminAvatar = localStorage.getItem('cca_admin_avatar');
+  // Load avatar if stored in user object or localStorage
+  const savedAdminAvatar = user.avatar || localStorage.getItem('cca_admin_avatar');
   if (savedAdminAvatar) {
     applyAdminAvatarToElements(savedAdminAvatar);
   }
@@ -3372,6 +3399,11 @@ function applyAdminAvatarToElements(dataUrl) {
 async function initAdminRefPortal() {
   restoreAdminDarkModeState();
 
+  // Reset Account Settings edit state to viewing mode
+  if (typeof setAdminSettingsEditMode === 'function') {
+    setAdminSettingsEditMode(false);
+  }
+
   // Fetch live fresh admin profile from Supabase database
   try {
     const ident = (state.currentUser && (state.currentUser.email || state.currentUser.id)) || 'admin@cca.edu.ph';
@@ -3384,6 +3416,11 @@ async function initAdminRefPortal() {
         state.currentUser.email = pData.user.email;
         state.currentUser.role = pData.user.role || 'admin';
         state.currentUser.course = pData.user.course;
+        if (pData.user.avatar) {
+          state.currentUser.avatar = pData.user.avatar;
+          localStorage.setItem('cca_admin_avatar', pData.user.avatar);
+          applyAdminAvatarToElements(pData.user.avatar);
+        }
         localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
       }
     }
@@ -3722,14 +3759,61 @@ function setupAdminRefPortalListeners() {
       syncAdminProfileInfo();
       addAdminAuditLog(`Updated administrator profile: ${full} (${email})`, 'CONFIG');
       showToast('Admin details updated successfully in Supabase database!', 'success');
+      return true;
     } catch (err) {
       console.error('Admin profile update error:', err);
       showToast('Failed to save admin details in database: ' + err.message, 'error');
+      return false;
     }
   }
 
-  document.getElementById('btnSaveAdminSettings')?.addEventListener('click', handleSaveAdminProfileAndSettings);
-  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', handleSaveAdminProfileAndSettings);
+  let adminSettingsEditMode = false;
+
+  function setAdminSettingsEditMode(editing) {
+    adminSettingsEditMode = editing;
+    const inName = document.getElementById('adminSettingsFullName');
+    const inEmail = document.getElementById('adminSettingsEmail');
+    const inContact = document.getElementById('adminSettingsContact');
+    const btn = document.getElementById('btnAdminUpdateProfile');
+    const lbl = document.getElementById('btnAdminUpdateProfileLabel');
+
+    if (inName) { inName.disabled = !editing; inName.readOnly = !editing; }
+    if (inEmail) { inEmail.disabled = !editing; inEmail.readOnly = !editing; }
+    if (inContact) { inContact.disabled = !editing; inContact.readOnly = !editing; }
+
+    if (btn) {
+      if (editing) {
+        btn.classList.remove('btn-filter-outline');
+        btn.classList.add('btn-filter-primary');
+        btn.style.color = '#FFFFFF';
+        btn.style.background = '#2563EB';
+        btn.style.borderColor = '#2563EB';
+        if (lbl) lbl.textContent = 'Save Changes';
+        inName?.focus();
+      } else {
+        btn.classList.remove('btn-filter-primary');
+        btn.classList.add('btn-filter-outline');
+        btn.style.color = '#2563EB';
+        btn.style.background = 'transparent';
+        btn.style.borderColor = '#BFDBFE';
+        if (lbl) lbl.textContent = 'Edit Profile';
+      }
+    }
+  }
+
+  // Make setAdminSettingsEditMode globally available
+  window.setAdminSettingsEditMode = setAdminSettingsEditMode;
+
+  document.getElementById('btnAdminUpdateProfile')?.addEventListener('click', async () => {
+    if (!adminSettingsEditMode) {
+      setAdminSettingsEditMode(true);
+      return;
+    }
+    const saved = await handleSaveAdminProfileAndSettings();
+    if (saved) {
+      setAdminSettingsEditMode(false);
+    }
+  });
 
   document.getElementById('btnAdminChangePhoto')?.addEventListener('click', () => {
     document.getElementById('adminPhotoUploadInput')?.click();
@@ -4170,6 +4254,11 @@ const cropperState = {
 async function initStudentRefPortal() {
   restoreDarkModeState();
 
+  // Reset Student Account Settings edit state to viewing mode
+  if (typeof setStudentSettingsEditMode === 'function') {
+    setStudentSettingsEditMode(false);
+  }
+
   // Live refresh of student profile from Supabase database
   try {
     const sIdent = state.currentUser && (state.currentUser.studentId || state.currentUser.email || state.currentUser.id);
@@ -4184,6 +4273,14 @@ async function initStudentRefPortal() {
           state.currentUser.course = pData.user.course;
           state.currentUser.role = pData.user.role || 'student';
           if (pData.user.studentId) state.currentUser.studentId = pData.user.studentId;
+          if (pData.user.avatar) {
+            state.currentUser.avatar = pData.user.avatar;
+            localStorage.setItem('cca_student_avatar', pData.user.avatar);
+            if (state.currentUser.studentId) {
+              localStorage.setItem('cca_student_avatar_' + state.currentUser.studentId, pData.user.avatar);
+            }
+            applyAvatarToElements(pData.user.avatar);
+          }
           localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
 
           const key = 'cca_student_profile_' + (state.currentUser.studentId || 'default');
@@ -4308,8 +4405,8 @@ function syncStudentRefProfile() {
   const setProg = document.getElementById('settingsInputProgram');
   if (setProg) setProg.value = profile.course;
 
-  // Load avatar if stored
-  const savedAvatar = localStorage.getItem('cca_student_avatar_' + profile.studentId) || localStorage.getItem('cca_student_avatar');
+  // Load avatar if stored in user object or localStorage
+  const savedAvatar = user.avatar || localStorage.getItem('cca_student_avatar_' + profile.studentId) || localStorage.getItem('cca_student_avatar');
   if (savedAvatar) {
     applyAvatarToElements(savedAvatar);
   }
@@ -4967,16 +5064,28 @@ function setupImageCropperListeners() {
 
     if (isAdmin) {
       localStorage.setItem('cca_admin_avatar', croppedUrl);
+      if (state.currentUser) state.currentUser.avatar = croppedUrl;
       applyAdminAvatarToElements(croppedUrl);
       triggerAdminViewLoader();
       showToast('Admin profile photo cropped and updated successfully!', 'success');
+      fetch('/api/auth/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: user.email || 'admin@cca.edu.ph', avatar: croppedUrl, role: 'admin' })
+      }).catch(e => console.warn('Avatar sync failed:', e));
     } else {
       const id = user.studentId || user.email || 'REQ-00234';
       localStorage.setItem('cca_student_avatar_' + id, croppedUrl);
       localStorage.setItem('cca_student_avatar', croppedUrl);
+      if (state.currentUser) state.currentUser.avatar = croppedUrl;
       applyAvatarToElements(croppedUrl);
       triggerStudentViewLoader();
       showToast('Profile photo cropped and saved successfully!', 'success');
+      fetch('/api/auth/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: id, avatar: croppedUrl, role: 'student' })
+      }).catch(e => console.warn('Avatar sync failed:', e));
     }
 
     if (modal) modal.style.display = 'none';
@@ -5300,9 +5409,11 @@ function setupStudentRefPortalListeners() {
       syncStudentRefProfile();
       showToast('Student profile updated successfully in Supabase database!', 'success');
       if (modalEl) modalEl.style.display = 'none';
+      return true;
     } catch (err) {
       console.error('Student profile update error:', err);
       showToast('Failed to update student profile in database: ' + err.message, 'error');
+      return false;
     }
   }
 
@@ -5313,17 +5424,55 @@ function setupStudentRefPortalListeners() {
     await handleSaveStudentPersonalInfo(name, email, prog, editModal);
   });
 
-  // 10. Account Settings Save
-  document.getElementById('btnSettingsSave')?.addEventListener('click', async () => {
+  // 10. Account Settings Edit / Save Toggle
+  let studentSettingsEditMode = false;
+
+  function setStudentSettingsEditMode(editing) {
+    studentSettingsEditMode = editing;
+    const inFull = document.getElementById('settingsInputFullName');
+    const inEmail = document.getElementById('settingsInputEmail');
+    const inProg = document.getElementById('settingsInputProgram');
+    const btn = document.getElementById('btnStudentToggleEditSettings');
+    const lbl = document.getElementById('btnStudentToggleEditSettingsLabel');
+
+    if (inFull) { inFull.disabled = !editing; inFull.readOnly = !editing; }
+    if (inEmail) { inEmail.disabled = !editing; inEmail.readOnly = !editing; }
+    if (inProg) { inProg.disabled = !editing; }
+
+    if (btn) {
+      if (editing) {
+        btn.classList.remove('btn-ref-outline');
+        btn.classList.add('btn-ref-primary');
+        btn.style.color = '#FFFFFF';
+        btn.style.background = '#2563EB';
+        btn.style.borderColor = '#2563EB';
+        if (lbl) lbl.textContent = 'Save Changes';
+        inFull?.focus();
+      } else {
+        btn.classList.remove('btn-ref-primary');
+        btn.classList.add('btn-ref-outline');
+        btn.style.color = '#2563EB';
+        btn.style.background = 'transparent';
+        btn.style.borderColor = '#BFDBFE';
+        if (lbl) lbl.textContent = 'Edit Profile';
+      }
+    }
+  }
+
+  window.setStudentSettingsEditMode = setStudentSettingsEditMode;
+
+  document.getElementById('btnStudentToggleEditSettings')?.addEventListener('click', async () => {
+    if (!studentSettingsEditMode) {
+      setStudentSettingsEditMode(true);
+      return;
+    }
     const full = document.getElementById('settingsInputFullName')?.value.trim();
     const email = document.getElementById('settingsInputEmail')?.value.trim();
     const prog = document.getElementById('settingsInputProgram')?.value;
-    await handleSaveStudentPersonalInfo(full, email, prog);
-  });
-
-  document.getElementById('btnSettingsCancel')?.addEventListener('click', () => {
-    syncStudentRefProfile();
-    showToast('Settings changes reset.', 'info');
+    const ok = await handleSaveStudentPersonalInfo(full, email, prog);
+    if (ok) {
+      setStudentSettingsEditMode(false);
+    }
   });
 
   document.getElementById('btnSettingsToChangePw')?.addEventListener('click', () => {

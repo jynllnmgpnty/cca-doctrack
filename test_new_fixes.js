@@ -1,4 +1,6 @@
 const http = require('http');
+const path = require('path');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const { initDB, dbUsers, dbRequests } = require('./db');
@@ -213,6 +215,61 @@ async function testNewFixes() {
     const dev2GetJson = await dev2GetRes.json();
     assert(dev2GetJson.user.fullName === newDevName, 'Device 2 GET returns updated full_name: ' + dev2GetJson.user.fullName);
     assert(dev2GetJson.user.course === newDevCourse, 'Device 2 GET returns updated course: ' + dev2GetJson.user.course);
+
+    // --- Test 6: Cross-Device Avatar Persistence & Sync ---
+    console.log('\n--- Test 6: Cross-Device Avatar Persistence & Sync ---');
+    const sampleAvatarData = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP...mockAvatar123';
+    
+    // Step A: Admin avatar upload on Device 1
+    const postAdminAvatarRes = await fetch(`${baseUrl}/api/auth/avatar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: 'admin@cca.edu.ph', avatar: sampleAvatarData, role: 'admin' })
+    });
+    assert(postAdminAvatarRes.status === 200, 'POST /api/auth/avatar for Admin returns 200 OK');
+
+    // Step B: Admin avatar retrieved on Device 2 via GET /api/auth/profile
+    const getAdminDev2Res = await fetch(`${baseUrl}/api/auth/profile?identifier=admin@cca.edu.ph`);
+    assert(getAdminDev2Res.status === 200, 'Device 2 GET /api/auth/profile for Admin returns 200 OK');
+    const getAdminDev2Json = await getAdminDev2Res.json();
+    assert(getAdminDev2Json.user.avatar === sampleAvatarData, 'Device 2 receives synced admin avatar');
+
+    // Step C: Student avatar upload on Device 1
+    const postStudentAvatarRes = await fetch(`${baseUrl}/api/auth/avatar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: devTestStudentId, avatar: sampleAvatarData, role: 'student' })
+    });
+    assert(postStudentAvatarRes.status === 200, 'POST /api/auth/avatar for Student returns 200 OK');
+
+    // Step D: Student avatar retrieved on Device 2 via login and profile GET
+    const dev2StudentGetRes = await fetch(`${baseUrl}/api/auth/profile?identifier=${encodeURIComponent(devTestStudentId)}`);
+    assert(dev2StudentGetRes.status === 200, 'Device 2 GET /api/auth/profile for Student returns 200 OK');
+    const dev2StudentGetJson = await dev2StudentGetRes.json();
+    assert(dev2StudentGetJson.user.avatar === sampleAvatarData, 'Device 2 receives synced student avatar');
+
+    // --- Test 7: UI Requirements & Form Hygiene Checks ---
+    console.log('\n--- Test 7: UI Requirements & Form Hygiene Checks ---');
+    const fs = require('fs');
+    const htmlContent = fs.readFileSync(path.resolve(__dirname, 'public', 'index.html'), 'utf8');
+
+    // 1. Two-Factor Authentication must NOT be in settings
+    assert(!htmlContent.includes('toggleTwoFactor'), 'toggleTwoFactor is removed from Student Settings');
+    assert(!htmlContent.includes('admin2FAToggle'), 'admin2FAToggle is removed from Admin Settings');
+
+    // 2. "Cancel | Save Changes" in lower right corner must NOT be present
+    assert(!htmlContent.includes('btnCancelAdminSettings'), 'btnCancelAdminSettings is removed from Admin Settings');
+    assert(!htmlContent.includes('btnSaveAdminSettings'), 'btnSaveAdminSettings is removed from Admin Settings');
+    assert(!htmlContent.includes('btnSettingsCancel'), 'btnSettingsCancel is removed from Student Settings');
+    assert(!htmlContent.includes('btnSettingsSave'), 'btnSettingsSave is removed from Student Settings');
+
+    // 3. Edit Profile action buttons must be present
+    assert(htmlContent.includes('btnAdminUpdateProfileLabel'), 'btnAdminUpdateProfileLabel is present for Admin Edit Profile');
+    assert(htmlContent.includes('btnStudentToggleEditSettingsLabel'), 'btnStudentToggleEditSettingsLabel is present for Student Edit Profile');
+
+    // 4. Default hardcoded "Admin Reyes" and dummy contact must NOT be in inputs
+    assert(!htmlContent.includes('value="+63 912 345 6789"'), 'Hardcoded dummy contact number is removed');
+    assert(!htmlContent.includes('id="adminDropdownUserName">Admin Reyes<'), 'Hardcoded Admin Reyes removed from dropdown');
 
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} NEW FIX TESTS PASSED!`);
