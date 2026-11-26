@@ -349,7 +349,7 @@ function restoreSession() {
               syncAdminProfileInfo();
             }
           })
-          .catch(() => {});
+          .catch(() => { });
       } else {
         const targetView = (savedView === 'landing') ? 'landing' : 'student';
         state.studentActiveTab = savedStudentTab || 'profile';
@@ -368,7 +368,6 @@ function restoreSession() {
                 state.currentUser.fullName = res.user.fullName;
                 state.currentUser.email = res.user.email;
                 state.currentUser.course = res.user.course;
-                if (res.user.studentId) state.currentUser.studentId = res.user.studentId;
                 if (res.user.avatar) {
                   state.currentUser.avatar = res.user.avatar;
                   localStorage.setItem('cca_student_avatar', res.user.avatar);
@@ -378,28 +377,16 @@ function restoreSession() {
                   applyAvatarToElements(res.user.avatar);
                 }
                 localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
-
-                const key = 'cca_student_profile_' + (state.currentUser.studentId || 'default');
-                const prof = {
-                  fullName: state.currentUser.fullName,
-                  email: state.currentUser.email,
-                  course: state.currentUser.course,
-                  studentId: state.currentUser.studentId
-                };
-                localStorage.setItem(key, JSON.stringify(prof));
-                localStorage.setItem('cca_student_profile', JSON.stringify(prof));
-
                 syncStudentProfileFromAuth();
-                syncStudentRefProfile();
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         }
 
         // Verify that restored student account is still active
         fetch('/api/auth/students').then(r => r.json()).then(data => {
           if (data && data.success && Array.isArray(data.data)) {
-            const myAcc = data.data.find(s => 
+            const myAcc = data.data.find(s =>
               (state.currentUser && state.currentUser.studentId && s.studentId === state.currentUser.studentId) ||
               (state.currentUser && state.currentUser.email && s.email && s.email.toLowerCase() === state.currentUser.email.toLowerCase())
             );
@@ -411,7 +398,7 @@ function restoreSession() {
               showToast('Your student account has been deactivated. Please submit a reactivation request.', 'error');
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       }
     } catch (e) {
       console.warn('Session parse error:', e);
@@ -462,7 +449,7 @@ function setRoleIndicator(role = 'student') {
     elements.loginBtnLabel.textContent = isStudent ? 'Sign In as Student' : 'Sign In as Admin';
   }
   if (elements.authModalSubtext) {
-    elements.authModalSubtext.textContent = isStudent 
+    elements.authModalSubtext.textContent = isStudent
       ? 'Student Document Portal • CCA DocTrack'
       : 'Registrar Admin Management • CCA DocTrack';
   }
@@ -659,20 +646,6 @@ async function handleLoginSubmit(e) {
       }
     }
 
-    // Seed profile caches immediately so new devices don't show stale/default values
-    if (result.user.role === 'student') {
-      const initStudentProfile = {
-        fullName: result.user.fullName,
-        email: result.user.email,
-        course: result.user.course,
-        studentId: result.user.studentId
-      };
-      if (result.user.studentId) {
-        localStorage.setItem('cca_student_profile_' + result.user.studentId, JSON.stringify(initStudentProfile));
-      }
-      localStorage.setItem('cca_student_profile', JSON.stringify(initStudentProfile));
-    }
-
     // Smooth loading overlay for login
     showAppLoading('Signing In...', 'Authenticating credentials and preparing workspace...');
 
@@ -851,7 +824,7 @@ function switchView(viewName) {
   state.currentView = viewName;
   try {
     localStorage.setItem('cca_current_view', viewName);
-  } catch (e) {}
+  } catch (e) { }
 
   elements.viewLanding.classList.remove('active');
   elements.viewStudentPortal.classList.remove('active');
@@ -1002,7 +975,7 @@ function switchStudentSubtab(tabName) {
   state.studentActiveTab = tabName;
   try {
     localStorage.setItem('cca_student_active_tab', tabName);
-  } catch (e) {}
+  } catch (e) { }
   if (typeof triggerStudentViewLoader === 'function') {
     triggerStudentViewLoader();
   }
@@ -1043,7 +1016,7 @@ function switchAdminSubtab(tabName) {
   state.adminActiveTab = tabName;
   try {
     localStorage.setItem('cca_admin_active_tab', tabName);
-  } catch (e) {}
+  } catch (e) { }
 
   triggerAdminViewLoader();
 
@@ -1361,7 +1334,7 @@ function handleAvatarFileSelected(e) {
   }
 
   const reader = new FileReader();
-  reader.onload = function(evt) {
+  reader.onload = function (evt) {
     const dataUrl = evt.target.result;
     const studentId = getActiveStudentId();
     try {
@@ -2053,7 +2026,7 @@ function applyAdminFilters() {
 function renderPagination(containerId, countLabelId, totalItems, currentPage, pageSize, onPageChangeFnName, itemLabel = 'records') {
   const container = document.getElementById(containerId);
   const countLabel = document.getElementById(countLabelId);
-  
+
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
 
@@ -2105,22 +2078,22 @@ let auditCurrentPage = 1;
 let manageCurrentPage = 1;
 let cachedRegisteredStudents = [];
 
-window.setStudentPage = function(page) {
+window.setStudentPage = function (page) {
   studentCurrentPage = page;
   renderAdminStudentsTable();
 };
 
-window.setAnnouncePage = function(page) {
+window.setAnnouncePage = function (page) {
   announceCurrentPage = page;
   renderAdminAnnouncements();
 };
 
-window.setAuditPage = function(page) {
+window.setAuditPage = function (page) {
   auditCurrentPage = page;
   renderAdminAuditLogs();
 };
 
-window.setManagePage = function(page) {
+window.setManagePage = function (page) {
   manageCurrentPage = page;
   renderAdminTable();
 };
@@ -2241,9 +2214,9 @@ async function renderAdminStudentsTable() {
         <td>
           <div style="display:flex; align-items:center; gap:8px;">
             ${isActive
-              ? `<button type="button" class="btn-table-pill btn-deactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Inactive', '${escapeHtml(s.name)}')">Deactivate</button>`
-              : `<button type="button" class="btn-table-pill btn-reactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Active', '${escapeHtml(s.name)}')">Reactivate</button>`
-            }
+        ? `<button type="button" class="btn-table-pill btn-deactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Inactive', '${escapeHtml(s.name)}')">Deactivate</button>`
+        : `<button type="button" class="btn-table-pill btn-reactivate" onclick="toggleStudentStatus('${escapeHtml(s.studentId)}', 'Active', '${escapeHtml(s.name)}')">Reactivate</button>`
+      }
             <button type="button" class="btn-table-pill" onclick="editStudentDetails('${escapeHtml(s.studentId)}')">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               <span>Edit</span>
@@ -2255,7 +2228,7 @@ async function renderAdminStudentsTable() {
   }).join('');
 }
 
-window.filterToDeactivatedStudents = function() {
+window.filterToDeactivatedStudents = function () {
   const sel = document.getElementById('adminStudentStatusFilter');
   if (sel) {
     sel.value = 'Inactive';
@@ -2265,7 +2238,7 @@ window.filterToDeactivatedStudents = function() {
   }
 };
 
-window.toggleStudentStatus = async function(studentId, newStatus, studentName) {
+window.toggleStudentStatus = async function (studentId, newStatus, studentName) {
   const isDeactivating = newStatus === 'Inactive';
   const actionText = isDeactivating ? 'deactivate' : 'reactivate';
   const confirmMsg = isDeactivating
@@ -2298,7 +2271,7 @@ window.toggleStudentStatus = async function(studentId, newStatus, studentName) {
   }
 };
 
-window.openReactivationModal = function(studentId = '', email = '') {
+window.openReactivationModal = function (studentId = '', email = '') {
   const modal = document.getElementById('modalRequestReactivation');
   if (!modal) return;
   const idEl = document.getElementById('reactivateStudentId');
@@ -2308,12 +2281,12 @@ window.openReactivationModal = function(studentId = '', email = '') {
   modal.style.display = 'flex';
 };
 
-window.closeReactivationModal = function() {
+window.closeReactivationModal = function () {
   const modal = document.getElementById('modalRequestReactivation');
   if (modal) modal.style.display = 'none';
 };
 
-window.openReactivationRequestsModal = async function() {
+window.openReactivationRequestsModal = async function () {
   const modal = document.getElementById('modalReactivationRequests');
   if (!modal) return;
   modal.style.display = 'flex';
@@ -2367,12 +2340,12 @@ window.openReactivationRequestsModal = async function() {
   }
 };
 
-window.closeReactivationRequestsModal = function() {
+window.closeReactivationRequestsModal = function () {
   const modal = document.getElementById('modalReactivationRequests');
   if (modal) modal.style.display = 'none';
 };
 
-window.approveReactivationRequest = async function(studentId, requestId) {
+window.approveReactivationRequest = async function (studentId, requestId) {
   triggerAdminViewLoader();
   try {
     const res = await fetch(`/api/auth/students/${encodeURIComponent(studentId)}/status`, {
@@ -2410,7 +2383,7 @@ async function checkPendingReactivationRequests() {
         }
       }
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 async function handleReactivationSubmit(e) {
@@ -2447,7 +2420,7 @@ async function handleReactivationSubmit(e) {
   }
 }
 
-window.viewStudentDetails = function(studentId) {
+window.viewStudentDetails = function (studentId) {
   const student = cachedRegisteredStudents.find(s => s.studentId === studentId);
   if (student) {
     showToast(`Student: ${student.name} (${student.studentId}) - ${student.course}`, 'info');
@@ -2456,7 +2429,7 @@ window.viewStudentDetails = function(studentId) {
   }
 };
 
-window.editStudentDetails = function(studentId) {
+window.editStudentDetails = function (studentId) {
   const modal = document.getElementById('modalAdminAddStudent');
   if (modal) {
     const idIn = document.getElementById('adminNewStudentId');
@@ -2465,7 +2438,7 @@ window.editStudentDetails = function(studentId) {
   }
 };
 
-window.filterRequestsByStudent = function(studentName) {
+window.filterRequestsByStudent = function (studentName) {
   switchAdminSubtab('manage');
   if (elements.adminSearchInput) {
     elements.adminSearchInput.value = studentName;
@@ -2484,7 +2457,7 @@ function renderAdminAnnouncements() {
   let stored = [];
   try {
     stored = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
-  } catch (e) {}
+  } catch (e) { }
 
   const allAnnouncements = stored.map((a, i) => ({
     id: a.id || ('ann_' + (i + 1)),
@@ -2566,11 +2539,11 @@ function renderAdminAnnouncements() {
   }).join('');
 }
 
-window.openAdminViewAnnouncement = function(annId) {
+window.openAdminViewAnnouncement = function (annId) {
   let existing = [];
   try {
     existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
-  } catch (e) {}
+  } catch (e) { }
   const ann = existing.find(a => (a.id === annId || ('ann_' + a.id) === annId));
   if (!ann) return;
 
@@ -2598,11 +2571,11 @@ window.openAdminViewAnnouncement = function(annId) {
   modal.style.display = 'flex';
 };
 
-window.openAdminEditAnnouncement = function(annId) {
+window.openAdminEditAnnouncement = function (annId) {
   let existing = [];
   try {
     existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
-  } catch (e) {}
+  } catch (e) { }
   const ann = existing.find(a => (a.id === annId || ('ann_' + a.id) === annId));
   if (!ann) return;
 
@@ -2622,7 +2595,7 @@ window.openAdminEditAnnouncement = function(annId) {
   modal.style.display = 'flex';
 };
 
-window.deleteAdminAnnouncement = function(annId) {
+window.deleteAdminAnnouncement = function (annId) {
   if (!confirm('Are you sure you want to delete this announcement?')) return;
   try {
     let existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
@@ -2634,7 +2607,7 @@ window.deleteAdminAnnouncement = function(annId) {
     }
     showToast('Announcement deleted.', 'info');
     renderAdminAnnouncements();
-  } catch (e) {}
+  } catch (e) { }
 };
 
 function renderAdminReports() {
@@ -2771,7 +2744,7 @@ function renderAdminReports() {
   }
 }
 
-window.filterRequestsByDocType = function(docType) {
+window.filterRequestsByDocType = function (docType) {
   switchAdminSubtab('manage');
   const docTypeEl = document.getElementById('adminDocTypeFilter');
   if (docTypeEl) {
@@ -2792,7 +2765,7 @@ window.filterRequestsByDocType = function(docType) {
   showToast(`Filtering requests by document: "${docType}"`, 'info');
 };
 
-window.filterRequestsByCourse = function(course) {
+window.filterRequestsByCourse = function (course) {
   switchAdminSubtab('manage');
   const sIn = document.getElementById('adminSearchInput');
   if (sIn) {
@@ -2802,12 +2775,12 @@ window.filterRequestsByCourse = function(course) {
   showToast(`Filtering requests by course: "${course}"`, 'info');
 };
 
-window.filterRequestsByWeek = function(weekLabel) {
+window.filterRequestsByWeek = function (weekLabel) {
   switchAdminSubtab('manage');
   showToast(`Filtered requests for: ${weekLabel}`, 'info');
 };
 
-window.filterRequestsByStatus = function(status) {
+window.filterRequestsByStatus = function (status) {
   switchAdminSubtab('manage');
   const statusEl = document.getElementById('adminStatusFilter');
   if (statusEl) {
@@ -2847,7 +2820,7 @@ function renderMonthlyChartBars(reqs) {
   }).join('');
 }
 
-window.exportAdminReportsPdf = function(reportTitle = 'CCA DocTrack Official Report') {
+window.exportAdminReportsPdf = function (reportTitle = 'CCA DocTrack Official Report') {
   const reqs = state.allRequests || [];
   const total = reqs.length;
   const pending = reqs.filter(r => (r.status || '').toUpperCase() === 'PENDING').length;
@@ -3000,7 +2973,7 @@ function addAdminAuditLog(action, type = 'STATUS') {
     logs.unshift(newLog);
     if (logs.length > 100) logs.pop();
     localStorage.setItem('cca_audit_logs', JSON.stringify(logs));
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function renderAdminAuditLogs() {
@@ -3014,7 +2987,7 @@ function renderAdminAuditLogs() {
   let logs = [];
   try {
     logs = JSON.parse(localStorage.getItem('cca_audit_logs') || '[]');
-  } catch (e) {}
+  } catch (e) { }
 
   if (logs.length === 0) {
     logs = [
@@ -3158,7 +3131,7 @@ function renderAdminTable() {
   }).join('');
 }
 
-window.openAdminStatusMenu = function(reqIdentifier) {
+window.openAdminStatusMenu = function (reqIdentifier) {
   const all = state.allRequests || [];
   const req = all.find(r => (
     r.tracking_number === reqIdentifier ||
@@ -3218,7 +3191,7 @@ window.openAdminStatusMenu = function(reqIdentifier) {
   modal.style.display = 'flex';
 };
 
-window.openAdminStatusFromDetails = function() {
+window.openAdminStatusFromDetails = function () {
   const reqIdEl = document.getElementById('detailsModalReqId');
   const reqId = reqIdEl ? reqIdEl.textContent.trim() : null;
   if (reqId) {
@@ -3228,7 +3201,7 @@ window.openAdminStatusFromDetails = function() {
   }
 };
 
-window.quickUpdateStatusFromModal = async function(newStatus) {
+window.quickUpdateStatusFromModal = async function (newStatus) {
   const reqIdEl = document.getElementById('detailsModalReqId');
   const reqId = reqIdEl ? reqIdEl.textContent.trim() : null;
   if (!reqId) return;
@@ -3362,8 +3335,8 @@ function syncAdminProfileInfo() {
 
   const initials = adminName
     ? (adminName.trim().split(/\s+/).length > 1
-        ? (adminName.trim().split(/\s+/)[0][0] + adminName.trim().split(/\s+/)[1][0]).toUpperCase()
-        : adminName.slice(0, 2).toUpperCase())
+      ? (adminName.trim().split(/\s+/)[0][0] + adminName.trim().split(/\s+/)[1][0]).toUpperCase()
+      : adminName.slice(0, 2).toUpperCase())
     : 'AR';
 
   const topAvatar = document.getElementById('adminTopbarAvatar');
@@ -3508,7 +3481,7 @@ function setupAdminRefPortalListeners() {
       if (res.ok) {
         state.allRequests = await res.json();
       }
-    } catch (e) {}
+    } catch (e) { }
     updateAdminDashboard();
     renderAdminTable();
     showToast('Database records synchronized successfully!', 'success');
@@ -3569,7 +3542,7 @@ function setupAdminRefPortalListeners() {
       const existing = JSON.parse(localStorage.getItem('cca_custom_students') || '[]');
       existing.unshift(newStudent);
       localStorage.setItem('cca_custom_students', JSON.stringify(existing));
-    } catch (err) {}
+    } catch (err) { }
 
     triggerAdminViewLoader();
     renderAdminStudentsTable();
@@ -3617,7 +3590,7 @@ function setupAdminRefPortalListeners() {
     let existing = [];
     try {
       existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
-    } catch (err) {}
+    } catch (err) { }
 
     if (editId) {
       const target = existing.find(a => a.id === editId || ('ann_' + a.id) === editId);
@@ -4014,7 +3987,7 @@ function setupAdminRefPortalListeners() {
         const existing = JSON.parse(localStorage.getItem('cca_announcements') || '[]');
         existing.unshift(newAnn);
         localStorage.setItem('cca_announcements', JSON.stringify(existing));
-      } catch (err) {}
+      } catch (err) { }
 
       announceForm.reset();
       triggerAdminViewLoader();
@@ -4251,7 +4224,7 @@ const cropperState = {
   dragStartY: 0
 };
 
-async function initStudentRefPortal() {
+function initStudentRefPortal() {
   restoreDarkModeState();
 
   // Reset Student Account Settings edit state to viewing mode
@@ -4328,10 +4301,10 @@ function triggerStudentViewLoader() {
 
 function syncStudentRefProfile() {
   const user = state.currentUser || {
-    fullName: 'Jaynellan Almary O. Magpantay',
-    studentId: '23-67894',
-    course: 'BS Information Technology',
-    email: 'jaynellan@cca.edu.ph'
+    fullName: 'Juan Dela Cruz',
+    studentId: 'REQ-00234',
+    course: 'BS Information Technology (BSIT)',
+    email: 'juan.delacruz@cca.edu.ph'
   };
 
   const storedKey = 'cca_student_profile_' + (user.studentId || 'default');
@@ -4344,10 +4317,10 @@ function syncStudentRefProfile() {
   }
 
   const profile = {
-    fullName: user.fullName || stored.fullName || 'Jaynellan Almary O. Magpantay',
-    studentId: user.studentId || stored.studentId || '23-67894',
-    course: user.course || stored.course || 'BS Information Technology',
-    email: user.email || stored.email || 'jaynellan@cca.edu.ph'
+    fullName: stored.fullName || user.fullName || 'Juan Dela Cruz',
+    studentId: stored.studentId || user.studentId || 'REQ-00234',
+    course: stored.course || user.course || 'BS Information Technology (BSIT)',
+    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph'
   };
 
   // Topbar
@@ -4450,7 +4423,7 @@ function pushStudentNotification(notif) {
     list.unshift(newNotif);
     localStorage.setItem('cca_student_notifications', JSON.stringify(list));
     renderStudentNotifications();
-  } catch (e) {}
+  } catch (e) { }
 }
 
 function renderStudentNotifications() {
@@ -4462,7 +4435,7 @@ function renderStudentNotifications() {
   let list = [];
   try {
     list = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
-  } catch (e) {}
+  } catch (e) { }
 
   if (list.length === 0) {
     const userRequests = state.allRequests || [];
@@ -5133,7 +5106,7 @@ function setupStudentRefPortalListeners() {
         const notifs = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
         notifs.forEach(n => { n.unread = false; });
         localStorage.setItem('cca_student_notifications', JSON.stringify(notifs));
-      } catch (err) {}
+      } catch (err) { }
     });
 
     document.addEventListener('click', (e) => {
@@ -5148,7 +5121,7 @@ function setupStudentRefPortalListeners() {
         const notifs = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
         notifs.forEach(n => { n.unread = false; });
         localStorage.setItem('cca_student_notifications', JSON.stringify(notifs));
-      } catch (err) {}
+      } catch (err) { }
       if (bellBadge) bellBadge.style.display = 'none';
       showToast('Notifications marked as read.', 'info');
       notifDropdown.classList.remove('show');
@@ -5330,10 +5303,9 @@ function setupStudentRefPortalListeners() {
   const editModal = document.getElementById('modalEditPersonalInfo');
   document.getElementById('btnEditPersonalInfo')?.addEventListener('click', () => {
     if (!editModal) return;
-    const u = state.currentUser || {};
-    const curName = u.fullName || (document.getElementById('personalFullName')?.textContent !== '---' ? document.getElementById('personalFullName')?.textContent : '') || '';
-    const curEmail = u.email || (document.getElementById('personalEmail')?.textContent !== '---' ? document.getElementById('personalEmail')?.textContent : '') || '';
-    const curProg = u.course || (document.getElementById('personalProgram')?.textContent !== '---' ? document.getElementById('personalProgram')?.textContent : '') || '';
+    const curName = document.getElementById('personalFullName')?.textContent || '';
+    const curEmail = document.getElementById('personalEmail')?.textContent || '';
+    const curProg = document.getElementById('personalProgram')?.textContent || '';
 
     const inName = document.getElementById('modalInputFullName'); if (inName) inName.value = curName;
     const inEmail = document.getElementById('modalInputEmail'); if (inEmail) inEmail.value = curEmail;
@@ -5360,7 +5332,11 @@ function setupStudentRefPortalListeners() {
     if (editModal) editModal.style.display = 'none';
   });
 
-  async function handleSaveStudentPersonalInfo(name, email, prog, modalEl = null) {
+  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', () => {
+    const name = document.getElementById('modalInputFullName')?.value.trim();
+    const email = document.getElementById('modalInputEmail')?.value.trim();
+    const prog = document.getElementById('modalInputProgram')?.value;
+
     if (!name || !email) {
       showToast('Name and Email are required.', 'error');
       return;
@@ -5368,289 +5344,288 @@ function setupStudentRefPortalListeners() {
 
     triggerStudentViewLoader();
 
-    // Use current user's studentId, email, or id as identifier before updating
-    const currentIdent = (state.currentUser && (state.currentUser.studentId || state.currentUser.email || state.currentUser.id)) || email;
+    if (state.currentUser) {
+      state.currentUser.fullName = name;
+      state.currentUser.email = email;
+      state.currentUser.course = prog;
+      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+    }
+
+    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
+    let profile = {};
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) profile = JSON.parse(raw);
+    } catch (e) { }
+
+    profile.fullName = name;
+    profile.email = email;
+    profile.course = prog;
+    localStorage.setItem(key, JSON.stringify(profile));
+    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+    if (!state.currentUser) state.currentUser = {};
+    state.currentUser.fullName = resData.user.fullName || name;
+    state.currentUser.email = resData.user.email || email;
+    state.currentUser.course = resData.user.course || prog;
+    if (resData.user.studentId) state.currentUser.studentId = resData.user.studentId;
+    localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+
+    const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
+    const profile = {
+      fullName: state.currentUser.fullName,
+      email: state.currentUser.email,
+      course: state.currentUser.course,
+      studentId: state.currentUser.studentId
+    };
+    localStorage.setItem(key, JSON.stringify(profile));
+    localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+
+    syncStudentRefProfile();
+    showToast('Student profile updated successfully in Supabase database!', 'success');
+    if (modalEl) modalEl.style.display = 'none';
+    return true;
+  } catch (err) {
+    console.error('Student profile update error:', err);
+    showToast('Failed to update student profile in database: ' + err.message, 'error');
+    return false;
+  }
+}
+
+document.getElementById('btnSaveEditPersonal')?.addEventListener('click', async () => {
+  const name = document.getElementById('modalInputFullName')?.value.trim();
+  const email = document.getElementById('modalInputEmail')?.value.trim();
+  const prog = document.getElementById('modalInputProgram')?.value;
+  await handleSaveStudentPersonalInfo(name, email, prog, editModal);
+});
+
+// 10. Account Settings Edit / Save Toggle
+let studentSettingsEditMode = false;
+
+function setStudentSettingsEditMode(editing) {
+  studentSettingsEditMode = editing;
+  const inFull = document.getElementById('settingsInputFullName');
+  const inEmail = document.getElementById('settingsInputEmail');
+  const inProg = document.getElementById('settingsInputProgram');
+  const btn = document.getElementById('btnStudentToggleEditSettings');
+  const lbl = document.getElementById('btnStudentToggleEditSettingsLabel');
+
+  if (inFull) { inFull.disabled = !editing; inFull.readOnly = !editing; }
+  if (inEmail) { inEmail.disabled = !editing; inEmail.readOnly = !editing; }
+  if (inProg) { inProg.disabled = !editing; }
+
+  if (btn) {
+    if (editing) {
+      btn.classList.remove('btn-ref-outline');
+      btn.classList.add('btn-ref-primary');
+      btn.style.color = '#FFFFFF';
+      btn.style.background = '#2563EB';
+      btn.style.borderColor = '#2563EB';
+      if (lbl) lbl.textContent = 'Save Changes';
+      inFull?.focus();
+    } else {
+      btn.classList.remove('btn-ref-primary');
+      btn.classList.add('btn-ref-outline');
+      btn.style.color = '#2563EB';
+      btn.style.background = 'transparent';
+      btn.style.borderColor = '#BFDBFE';
+      if (lbl) lbl.textContent = 'Edit Profile';
+    }
+  }
+}
+
+window.setStudentSettingsEditMode = setStudentSettingsEditMode;
+
+document.getElementById('btnStudentToggleEditSettings')?.addEventListener('click', async () => {
+  if (!studentSettingsEditMode) {
+    setStudentSettingsEditMode(true);
+    return;
+  }
+  const full = document.getElementById('settingsInputFullName')?.value.trim();
+  const email = document.getElementById('settingsInputEmail')?.value.trim();
+  const prog = document.getElementById('settingsInputProgram')?.value;
+  const ok = await handleSaveStudentPersonalInfo(full, email, prog);
+  if (ok) {
+    setStudentSettingsEditMode(false);
+  }
+});
+
+document.getElementById('btnSettingsToChangePw')?.addEventListener('click', () => {
+  switchStudentSubtab('change-password');
+});
+
+// 11. Dark Mode Toggle
+const darkToggle = document.getElementById('toggleDarkMode');
+darkToggle?.addEventListener('change', () => {
+  const isDark = darkToggle.checked;
+  triggerStudentViewLoader();
+  document.getElementById('viewStudentPortal')?.classList.toggle('student-dark-mode', isDark);
+  document.body.classList.toggle('student-dark-mode', isDark);
+  localStorage.setItem('cca_dark_mode', isDark ? 'true' : 'false');
+  showToast(isDark ? 'Dark mode enabled.' : 'Light mode enabled.', 'info');
+});
+
+// 12. Change Password Form & Live Strength Meter
+const newPwInput = document.getElementById('inputNewPassword');
+const curPwInput = document.getElementById('inputCurrentPassword');
+const confPwInput = document.getElementById('inputConfirmNewPassword');
+
+const checkStudentPwMatch = () => {
+  const matchEl = document.getElementById('pwMatchIndicator');
+  if (!matchEl) return;
+  const np = newPwInput?.value || '';
+  const cp = confPwInput?.value || '';
+  if (!cp) {
+    matchEl.style.display = 'none';
+    return;
+  }
+  matchEl.style.display = 'flex';
+  if (np === cp) {
+    matchEl.innerHTML = '<span style="color:#16A34A; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Passwords match</span>';
+  } else {
+    matchEl.innerHTML = '<span style="color:#DC2626; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Passwords do not match</span>';
+  }
+};
+
+function evalPwStrength(pw) {
+  const isLen = pw.length >= 8 && pw.length <= 64;
+  const isUp = /[A-Z]/.test(pw);
+  const isLow = /[a-z]/.test(pw);
+  const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
+
+  document.getElementById('reqLen')?.classList.toggle('valid', isLen);
+  document.getElementById('reqUpper')?.classList.toggle('valid', isUp);
+  document.getElementById('reqLower')?.classList.toggle('valid', isLow);
+  document.getElementById('reqNum')?.classList.toggle('valid', isNumSpec);
+
+  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
+
+  const b1 = document.getElementById('strBar1');
+  const b2 = document.getElementById('strBar2');
+  const b3 = document.getElementById('strBar3');
+  const b4 = document.getElementById('strBar4');
+  const txt = document.getElementById('pwStrengthText');
+
+  [b1, b2, b3, b4].forEach(b => {
+    if (b) b.className = 'str-bar';
+  });
+
+  if (!pw) {
+    if (txt) { txt.textContent = ''; txt.style.color = '#64748B'; }
+    return;
+  }
+
+  if (score <= 1) {
+    if (b1) b1.classList.add('active-red');
+    if (txt) { txt.textContent = 'Weak'; txt.style.color = '#DC2626'; }
+  } else if (score === 2) {
+    if (b1) b1.classList.add('active-yellow');
+    if (b2) b2.classList.add('active-yellow');
+    if (txt) { txt.textContent = 'Fair'; txt.style.color = '#EAB308'; }
+  } else if (score === 3) {
+    if (b1) b1.classList.add('active-green');
+    if (b2) b2.classList.add('active-green');
+    if (b3) b3.classList.add('active-green');
+    if (txt) { txt.textContent = 'Good'; txt.style.color = '#16A34A'; }
+  } else {
+    [b1, b2, b3, b4].forEach(b => b && b.classList.add('active-green'));
+    if (txt) { txt.textContent = 'Strong'; txt.style.color = '#16A34A'; }
+  }
+}
+
+newPwInput?.addEventListener('input', () => {
+  evalPwStrength(newPwInput.value);
+  checkStudentPwMatch();
+});
+confPwInput?.addEventListener('input', checkStudentPwMatch);
+
+// Eye toggle buttons
+document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const targetId = btn.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    if (input) {
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.style.color = '#2563EB';
+      } else {
+        input.type = 'password';
+        btn.style.color = '#94A3B8';
+      }
+    }
+  });
+});
+
+// Change Password Form submit
+const changePwForm = document.getElementById('refChangePasswordForm');
+if (changePwForm) {
+  changePwForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const currentPassword = curPwInput?.value.trim();
+    const newPassword = newPwInput?.value.trim();
+    const confirmPassword = confPwInput?.value.trim();
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      showToast('Please fill out all password fields.', 'error');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      showToast('New passwords do not match.', 'error');
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      showToast('Password must be at least 8 characters long.', 'error');
+      return;
+    }
+
+    if (newPassword.length > 64) {
+      showToast('Password cannot exceed 64 characters.', 'error');
+      return;
+    }
+
+    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
+      showToast('Password must contain upper, lower, and number/special char.', 'error');
+      return;
+    }
+
+    const user = state.currentUser || {};
+    const payload = {
+      identifier: user.email || user.studentId,
+      currentPassword,
+      newPassword
+    };
 
     try {
-      const res = await fetch('/api/auth/profile', {
-        method: 'PATCH',
+      triggerStudentViewLoader();
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          identifier: currentIdent,
-          fullName: name,
-          email: email,
-          course: prog,
-          role: 'student'
-        })
+        body: JSON.stringify(payload)
       });
 
-      const resData = await res.json();
-      if (!res.ok || !resData.success) {
-        throw new Error(resData.message || 'Database update failed.');
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.message || 'Failed to update password.');
       }
 
-      if (!state.currentUser) state.currentUser = {};
-      state.currentUser.fullName = resData.user.fullName || name;
-      state.currentUser.email = resData.user.email || email;
-      state.currentUser.course = resData.user.course || prog;
-      if (resData.user.studentId) state.currentUser.studentId = resData.user.studentId;
-      localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      showToast('Password updated successfully!', 'success');
+      changePwForm.reset();
+      evalPwStrength('');
 
-      const key = 'cca_student_profile_' + (state.currentUser?.studentId || 'default');
-      const profile = {
-        fullName: state.currentUser.fullName,
-        email: state.currentUser.email,
-        course: state.currentUser.course,
-        studentId: state.currentUser.studentId
-      };
-      localStorage.setItem(key, JSON.stringify(profile));
-      localStorage.setItem('cca_student_profile', JSON.stringify(profile));
+      setTimeout(() => {
+        switchStudentSubtab('settings');
+      }, 1200);
 
-      syncStudentRefProfile();
-      showToast('Student profile updated successfully in Supabase database!', 'success');
-      if (modalEl) modalEl.style.display = 'none';
-      return true;
     } catch (err) {
-      console.error('Student profile update error:', err);
-      showToast('Failed to update student profile in database: ' + err.message, 'error');
-      return false;
-    }
-  }
-
-  document.getElementById('btnSaveEditPersonal')?.addEventListener('click', async () => {
-    const name = document.getElementById('modalInputFullName')?.value.trim();
-    const email = document.getElementById('modalInputEmail')?.value.trim();
-    const prog = document.getElementById('modalInputProgram')?.value;
-    await handleSaveStudentPersonalInfo(name, email, prog, editModal);
-  });
-
-  // 10. Account Settings Edit / Save Toggle
-  let studentSettingsEditMode = false;
-
-  function setStudentSettingsEditMode(editing) {
-    studentSettingsEditMode = editing;
-    const inFull = document.getElementById('settingsInputFullName');
-    const inEmail = document.getElementById('settingsInputEmail');
-    const inProg = document.getElementById('settingsInputProgram');
-    const btn = document.getElementById('btnStudentToggleEditSettings');
-    const lbl = document.getElementById('btnStudentToggleEditSettingsLabel');
-
-    if (inFull) { inFull.disabled = !editing; inFull.readOnly = !editing; }
-    if (inEmail) { inEmail.disabled = !editing; inEmail.readOnly = !editing; }
-    if (inProg) { inProg.disabled = !editing; }
-
-    if (btn) {
-      if (editing) {
-        btn.classList.remove('btn-ref-outline');
-        btn.classList.add('btn-ref-primary');
-        btn.style.color = '#FFFFFF';
-        btn.style.background = '#2563EB';
-        btn.style.borderColor = '#2563EB';
-        if (lbl) lbl.textContent = 'Save Changes';
-        inFull?.focus();
-      } else {
-        btn.classList.remove('btn-ref-primary');
-        btn.classList.add('btn-ref-outline');
-        btn.style.color = '#2563EB';
-        btn.style.background = 'transparent';
-        btn.style.borderColor = '#BFDBFE';
-        if (lbl) lbl.textContent = 'Edit Profile';
-      }
-    }
-  }
-
-  window.setStudentSettingsEditMode = setStudentSettingsEditMode;
-
-  document.getElementById('btnStudentToggleEditSettings')?.addEventListener('click', async () => {
-    if (!studentSettingsEditMode) {
-      setStudentSettingsEditMode(true);
-      return;
-    }
-    const full = document.getElementById('settingsInputFullName')?.value.trim();
-    const email = document.getElementById('settingsInputEmail')?.value.trim();
-    const prog = document.getElementById('settingsInputProgram')?.value;
-    const ok = await handleSaveStudentPersonalInfo(full, email, prog);
-    if (ok) {
-      setStudentSettingsEditMode(false);
+      showToast(err.message, 'error');
     }
   });
 
-  document.getElementById('btnSettingsToChangePw')?.addEventListener('click', () => {
-    switchStudentSubtab('change-password');
+  document.getElementById('btnCancelChangePw')?.addEventListener('click', () => {
+    switchStudentSubtab('settings');
   });
-
-  // 11. Dark Mode Toggle
-  const darkToggle = document.getElementById('toggleDarkMode');
-  darkToggle?.addEventListener('change', () => {
-    const isDark = darkToggle.checked;
-    triggerStudentViewLoader();
-    document.getElementById('viewStudentPortal')?.classList.toggle('student-dark-mode', isDark);
-    document.body.classList.toggle('student-dark-mode', isDark);
-    localStorage.setItem('cca_dark_mode', isDark ? 'true' : 'false');
-    showToast(isDark ? 'Dark mode enabled.' : 'Light mode enabled.', 'info');
-  });
-
-  // 12. Change Password Form & Live Strength Meter
-  const newPwInput = document.getElementById('inputNewPassword');
-  const curPwInput = document.getElementById('inputCurrentPassword');
-  const confPwInput = document.getElementById('inputConfirmNewPassword');
-
-  const checkStudentPwMatch = () => {
-    const matchEl = document.getElementById('pwMatchIndicator');
-    if (!matchEl) return;
-    const np = newPwInput?.value || '';
-    const cp = confPwInput?.value || '';
-    if (!cp) {
-      matchEl.style.display = 'none';
-      return;
-    }
-    matchEl.style.display = 'flex';
-    if (np === cp) {
-      matchEl.innerHTML = '<span style="color:#16A34A; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg> Passwords match</span>';
-    } else {
-      matchEl.innerHTML = '<span style="color:#DC2626; display:inline-flex; align-items:center; gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> Passwords do not match</span>';
-    }
-  };
-
-  function evalPwStrength(pw) {
-    const isLen = pw.length >= 8 && pw.length <= 64;
-    const isUp = /[A-Z]/.test(pw);
-    const isLow = /[a-z]/.test(pw);
-    const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
-
-    document.getElementById('reqLen')?.classList.toggle('valid', isLen);
-    document.getElementById('reqUpper')?.classList.toggle('valid', isUp);
-    document.getElementById('reqLower')?.classList.toggle('valid', isLow);
-    document.getElementById('reqNum')?.classList.toggle('valid', isNumSpec);
-
-    const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
-
-    const b1 = document.getElementById('strBar1');
-    const b2 = document.getElementById('strBar2');
-    const b3 = document.getElementById('strBar3');
-    const b4 = document.getElementById('strBar4');
-    const txt = document.getElementById('pwStrengthText');
-
-    [b1, b2, b3, b4].forEach(b => {
-      if (b) b.className = 'str-bar';
-    });
-
-    if (!pw) {
-      if (txt) { txt.textContent = ''; txt.style.color = '#64748B'; }
-      return;
-    }
-
-    if (score <= 1) {
-      if (b1) b1.classList.add('active-red');
-      if (txt) { txt.textContent = 'Weak'; txt.style.color = '#DC2626'; }
-    } else if (score === 2) {
-      if (b1) b1.classList.add('active-yellow');
-      if (b2) b2.classList.add('active-yellow');
-      if (txt) { txt.textContent = 'Fair'; txt.style.color = '#EAB308'; }
-    } else if (score === 3) {
-      if (b1) b1.classList.add('active-green');
-      if (b2) b2.classList.add('active-green');
-      if (b3) b3.classList.add('active-green');
-      if (txt) { txt.textContent = 'Good'; txt.style.color = '#16A34A'; }
-    } else {
-      [b1, b2, b3, b4].forEach(b => b && b.classList.add('active-green'));
-      if (txt) { txt.textContent = 'Strong'; txt.style.color = '#16A34A'; }
-    }
-  }
-
-  newPwInput?.addEventListener('input', () => {
-    evalPwStrength(newPwInput.value);
-    checkStudentPwMatch();
-  });
-  confPwInput?.addEventListener('input', checkStudentPwMatch);
-
-  // Eye toggle buttons
-  document.querySelectorAll('.btn-toggle-eye').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetId = btn.getAttribute('data-target');
-      const input = document.getElementById(targetId);
-      if (input) {
-        if (input.type === 'password') {
-          input.type = 'text';
-          btn.style.color = '#2563EB';
-        } else {
-          input.type = 'password';
-          btn.style.color = '#94A3B8';
-        }
-      }
-    });
-  });
-
-  // Change Password Form submit
-  const changePwForm = document.getElementById('refChangePasswordForm');
-  if (changePwForm) {
-    changePwForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const currentPassword = curPwInput?.value.trim();
-      const newPassword = newPwInput?.value.trim();
-      const confirmPassword = confPwInput?.value.trim();
-
-      if (!currentPassword || !newPassword || !confirmPassword) {
-        showToast('Please fill out all password fields.', 'error');
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        showToast('New passwords do not match.', 'error');
-        return;
-      }
-
-      if (newPassword.length < 8) {
-        showToast('Password must be at least 8 characters long.', 'error');
-        return;
-      }
-
-      if (newPassword.length > 64) {
-        showToast('Password cannot exceed 64 characters.', 'error');
-        return;
-      }
-
-      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
-        showToast('Password must contain upper, lower, and number/special char.', 'error');
-        return;
-      }
-
-      const user = state.currentUser || {};
-      const payload = {
-        identifier: user.email || user.studentId,
-        currentPassword,
-        newPassword
-      };
-
-      try {
-        triggerStudentViewLoader();
-        const res = await fetch('/api/auth/change-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-
-        const result = await res.json();
-        if (!res.ok) {
-          throw new Error(result.message || 'Failed to update password.');
-        }
-
-        showToast('Password updated successfully!', 'success');
-        changePwForm.reset();
-        evalPwStrength('');
-
-        setTimeout(() => {
-          switchStudentSubtab('settings');
-        }, 1200);
-
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    });
-
-    document.getElementById('btnCancelChangePw')?.addEventListener('click', () => {
-      switchStudentSubtab('settings');
-    });
-  }
+}
 }
