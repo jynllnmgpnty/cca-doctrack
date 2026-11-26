@@ -67,12 +67,12 @@ router.post('/register', async (req, res) => {
     if (!fullName || !fullName.trim()) errors.push('Full name is required.');
     if (!email || !email.trim()) errors.push('Email address is required.');
 
-    // Password validation: at least 8 characters (supports up to 64 characters)
+    // Password validation: at least 8 characters, uppercase, lowercase, numbers
     if (!password) {
       errors.push('Password is required.');
     } else {
-      if (password.length < 8 || password.length > 64) {
-        errors.push('Password must be at least 8 characters long (up to 64 characters).');
+      if (password.length < 8) {
+        errors.push('Password must be at least 8 characters long.');
       }
       if (!/[A-Z]/.test(password)) {
         errors.push('Password must include at least one uppercase letter (A-Z).');
@@ -80,8 +80,8 @@ router.post('/register', async (req, res) => {
       if (!/[a-z]/.test(password)) {
         errors.push('Password must include at least one lowercase letter (a-z).');
       }
-      if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)) {
-        errors.push('Password must include at least one number or special character.');
+      if (!/[0-9]/.test(password)) {
+        errors.push('Password must include at least one number (0-9).');
       }
     }
 
@@ -89,20 +89,14 @@ router.post('/register', async (req, res) => {
       errors.push('Passwords do not match.');
     }
 
-    // Privilege Escalation Prevention: Restrict public registration to students
-    let userRole = 'student';
+    // Privilege Escalation Prevention: Restrict public registration strictly to students
     if (role === 'admin') {
-      const adminSecret = req.body.adminSecret;
-      const expectedSecret = process.env.ADMIN_REGISTRATION_SECRET;
-      if (expectedSecret && adminSecret === expectedSecret) {
-        userRole = 'admin';
-      } else {
-        return res.status(403).json({
-          success: false,
-          message: 'Access denied: Public creation of Administrator accounts is strictly prohibited.'
-        });
-      }
+      return res.status(403).json({
+        success: false,
+        message: 'Admin accounts cannot be created via public registration.'
+      });
     }
+    const userRole = 'student';
 
     if (userRole === 'student' && (!studentId || !studentId.trim())) {
       errors.push('Student ID number is required for student registration.');
@@ -304,10 +298,10 @@ router.post('/change-password', async (req, res) => {
 
     // Validate new password rules: at least 8 characters, uppercase, lowercase, number/special
     const cleanNewPw = newPassword.trim();
-    if (cleanNewPw.length < 8 || cleanNewPw.length > 64) {
+    if (cleanNewPw.length < 8) {
       return res.status(400).json({
         success: false,
-        message: 'New password must be at least 8 characters long (up to 64 characters).'
+        message: 'New password must be at least 8 characters long.'
       });
     }
     if (!/[A-Z]/.test(cleanNewPw)) {
@@ -322,10 +316,10 @@ router.post('/change-password', async (req, res) => {
         message: 'New password must contain at least one lowercase letter (a-z).'
       });
     }
-    if (!/[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(cleanNewPw)) {
+    if (!/[0-9]/.test(cleanNewPw)) {
       return res.status(400).json({
         success: false,
-        message: 'New password must contain at least one number or special character.'
+        message: 'New password must contain at least one number (0-9).'
       });
     }
 

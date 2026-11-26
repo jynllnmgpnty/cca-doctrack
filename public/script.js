@@ -447,6 +447,21 @@ function setRoleIndicator(role = 'student') {
     }
   }
 
+  // If Admin role is selected, hide the "Create Account" tab completely and switch to Sign In
+  if (elements.authTabRegister) {
+    if (!isStudent) {
+      elements.authTabRegister.style.display = 'none';
+      if (elements.authTabRegister.classList.contains('active')) {
+        elements.authTabSignIn?.classList.add('active');
+        elements.authTabRegister.classList.remove('active');
+        elements.formSignIn?.classList.add('active');
+        elements.formRegister?.classList.remove('active');
+      }
+    } else {
+      elements.authTabRegister.style.display = '';
+    }
+  }
+
   // Update inputs placeholder and button labels
   if (elements.loginEmail) {
     elements.loginEmail.placeholder = isStudent ? 'e.g., student@cca.edu.ph or 23-0000' : 'e.g., admin@cca.edu.ph';
@@ -460,40 +475,35 @@ function setRoleIndicator(role = 'student') {
       : 'Registrar Admin Management • CCA DocTrack';
   }
 
-  // Also sync register fields if registration tab is used
+  // Registration is strictly for students
   if (elements.regRole) {
-    elements.regRole.value = role;
+    elements.regRole.value = 'student';
   }
   const groupStudentId = document.getElementById('groupRegStudentId');
   if (groupStudentId) {
-    groupStudentId.style.display = isStudent ? 'flex' : 'none';
+    groupStudentId.style.display = 'flex';
   }
   const groupCourse = document.getElementById('groupRegCourse');
   if (groupCourse) {
-    groupCourse.style.display = isStudent ? 'flex' : 'none';
+    groupCourse.style.display = 'flex';
   }
   const groupFullName = document.getElementById('groupRegFullName');
   if (groupFullName) {
-    if (isStudent) {
-      groupFullName.classList.remove('full-width');
-    } else {
-      groupFullName.classList.add('full-width');
-    }
+    groupFullName.classList.remove('full-width');
   }
   const groupEmail = document.getElementById('groupRegEmail');
   if (groupEmail) {
-    if (isStudent) {
-      groupEmail.classList.remove('full-width');
-    } else {
-      groupEmail.classList.add('full-width');
-    }
+    groupEmail.classList.remove('full-width');
   }
   if (elements.registerBtnLabel) {
-    elements.registerBtnLabel.textContent = isStudent ? 'Create Student Account' : 'Create Admin Account';
+    elements.registerBtnLabel.textContent = 'Create Student Account & Sign In';
   }
 }
 
 function openAuthModal(mode = 'signin', targetPortal = 'student') {
+  if (targetPortal === 'admin') {
+    mode = 'signin'; // Admin can only sign in, never register
+  }
   setRoleIndicator(targetPortal);
   clearAuthAlert();
 
@@ -507,7 +517,11 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
     elements.authTabRegister.classList.remove('active');
     elements.formSignIn.classList.add('active');
     elements.formRegister.classList.remove('active');
+    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = '';
   } else {
+    // Register mode: lock strictly to student
+    setRoleIndicator('student');
+    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = 'none';
     elements.authTabRegister.classList.add('active');
     elements.authTabSignIn.classList.remove('active');
     elements.formRegister.classList.add('active');
@@ -569,10 +583,13 @@ function setupAuthHandlers() {
     elements.authTabRegister.classList.remove('active');
     elements.formSignIn.classList.add('active');
     elements.formRegister.classList.remove('active');
+    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = '';
     clearAuthAlert();
   });
 
   elements.authTabRegister?.addEventListener('click', () => {
+    setRoleIndicator('student');
+    if (elements.btnIndicatorAdmin) elements.btnIndicatorAdmin.style.display = 'none';
     elements.authTabRegister.classList.add('active');
     elements.authTabSignIn.classList.remove('active');
     elements.formRegister.classList.add('active');
@@ -686,7 +703,7 @@ async function handleRegisterSubmit(e) {
   e.preventDefault();
   clearAuthAlert();
 
-  const role = elements.regRole ? elements.regRole.value : state.authTargetPortal;
+  const role = 'student'; // Public registration is strictly restricted to students
   const fullName = elements.regFullName.value.trim();
   const studentId = elements.regStudentId ? elements.regStudentId.value.trim() : '';
   const email = elements.regEmail.value.trim();
@@ -699,13 +716,13 @@ async function handleRegisterSubmit(e) {
     return;
   }
 
-  if (role === 'student' && !studentId) {
+  if (!studentId) {
     showAuthAlert('Student ID is required for student registration.', 'error');
     return;
   }
 
-  // Password rules validation: at least 8 characters
-  if (password.length < 8 || password.length > 64) {
+  // Password rules validation: at least 8 characters, uppercase, lowercase, numbers (can exceed 12+ chars)
+  if (password.length < 8) {
     showAuthAlert('Password must be at least 8 characters long.', 'error');
     return;
   }
@@ -732,7 +749,7 @@ async function handleRegisterSubmit(e) {
     fullName,
     studentId,
     course,
-    role,
+    role: 'student',
     email,
     password,
     confirmPassword
@@ -3417,17 +3434,17 @@ async function initAdminRefPortal() {
 }
 
 function evalAdminPwStrength(pw) {
-  const isLen = pw.length >= 8 && pw.length <= 64;
+  const isLen = pw.length >= 8;
   const isUp = /[A-Z]/.test(pw);
   const isLow = /[a-z]/.test(pw);
-  const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
+  const isNum = /[0-9]/.test(pw);
 
   document.getElementById('adminReqLength')?.classList.toggle('valid', isLen);
   document.getElementById('adminReqUpper')?.classList.toggle('valid', isUp);
   document.getElementById('adminReqLower')?.classList.toggle('valid', isLow);
-  document.getElementById('adminReqNumber')?.classList.toggle('valid', isNumSpec);
+  document.getElementById('adminReqNumber')?.classList.toggle('valid', isNum);
 
-  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
+  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNum ? 1 : 0);
 
   const b1 = document.getElementById('adminStrBar1');
   const b2 = document.getElementById('adminStrBar2');
@@ -4104,13 +4121,16 @@ function setupAdminRefPortalListeners() {
         return;
       }
 
-      if (newPassword.length > 64) {
-        showToast('Password cannot exceed 64 characters.', 'error');
+      if (!/[A-Z]/.test(newPassword)) {
+        showToast('Password must include at least one uppercase letter (A-Z).', 'error');
         return;
       }
-
-      if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
-        showToast('Password must contain upper, lower, and number/special char.', 'error');
+      if (!/[a-z]/.test(newPassword)) {
+        showToast('Password must include at least one lowercase letter (a-z).', 'error');
+        return;
+      }
+      if (!/[0-9]/.test(newPassword)) {
+        showToast('Password must include at least one number (0-9).', 'error');
         return;
       }
 
@@ -5513,17 +5533,17 @@ const checkStudentPwMatch = () => {
 };
 
 function evalPwStrength(pw) {
-  const isLen = pw.length >= 8 && pw.length <= 64;
+  const isLen = pw.length >= 8;
   const isUp = /[A-Z]/.test(pw);
   const isLow = /[a-z]/.test(pw);
-  const isNumSpec = /[0-9]/.test(pw) || /[^A-Za-z0-9]/.test(pw);
+  const isNum = /[0-9]/.test(pw);
 
   document.getElementById('reqLen')?.classList.toggle('valid', isLen);
   document.getElementById('reqUpper')?.classList.toggle('valid', isUp);
   document.getElementById('reqLower')?.classList.toggle('valid', isLow);
-  document.getElementById('reqNum')?.classList.toggle('valid', isNumSpec);
+  document.getElementById('reqNum')?.classList.toggle('valid', isNum);
 
-  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNumSpec ? 1 : 0);
+  const score = (isLen ? 1 : 0) + (isUp ? 1 : 0) + (isLow ? 1 : 0) + (isNum ? 1 : 0);
 
   const b1 = document.getElementById('strBar1');
   const b2 = document.getElementById('strBar2');
@@ -5606,13 +5626,16 @@ if (changePwForm) {
       return;
     }
 
-    if (newPassword.length > 64) {
-      showToast('Password cannot exceed 64 characters.', 'error');
+    if (!/[A-Z]/.test(newPassword)) {
+      showToast('Password must include at least one uppercase letter (A-Z).', 'error');
       return;
     }
-
-    if (!/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !(/[0-9]/.test(newPassword) || /[^A-Za-z0-9]/.test(newPassword))) {
-      showToast('Password must contain upper, lower, and number/special char.', 'error');
+    if (!/[a-z]/.test(newPassword)) {
+      showToast('Password must include at least one lowercase letter (a-z).', 'error');
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      showToast('Password must include at least one number (0-9).', 'error');
       return;
     }
 

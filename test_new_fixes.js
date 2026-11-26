@@ -321,6 +321,142 @@ async function testNewFixes() {
     assert(cssContent.includes('@media (max-width: 768px)'), '@media (max-width: 768px) breakpoint exists');
     assert(cssContent.includes('@media (max-width: 480px)'), '@media (max-width: 480px) breakpoint exists');
 
+    // --- Test 10: Unified Password Validation & Admin Registration Prohibition ---
+    console.log('\n--- Test 10: Unified Password Validation & Admin Registration Prohibition ---');
+
+    // 1. Attempt admin registration via public endpoint -> MUST be blocked with 403 Forbidden
+    const adminRegRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Hacker Admin',
+        email: 'fakeadmin' + Date.now() + '@cca.edu.ph',
+        password: 'ValidPassword123',
+        confirmPassword: 'ValidPassword123',
+        role: 'admin'
+      })
+    });
+    assert(adminRegRes.status === 403, 'Public Admin registration is strictly blocked with 403 Forbidden');
+    const adminRegJson = await adminRegRes.json();
+    assert(adminRegJson.success === false, 'Blocked admin registration returns success: false');
+
+    // 2. Password with exactly 8 chars (upper, lower, number) -> PASS
+    const p8Email = `p8_${Date.now()}@cca.edu.ph`;
+    const p8Res = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student EightChars',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: p8Email,
+        password: 'PassWord1', // exactly 8 chars
+        confirmPassword: 'PassWord1',
+        role: 'student'
+      })
+    });
+    assert(p8Res.status === 201, 'Password with 8 characters passes registration (201 Created)');
+
+    // 3. Password exceeding 12 characters (16 chars, upper, lower, number, no special chars) -> PASS
+    const p16Email = `p16_${Date.now()}@cca.edu.ph`;
+    const p16Res = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student LongPass',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: p16Email,
+        password: 'LongPassword12345', // 17 chars > 12 chars
+        confirmPassword: 'LongPassword12345',
+        role: 'student'
+      })
+    });
+    assert(p16Res.status === 201, 'Password exceeding 12 characters (17 chars) passes registration (201 Created)');
+
+    // 4. Password with special characters (optional, allowed) -> PASS
+    const pSpecEmail = `pspec_${Date.now()}@cca.edu.ph`;
+    const pSpecRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student SpecPass',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: pSpecEmail,
+        password: 'PassWord123!@#', // has special chars
+        confirmPassword: 'PassWord123!@#',
+        role: 'student'
+      })
+    });
+    assert(pSpecRes.status === 201, 'Password with special characters passes registration (201 Created)');
+
+    // 5. Password missing uppercase -> FAIL (400)
+    const pNoUpRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student NoUpper',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: `pnoup_${Date.now()}@cca.edu.ph`,
+        password: 'password123',
+        confirmPassword: 'password123',
+        role: 'student'
+      })
+    });
+    assert(pNoUpRes.status === 400, 'Password missing uppercase is rejected with 400 Bad Request');
+
+    // 6. Password missing lowercase -> FAIL (400)
+    const pNoLowRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student NoLower',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: `pnolow_${Date.now()}@cca.edu.ph`,
+        password: 'PASSWORD123',
+        confirmPassword: 'PASSWORD123',
+        role: 'student'
+      })
+    });
+    assert(pNoLowRes.status === 400, 'Password missing lowercase is rejected with 400 Bad Request');
+
+    // 7. Password missing number -> FAIL (400)
+    const pNoNumRes = await fetch(`${baseUrl}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: 'Student NoNumber',
+        studentId: '24-' + Math.floor(10000 + Math.random() * 90000),
+        email: `pnonum_${Date.now()}@cca.edu.ph`,
+        password: 'PasswordOnly',
+        confirmPassword: 'PasswordOnly',
+        role: 'student'
+      })
+    });
+    assert(pNoNumRes.status === 400, 'Password missing number is rejected with 400 Bad Request');
+
+    // 8. Change Password with unified logic (>12 chars, no special char needed)
+    const changePwRes = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: p8Email,
+        currentPassword: 'PassWord1',
+        newPassword: 'BrandNewPassword123' // 19 chars > 12 chars
+      })
+    });
+    assert(changePwRes.status === 200, 'Change password to >12 character password succeeds (200 OK)');
+
+    // 9. Change Password missing number -> FAIL (400)
+    const changePwNoNumRes = await fetch(`${baseUrl}/api/auth/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: p8Email,
+        currentPassword: 'BrandNewPassword123',
+        newPassword: 'BrandNewPasswordNoNumbers'
+      })
+    });
+    assert(changePwNoNumRes.status === 400, 'Change password missing numbers is rejected with 400 Bad Request');
+
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} NEW FIX TESTS PASSED!`);
     console.log('========================================================');
