@@ -4813,62 +4813,116 @@ input:focus, select:focus, textarea:focus {
   .student-ref-container {
     flex-direction: column;
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  .student-ref-topbar {
+    padding: 0 16px !important;
+    height: 58px !important;
+  }
+  .admin-topbar-search {
+    display: none !important;
   }
   .student-ref-sidebar {
     width: 100%;
     min-height: auto;
     border-right: none;
     border-bottom: 1px solid #E2E8F0;
-    padding: 16px 14px;
-    gap: 12px;
+    padding: 14px 12px;
+    gap: 10px;
   }
   .student-sidebar-profile {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     text-align: left;
     padding-bottom: 4px;
   }
   .student-avatar-lg-wrap {
     margin: 0;
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     flex-shrink: 0;
   }
   .student-avatar-lg {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
   }
   .student-ref-nav {
+    display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 6px;
+    width: 100%;
   }
   .ref-nav-item {
     width: auto;
     flex: 1 1 calc(50% - 6px);
-    padding: 9px 12px;
-    font-size: 13px;
-    justify-content: center;
+    min-width: 120px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    justify-content: flex-start;
   }
   .student-ref-main {
-    padding: 16px 14px;
+    padding: 16px 12px !important;
     width: 100%;
+    max-width: 100vw;
     box-sizing: border-box;
     overflow-x: hidden;
   }
   .ref-hero-banner {
-    padding: 20px 16px !important;
+    padding: 18px 14px !important;
     border-radius: 14px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
   }
-  .header-right-graphic {
+  .header-right-graphic,
+  .hero-banner-graphic {
     display: none !important;
   }
+  .ref-form-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .ref-form-btn-row {
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .ref-form-btn-row button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .ref-filter-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  .ref-filter-toolbar .ref-search-input-wrap,
+  .ref-filter-toolbar .ref-filter-select,
+  .ref-filter-toolbar .btn-filter-primary {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .table-responsive,
+  .ref-table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    display: block !important;
+    border-radius: 8px;
+  }
+  .data-table,
+  .ref-history-table {
+    min-width: 620px !important;
+  }
   .ref-track-card {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 14px;
-    padding: 16px 14px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px !important;
   }
   .track-col-req-info,
   .track-col-purpose,
@@ -4894,8 +4948,8 @@ input:focus, select:focus, textarea:focus {
   }
   .ref-quick-grid,
   .available-doc-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
   }
   .profile-overview-layout {
     flex-direction: column;
@@ -4912,26 +4966,45 @@ input:focus, select:focus, textarea:focus {
     margin: 12px auto !important;
     box-sizing: border-box;
   }
-  .ref-table-responsive {
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
-    display: block;
-  }
-  .ref-history-table {
-    min-width: 540px;
-  }
 }
 
 @media (max-width: 480px) {
+  .student-ref-topbar {
+    padding: 0 12px !important;
+  }
+  .topbar-brand-title {
+    font-size: 15px !important;
+  }
+  .topbar-brand-sub {
+    display: none !important;
+  }
+  .topbar-user-chip {
+    padding: 3px 6px 3px 3px !important;
+  }
+  .topbar-user-details,
+  .topbar-user-name,
+  .topbar-user-role {
+    display: none !important;
+  }
   .student-ref-nav {
-    flex-direction: column;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
   }
   .ref-nav-item {
-    width: 100%;
-    flex: 1 1 100%;
-    justify-content: flex-start;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    padding: 8px 6px !important;
+    font-size: 11.5px !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
   }
+  .ref-nav-item svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .ref-quick-grid,
+  .available-doc-grid,
   .ref-track-stats-row {
     grid-template-columns: 1fr !important;
   }
@@ -6968,4 +7041,406 @@ html.student-dark-mode .loader-caption {
 }
 .btn-table-pill.btn-reactivate:hover {
   background: #DCFCE7;
+}
+
+/* ==========================================================================
+   GLOBAL RESPONSIVENESS & DEVICE ADAPTATION (ALL VIEWPORTS & PHONES)
+   ========================================================================== */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+.app-view,
+#viewLanding,
+#viewStudentPortal,
+#viewAdminPortal {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Tablet & Mobile Breakpoints (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .metric-wave-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+  .ref-quick-grid,
+  .available-doc-grid,
+  .ref-track-stats-row {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px !important;
+  }
+  .settings-2x2-grid,
+  .reports-middle-grid,
+  .reports-bottom-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .profile-layout {
+    grid-template-columns: 1fr !important;
+  }
+  .student-id-card-visual {
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+}
+
+/* Mobile & Small Tablet Breakpoints (max-width: 768px) */
+@media (max-width: 768px) {
+  /* Landing Page */
+  .flowize-navbar {
+    height: 60px !important;
+    padding: 0 16px !important;
+  }
+  .flowize-nav-container {
+    padding: 0 !important;
+  }
+  .flowize-brand-title {
+    font-size: 16px !important;
+  }
+  .flowize-nav-links {
+    display: none !important;
+  }
+  .flowize-nav-actions {
+    gap: 8px !important;
+  }
+  .flowize-btn-login {
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+  .btn-flowize-primary {
+    font-size: 12.5px !important;
+    padding: 7px 12px !important;
+  }
+  .flowize-hero {
+    padding: 36px 16px !important;
+  }
+  .flowize-hero-container {
+    grid-template-columns: 1fr !important;
+    gap: 28px !important;
+  }
+  .flowize-hero-heading {
+    font-size: 32px !important;
+    line-height: 1.25 !important;
+  }
+  .flowize-hero-sub {
+    font-size: 14px !important;
+  }
+  .flowize-cta-group {
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .btn-flowize-cta,
+  .btn-flowize-demo {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  .flowize-auth-banner {
+    flex-direction: column !important;
+    text-align: center !important;
+    gap: 16px !important;
+    padding: 24px 16px !important;
+  }
+
+  /* Admin & Student Topbars */
+  .student-ref-topbar {
+    height: 56px !important;
+    padding: 0 14px !important;
+  }
+  .admin-topbar-search {
+    display: none !important;
+  }
+  .topbar-brand-title {
+    font-size: 16px !important;
+  }
+  .topbar-actions {
+    gap: 8px !important;
+  }
+
+  /* Admin & Student Containers & Sidebars */
+  .student-ref-container,
+  .admin-ref-container {
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  .student-ref-sidebar,
+  .admin-ref-sidebar {
+    width: 100% !important;
+    min-height: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    padding: 12px 14px !important;
+  }
+  .student-sidebar-profile {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    text-align: left !important;
+    padding-bottom: 8px !important;
+  }
+  .student-avatar-lg-wrap {
+    margin: 0 !important;
+    width: 44px !important;
+    height: 44px !important;
+    flex-shrink: 0 !important;
+  }
+  .student-avatar-lg {
+    width: 44px !important;
+    height: 44px !important;
+    font-size: 16px !important;
+  }
+  .student-ref-nav {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)) !important;
+    gap: 6px !important;
+    width: 100% !important;
+  }
+  .ref-nav-item {
+    width: 100% !important;
+    padding: 8px 10px !important;
+    font-size: 12.5px !important;
+    justify-content: flex-start !important;
+    border-radius: 8px !important;
+  }
+  .student-ref-main,
+  .admin-ref-main {
+    padding: 14px 12px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Hero Banners & SVGs */
+  .ref-hero-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 18px 14px !important;
+    gap: 12px !important;
+    border-radius: 14px !important;
+  }
+  .hero-banner-content {
+    width: 100% !important;
+  }
+  .hero-title {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+  .hero-subtitle {
+    font-size: 13px !important;
+  }
+  .hero-banner-graphic,
+  .header-right-graphic {
+    display: none !important;
+  }
+
+  /* Filter Toolbars */
+  .ref-filter-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px !important;
+  }
+  .ref-filter-toolbar .ref-search-input-wrap,
+  .ref-filter-toolbar .ref-filter-select,
+  .ref-filter-toolbar .btn-filter-primary,
+  .ref-filter-toolbar .btn-filter-outline {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Grids & Two-Columns */
+  .ref-form-two-col {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  .metric-wave-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  .ref-quick-grid,
+  .available-doc-grid,
+  .ref-track-stats-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* Tables & Scrollable Data */
+  .table-responsive,
+  .ref-table-responsive {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    display: block !important;
+    border-radius: 8px !important;
+  }
+  .data-table,
+  .ref-history-table {
+    min-width: 620px !important;
+    width: 100% !important;
+  }
+
+  /* Tracking Cards */
+  .ref-track-card {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 14px !important;
+  }
+  .track-col-req-info,
+  .track-col-purpose,
+  .track-col-status,
+  .track-col-action {
+    width: 100% !important;
+  }
+  .track-col-action .btn-ref-outline-rounded,
+  .track-col-action button {
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  /* Modals */
+  .modal {
+    padding: 10px !important;
+  }
+  .modal-dialog,
+  .ref-dialog-md,
+  .ref-dialog-crop,
+  .auth-modal {
+    width: 100% !important;
+    max-width: min(520px, calc(100vw - 20px)) !important;
+    padding: 18px 14px !important;
+    margin: 8px auto !important;
+    box-sizing: border-box !important;
+  }
+  .modal-detail-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+  }
+
+  /* Card Headers & Footers */
+  .card-head-row,
+  .card-footer {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+  .card-head-row select,
+  .card-head-row button,
+  .card-footer select,
+  .card-footer button {
+    width: 100% !important;
+  }
+  .pagination-pills {
+    justify-content: center !important;
+    width: 100% !important;
+  }
+
+  /* Settings Page */
+  .settings-account-body {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+  }
+  .account-avatar-side {
+    text-align: center !important;
+    margin-bottom: 8px !important;
+  }
+  .account-fields-side {
+    width: 100% !important;
+  }
+  .settings-field-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+  .settings-row-lbl {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .ref-input-box,
+  .ref-select-lg {
+    width: 100% !important;
+  }
+}
+
+/* Extra-Small Mobile Devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .student-ref-topbar {
+    padding: 0 10px !important;
+    height: 52px !important;
+  }
+  .topbar-brand-title {
+    font-size: 14.5px !important;
+  }
+  .topbar-brand-sub {
+    display: none !important;
+  }
+  .topbar-user-chip {
+    padding: 2px 6px 2px 2px !important;
+  }
+  .topbar-user-details,
+  .topbar-user-name,
+  .topbar-user-role {
+    display: none !important;
+  }
+  .metric-wave-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .ref-quick-grid,
+  .available-doc-grid,
+  .ref-track-stats-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .student-ref-nav {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+  }
+  .ref-nav-item {
+    padding: 7px 6px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+  .ref-nav-item svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+  .ref-hero-title,
+  .hero-title {
+    font-size: 18px !important;
+  }
+  .ref-hero-desc,
+  .hero-subtitle {
+    font-size: 12px !important;
+  }
+  .btn-ref-outline,
+  .btn-ref-primary,
+  .btn-filter-primary,
+  .btn-filter-outline {
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+  }
+  .id-card-body {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 12px !important;
+  }
+  .id-photo-col {
+    margin: 0 auto !important;
+  }
+  .id-info-col {
+    width: 100% !important;
+  }
 }

@@ -5185,15 +5185,20 @@ function setupStudentRefPortalListeners() {
       }
 
       const user = state.currentUser || {};
+      const studentName = (user.fullName || user.full_name || document.getElementById('studentProfileName')?.textContent || 'Student').trim();
+      const studentId = (user.studentId || user.student_id || getActiveStudentId() || '23-0000').trim();
+      const email = (user.email || document.getElementById('studentProfileEmail')?.textContent || '').trim();
+      const course = (user.course || document.getElementById('studentProfileCourse')?.textContent || 'BS Information Technology').trim();
+
       const payload = {
-        studentName: user.fullName || 'Juan Dela Cruz',
-        studentId: user.studentId || 'REQ-00234',
-        course: user.course || 'BS Information Technology',
+        studentName: studentName,
+        studentId: studentId,
+        course: course,
         documentType: docType,
         purpose: purpose,
         dateSubmitted: new Date().toISOString().split('T')[0],
         remarks: remarks,
-        email: user.email || 'juan.delacruz@cca.edu.ph'
+        email: email
       };
 
       try {
@@ -5206,7 +5211,10 @@ function setupStudentRefPortalListeners() {
 
         const result = await res.json();
         if (!res.ok) {
-          throw new Error(result.message || 'Failed to submit request.');
+          const errMsg = (result.errors && result.errors.length)
+            ? result.errors.join(' ')
+            : (result.message || 'Failed to submit request.');
+          throw new Error(errMsg);
         }
 
         showToast('Document request submitted successfully!', 'success');

@@ -271,6 +271,56 @@ async function testNewFixes() {
     assert(!htmlContent.includes('value="+63 912 345 6789"'), 'Hardcoded dummy contact number is removed');
     assert(!htmlContent.includes('id="adminDropdownUserName">Admin Reyes<'), 'Hardcoded Admin Reyes removed from dropdown');
 
+    // --- Test 8: Document Request Types & Form Validation ---
+    console.log('\n--- Test 8: Document Request Types & Form Validation ---');
+    const docTypesToTest = [
+      'Report Card / Form 137',
+      'Certificate of Graduation',
+      'Certified True Copy (CTC)',
+      'Transcript of Records (TOR)',
+      'Certificate of Enrollment',
+      'Good Moral Certificate',
+      'Others'
+    ];
+
+    for (const dt of docTypesToTest) {
+      const docReqRes = await fetch(`${baseUrl}/api/requests`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentName: 'Test Student Doc Validation',
+          studentId: '24-88888',
+          course: 'BS Information Technology',
+          documentType: dt,
+          purpose: 'Employment Requirement Test',
+          email: 'test.docvalidation@cca.edu.ph'
+        })
+      });
+      assert(docReqRes.status === 201, `Document type "${dt}" submits successfully (201 Created)`);
+      const docReqJson = await docReqRes.json();
+      assert(docReqJson.success === true, `Document type "${dt}" returns success: true`);
+      assert(docReqJson.data && docReqJson.data.documentType === dt, `Saved documentType matches "${dt}"`);
+    }
+
+    // --- Test 9: Comprehensive Responsive CSS Verification ---
+    console.log('\n--- Test 9: Comprehensive Responsive CSS Verification ---');
+    const cssContent = fs.readFileSync(path.resolve(__dirname, 'public', 'style.css'), 'utf8');
+
+    // 1. Viewport & overflow safety
+    assert(cssContent.includes('max-width: 100vw'), 'CSS enforces max-width 100vw to prevent horizontal scrollbars');
+    assert(cssContent.includes('overflow-x: hidden'), 'CSS enforces overflow-x: hidden on root containers');
+
+    // 2. Mobile hero banner graphic hidden
+    assert(cssContent.includes('.hero-banner-graphic'), 'CSS targets .hero-banner-graphic for responsive hiding');
+    assert(cssContent.includes('.ref-form-two-col'), 'CSS targets .ref-form-two-col for mobile 1-column layout');
+
+    // 3. Table horizontal touch scroll
+    assert(cssContent.includes('.table-responsive') && cssContent.includes('-webkit-overflow-scrolling'), 'CSS includes touch scrolling for data tables');
+
+    // 4. Mobile breakpoints present
+    assert(cssContent.includes('@media (max-width: 768px)'), '@media (max-width: 768px) breakpoint exists');
+    assert(cssContent.includes('@media (max-width: 480px)'), '@media (max-width: 480px) breakpoint exists');
+
     console.log('\n========================================================');
     console.log(`🎉 ALL ${passed}/${total} NEW FIX TESTS PASSED!`);
     console.log('========================================================');

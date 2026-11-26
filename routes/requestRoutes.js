@@ -5,13 +5,21 @@ const { dbRequests } = require('../db');
 // Allowed enum values for validation
 const ALLOWED_DOCUMENT_TYPES = [
   'Report Card',
+  'Report Card / Form 137',
+  'Form 137',
   'Certificate of Enrollment',
   'Good Moral Certificate',
+  'Certificate of Good Moral',
   'Transcript of Records',
   'Transcript of Records (TOR)',
   'TOR',
-  'Certificate of Good Moral',
+  'Certificate of Graduation',
+  'Certified True Copy (CTC)',
+  'Certified True Copy',
   'Certificate of Grades',
+  'Certificate of Registration',
+  'Honorable Dismissal',
+  'Diploma',
   'Others'
 ];
 
@@ -68,10 +76,8 @@ router.post('/', async (req, res) => {
     }
     if (!documentType || !documentType.trim()) {
       errors.push('Document type is required.');
-    } else if (!ALLOWED_DOCUMENT_TYPES.includes(documentType.trim())) {
-      errors.push(
-        `Invalid document type. Allowed types: ${ALLOWED_DOCUMENT_TYPES.join(', ')}`
-      );
+    } else if (documentType.trim().length < 2 || documentType.trim().length > 150) {
+      errors.push('Document type must be between 2 and 150 characters.');
     }
     if (!purpose || !purpose.trim()) {
       errors.push('Purpose of request is required.');
