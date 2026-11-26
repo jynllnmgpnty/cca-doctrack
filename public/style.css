@@ -1920,25 +1920,32 @@ input:focus, select:focus, textarea:focus {
 
 .modal-close-btn {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 12px;
+  right: 12px;
   background: var(--slate-100);
-  border: none;
-  width: 28px;
-  height: 28px;
+  border: 1px solid var(--slate-200);
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  font-size: 16px;
-  color: var(--slate-500);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--slate-600);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  z-index: 9999;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: all 0.2s ease;
 }
 
-.modal-close-btn:hover {
+.modal-close-btn:hover,
+.modal-close-btn:active {
   background: var(--slate-200);
-  color: var(--slate-800);
+  color: var(--slate-900);
+  transform: scale(1.05);
 }
 
 .auth-modal-header {

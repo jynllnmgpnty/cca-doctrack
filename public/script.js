@@ -273,7 +273,7 @@ const elements = {
 // ==========================================
 // Initialization
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   dismissInitialLoader();
   try {
     // Check for existing session in localStorage
@@ -301,7 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Check Database & Load Initial Data
   fetchHealthCheck();
   fetchAllRequests();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 // ==========================================
 // Authentication Logic (Login & Register)
@@ -528,13 +534,23 @@ function openAuthModal(mode = 'signin', targetPortal = 'student') {
     elements.formSignIn.classList.remove('active');
   }
 
-  elements.authModalOverlay.classList.remove('hidden');
+  const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  }
 }
+window.openAuthModal = openAuthModal;
 
 function closeAuthModal() {
-  elements.authModalOverlay.classList.add('hidden');
+  const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
+  }
   clearAuthAlert();
 }
+window.closeAuthModal = closeAuthModal;
 
 function setupPasswordToggle(button, input) {
   if (!button || !input) return;
@@ -572,9 +588,28 @@ function setupAuthHandlers() {
   });
 
   // Modal Closers
-  elements.btnAuthClose?.addEventListener('click', closeAuthModal);
-  elements.authModalOverlay?.addEventListener('click', (e) => {
-    if (e.target === elements.authModalOverlay) closeAuthModal();
+  const closeBtn = document.getElementById('btnAuthClose') || elements.btnAuthClose;
+  if (closeBtn) {
+    closeBtn.onclick = closeAuthModal;
+    closeBtn.addEventListener('click', closeAuthModal);
+    closeBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      closeAuthModal();
+    });
+  }
+
+  const overlay = document.getElementById('authModalOverlay') || elements.authModalOverlay;
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeAuthModal();
+    });
+  }
+
+  // Keyboard accessibility: ESC key closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && !overlay.classList.contains('hidden')) {
+      closeAuthModal();
+    }
   });
 
   // Segmented Tabs
