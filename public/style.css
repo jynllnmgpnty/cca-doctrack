@@ -3115,27 +3115,18 @@ input:focus, select:focus, textarea:focus {
 }
 
 .chip-caret {
-  color: #64748B;
-  transition: transform 0.2s ease;
+  display: none !important;
 }
 
-.student-user-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  width: 230px;
-  background-color: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  border-radius: 14px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  padding: 8px 0;
-  display: none;
-  z-index: 100;
-}
-
+/* User profile dropdown removed on both laptop and mobile per user request */
+.student-user-dropdown,
+#studentUserDropdown,
+#adminUserDropdown,
 .student-user-dropdown.show {
-  display: block;
-  animation: fadeInDown 0.15s ease-out;
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 @keyframes fadeInDown {
@@ -4981,6 +4972,8 @@ input:focus, select:focus, textarea:focus {
     padding-bottom: 12px !important;
     border-bottom: 1px solid #F1F5F9 !important;
     margin-bottom: 12px !important;
+    padding-right: 42px !important;
+    position: relative !important;
   }
   .student-avatar-lg-wrap {
     margin: 0 !important;
@@ -7521,6 +7514,8 @@ html, body {
     padding-bottom: 12px !important;
     border-bottom: 1px solid #F1F5F9 !important;
     margin-bottom: 12px !important;
+    padding-right: 42px !important;
+    position: relative !important;
   }
   .student-avatar-lg-wrap {
     margin: 0 !important;
@@ -7548,19 +7543,13 @@ html, body {
     border-radius: 8px !important;
   }
 
-  /* Landing Page Mobile Hamburger Menu */
-  .landing-hamburger {
-    display: inline-flex !important;
+  /* Landing Page Mobile Hamburger Menu (Removed per user request) */
+  .landing-hamburger,
+  #btnLandingNavToggle {
+    display: none !important;
   }
-  .landing-mobile-menu {
-    display: flex;
-    flex-direction: column;
-    background: #FFFFFF;
-    border-bottom: 1px solid #E2E8F0;
-    padding: 14px 20px 18px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  }
-  .landing-mobile-menu.hidden {
+  .landing-mobile-menu,
+  #landingMobileMenu {
     display: none !important;
   }
   .landing-mobile-item {
@@ -7869,11 +7858,37 @@ html, body {
     line-height: 1.45 !important;
     margin-bottom: 20px !important;
   }
-  #modalConfirmLogout div[style*="display: flex"] {
+  /* Logout Card: Icon must be centered */
+  .logout-modal-icon-wrap,
+  #modalConfirmLogout .logout-modal-icon-wrap {
+    width: 56px !important;
+    height: 56px !important;
+    min-width: 56px !important;
+    max-width: 56px !important;
+    border-radius: 50% !important;
+    background: #FEF2F2 !important;
+    color: #DC2626 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 auto 16px !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+  }
+  .logout-modal-icon-wrap svg,
+  #modalConfirmLogout .logout-modal-icon-wrap svg {
+    margin: auto !important;
+    display: block !important;
+    stroke: #DC2626 !important;
+    flex-shrink: 0 !important;
+  }
+  .logout-modal-btn-row,
+  #modalConfirmLogout .logout-modal-btn-row {
     display: flex !important;
     gap: 10px !important;
     width: 100% !important;
-    justify-content: stretch !important;
+    justify-content: center !important;
+    align-items: center !important;
     box-sizing: border-box !important;
   }
   #btnCancelLogoutModal,

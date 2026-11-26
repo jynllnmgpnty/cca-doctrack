@@ -239,7 +239,7 @@
 
           <div class="flowize-nav-actions" id="landingAuthActions">
             <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
-            <button type="button" class="hamburger-btn landing-hamburger" id="btnLandingNavToggle" aria-label="Toggle navigation menu" title="Navigation Menu">
+            <button type="button" class="hamburger-btn landing-hamburger" id="btnLandingNavToggle" aria-label="Toggle navigation menu" title="Navigation Menu" style="display: none !important;">
               <span class="hamburger-line"></span>
               <span class="hamburger-line"></span>
               <span class="hamburger-line"></span>
@@ -247,8 +247,8 @@
           </div>
         </div>
 
-        <!-- Landing Mobile Navigation Dropdown Menu -->
-        <div class="landing-mobile-menu hidden" id="landingMobileMenu">
+        <!-- Landing Mobile Navigation Dropdown Menu (Disabled per user request) -->
+        <div class="landing-mobile-menu hidden" id="landingMobileMenu" style="display: none !important;">
           <a href="#" class="landing-mobile-item" id="navItemLandingHome">Home</a>
           <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingRequest">Request Document</a>
           <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingTrack">Track Status</a>
@@ -924,16 +924,12 @@
           </div>
         </div>
 
-        <!-- User Chip & Dropdown -->
+        <!-- User Chip (Dropdown removed: navigation available via sidebar / mobile hamburger) -->
         <div class="topbar-user-menu-wrapper">
-          <button class="topbar-user-chip" id="topbarUserChip" aria-expanded="false" title="Account Menu">
+          <button class="topbar-user-chip" id="topbarUserChip" aria-expanded="false" title="My Profile" style="cursor: pointer;">
             <div class="user-chip-avatar" id="topbarUserAvatar">JD</div>
-            <svg class="chip-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
           </button>
-          <div class="student-user-dropdown" id="studentUserDropdown">
+          <div class="student-user-dropdown" id="studentUserDropdown" style="display: none !important;">
             <div class="dropdown-header">
               <div class="dropdown-user-name" id="dropdownUserName">Juan Dela Cruz</div>
               <div class="dropdown-user-email" id="dropdownUserEmail">juan.delacruz@cca.edu.ph</div>
@@ -2623,16 +2619,12 @@
           </div>
         </div>
 
-        <!-- Admin User Chip & Dropdown -->
+        <!-- Admin User Chip (Dropdown removed: navigation available via sidebar / mobile hamburger) -->
         <div class="topbar-user-menu-wrapper">
-          <button class="topbar-user-chip" id="adminUserChip" aria-expanded="false" title="Account Menu">
+          <button class="topbar-user-chip" id="adminUserChip" aria-expanded="false" title="Admin Profile" style="cursor: pointer;">
             <div class="user-chip-avatar" id="adminTopbarAvatar">AR</div>
-            <svg class="chip-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              stroke-width="2.5">
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
           </button>
-          <div class="student-user-dropdown" id="adminUserDropdown">
+          <div class="student-user-dropdown" id="adminUserDropdown" style="display: none !important;">
             <div class="dropdown-header">
               <div class="dropdown-user-name" id="adminDropdownUserName">---</div>
               <div class="dropdown-user-email" id="adminDropdownUserEmail">admin@cca.edu.ph</div>
@@ -4744,7 +4736,7 @@
     <div class="modal-backdrop" id="backdropConfirmLogout"></div>
     <div class="modal-dialog ref-dialog-md"
       style="max-width: 420px; text-align: center; padding: 28px 24px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-      <div
+      <div class="logout-modal-icon-wrap"
         style="width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
@@ -4758,7 +4750,7 @@
         Are you sure you want to log out of CCA DocTrack? You will need to enter your credentials again to access your
         account.
       </p>
-      <div style="display: flex; gap: 12px; justify-content: center; align-items: center;">
+      <div class="logout-modal-btn-row" style="display: flex; gap: 12px; justify-content: center; align-items: center;">
         <button type="button" class="btn-ref-outline" id="btnCancelLogoutModal"
           style="flex: 1; padding: 11px 18px; border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center;">Cancel</button>
         <button type="button" class="btn-ref-primary" id="btnConfirmLogoutModal"

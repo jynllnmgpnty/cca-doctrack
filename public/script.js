@@ -4135,19 +4135,11 @@ function setupAdminRefPortalListeners() {
     });
   }
 
-  // 3. User Chip Dropdown
+  // 3. User Chip (Navigates directly to settings, dropdown removed per user request)
   const userChip = document.getElementById('adminUserChip');
-  const userDropdown = document.getElementById('adminUserDropdown');
-  if (userChip && userDropdown) {
-    userChip.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userDropdown.classList.toggle('show');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!userChip.contains(e.target) && !userDropdown.contains(e.target)) {
-        userDropdown.classList.remove('show');
-      }
+  if (userChip) {
+    userChip.addEventListener('click', () => {
+      switchAdminSubtab('settings');
     });
   }
 
@@ -5493,19 +5485,11 @@ function setupStudentRefPortalListeners() {
     });
   }
 
-  // 3. Topbar User Chip Dropdown Toggle
+  // 3. Topbar User Chip (Navigates directly to profile, dropdown removed per user request)
   const userChip = document.getElementById('topbarUserChip');
-  const userDropdown = document.getElementById('studentUserDropdown');
-  if (userChip && userDropdown) {
-    userChip.addEventListener('click', (e) => {
-      e.stopPropagation();
-      userDropdown.classList.toggle('show');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!userChip.contains(e.target) && !userDropdown.contains(e.target)) {
-        userDropdown.classList.remove('show');
-      }
+  if (userChip) {
+    userChip.addEventListener('click', () => {
+      switchStudentSubtab('profile');
     });
   }
 

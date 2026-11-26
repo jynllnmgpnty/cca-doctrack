@@ -36,17 +36,19 @@ async function run() {
   assert(css.includes('#studentSidebarLogoutBtn') && css.includes('justify-content: center !important') && css.includes('text-align: center !important'), 'Sidebar logout button is centered');
   assert(html.includes('id="studentSidebarLogoutBtn"'), 'studentSidebarLogoutBtn exists in HTML');
   assert(html.includes('id="adminSidebarLogoutBtn"'), 'adminSidebarLogoutBtn exists in HTML');
+  assert(css.includes('.logout-modal-icon-wrap') && css.includes('margin: 0 auto 16px !important'), 'Logout modal icon is centered circle');
   console.log('  ✅ PASS: Mobile sidebars are off-canvas drawers and logout is centered');
 
-  // Hamburger toggles & drawers
+  // Hamburger toggles & profile dropdown removal checks
   assert(html.includes('id="mobileStudentToggle"'), 'mobileStudentToggle exists');
   assert(html.includes('id="mobileAdminToggle"'), 'mobileAdminToggle exists');
-  assert(html.includes('id="btnLandingNavToggle"'), 'btnLandingNavToggle exists');
   assert(html.includes('id="studentSidebarBackdrop"'), 'studentSidebarBackdrop exists');
   assert(html.includes('id="adminSidebarBackdrop"'), 'adminSidebarBackdrop exists');
   assert(html.includes('id="mobileStudentSidebarClose"'), 'mobileStudentSidebarClose exists');
   assert(html.includes('id="mobileAdminSidebarClose"'), 'mobileAdminSidebarClose exists');
-  console.log('  ✅ PASS: All hamburger toggle buttons, backdrops, and close buttons present');
+  assert(css.includes('.student-user-dropdown') && css.includes('display: none !important'), 'Top profile dropdown menu is removed');
+  assert(css.includes('.landing-hamburger') && css.includes('display: none !important'), 'Landing page hamburger is removed on phone');
+  console.log('  ✅ PASS: Profile dropdowns removed, landing hamburger removed, and portal drawers configured');
 
   // 2. HTTP Server Endpoint Tests
   console.log('\n--- 2. HTTP Server Unified Login Tests ---');
