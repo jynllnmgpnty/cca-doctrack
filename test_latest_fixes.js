@@ -188,6 +188,28 @@ async function run() {
     assert(css.includes('#btnCancelLogoutModal') && css.includes('justify-content: center !important'), 'Logout cancel button has centered text');
     console.log('  ✅ PASS: Logout modal buttons text centered');
 
+    // 5. Mobile Phone Responsiveness Hamburger Bar Checks
+    console.log('\n--- 5. Mobile Phone Responsiveness Hamburger Bar Checks ---');
+    assert(html.includes('id="btnLandingNavToggle"'), 'Landing page topbar contains hamburger toggle');
+    assert(html.includes('id="landingMobileMenu"'), 'Landing page contains mobile navigation menu drawer');
+    assert(html.includes('id="mobileStudentToggle"'), 'Student portal topbar contains hamburger button');
+    assert(html.includes('id="mobileStudentSidebarClose"'), 'Student portal sidebar contains close button');
+    assert(html.includes('id="studentSidebarBackdrop"'), 'Student portal contains sidebar backdrop');
+    assert(html.includes('id="mobileAdminToggle"'), 'Admin portal topbar contains hamburger button');
+    assert(html.includes('id="mobileAdminSidebarClose"'), 'Admin portal sidebar contains close button');
+    assert(html.includes('id="adminSidebarBackdrop"'), 'Admin portal contains sidebar backdrop');
+
+    assert(css.includes('.hamburger-btn'), 'CSS defines .hamburger-btn');
+    assert(css.includes('.student-ref-sidebar.open'), 'CSS defines .student-ref-sidebar.open off-canvas drawer');
+    assert(css.includes('.admin-ref-sidebar.open'), 'CSS defines .admin-ref-sidebar.open off-canvas drawer');
+    assert(css.includes('.sidebar-backdrop.active'), 'CSS defines .sidebar-backdrop.active overlay');
+    assert(css.includes('.landing-mobile-menu'), 'CSS defines .landing-mobile-menu');
+
+    assert(js.includes("document.getElementById('mobileStudentToggle')?.addEventListener('click'"), 'JS binds mobileStudentToggle');
+    assert(js.includes("document.getElementById('mobileAdminToggle')?.addEventListener('click'"), 'JS binds mobileAdminToggle');
+    assert(js.includes("document.getElementById('btnLandingNavToggle')"), 'JS binds landing hamburger toggle');
+    console.log('  ✅ PASS: All navbars in phone responsiveness configured with hamburger bar');
+
     console.log('\n🎉 ALL LATEST FIX TESTS PASSED SUCCESSFULLY!');
   } catch (err) {
     console.error('❌ Test failed:', err);

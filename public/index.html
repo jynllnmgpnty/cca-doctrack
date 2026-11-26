@@ -239,7 +239,22 @@
 
           <div class="flowize-nav-actions" id="landingAuthActions">
             <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
+            <button type="button" class="hamburger-btn landing-hamburger" id="btnLandingNavToggle" aria-label="Toggle navigation menu" title="Navigation Menu">
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+              <span class="hamburger-line"></span>
+            </button>
           </div>
+        </div>
+
+        <!-- Landing Mobile Navigation Dropdown Menu -->
+        <div class="landing-mobile-menu hidden" id="landingMobileMenu">
+          <a href="#" class="landing-mobile-item" id="navItemLandingHome">Home</a>
+          <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingRequest">Request Document</a>
+          <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingTrack">Track Status</a>
+          <div class="landing-mobile-divider"></div>
+          <button type="button" class="btn btn-navy btn-block" id="btnLandingMobileSignIn">Sign In</button>
+          <button type="button" class="btn btn-ref-outline btn-block" id="btnLandingMobileRegister" style="margin-top: 8px;">Register</button>
         </div>
       </header>
 
@@ -813,16 +828,23 @@
 
     <!-- Student Topbar -->
     <header class="student-ref-topbar">
-      <div class="topbar-brand">
-        <div class="flowize-brand-icon">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
-          </svg>
+      <div class="topbar-left-group">
+        <button type="button" class="hamburger-btn" id="mobileStudentToggle" aria-label="Toggle navigation menu" title="Open Menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <div class="topbar-brand">
+          <div class="flowize-brand-icon">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
+            </svg>
+          </div>
+          <span class="topbar-brand-title">CCA DocTrack</span>
         </div>
-        <span class="topbar-brand-title">CCA DocTrack</span>
       </div>
 
       <div class="topbar-actions">
@@ -981,8 +1003,10 @@
 
     <!-- Student Body Layout -->
     <div class="student-ref-container">
+      <div class="sidebar-backdrop" id="studentSidebarBackdrop"></div>
       <!-- Sidebar (Without Need Help Card, First Nav is Dashboard) -->
-      <aside class="student-ref-sidebar">
+      <aside class="student-ref-sidebar" id="studentRefSidebar">
+        <button type="button" class="sidebar-drawer-close" id="mobileStudentSidebarClose" aria-label="Close menu">&times;</button>
         <div class="student-sidebar-profile">
           <div class="student-avatar-lg-wrap">
             <div class="student-avatar-lg" id="sidebarProfileAvatar">
@@ -2542,18 +2566,25 @@
 
     <!-- Admin Topbar -->
     <header class="student-ref-topbar admin-ref-topbar">
-      <div class="topbar-brand">
-        <div class="flowize-brand-icon">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
-            <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
-            <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
-          </svg>
-        </div>
-        <div class="topbar-brand-col">
-          <span class="topbar-brand-title">CCA DocTrack</span>
-          <span class="topbar-brand-sub">Admin Portal</span>
+      <div class="topbar-left-group">
+        <button type="button" class="hamburger-btn" id="mobileAdminToggle" aria-label="Toggle navigation menu" title="Open Menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <div class="topbar-brand">
+          <div class="flowize-brand-icon">
+            <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
+              <rect x="2" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="16" y="2" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="2" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
+              <rect x="16" y="16" width="10" height="10" rx="3.5" fill="#2563EB" />
+            </svg>
+          </div>
+          <div class="topbar-brand-col">
+            <span class="topbar-brand-title">CCA DocTrack</span>
+            <span class="topbar-brand-sub">Admin Portal</span>
+          </div>
         </div>
       </div>
 
@@ -2714,8 +2745,10 @@
 
     <!-- Admin Body Layout -->
     <div class="student-ref-container admin-ref-container">
+      <div class="sidebar-backdrop" id="adminSidebarBackdrop"></div>
       <!-- Admin Sidebar -->
-      <aside class="student-ref-sidebar admin-ref-sidebar">
+      <aside class="student-ref-sidebar admin-ref-sidebar" id="adminRefSidebar">
+        <button type="button" class="sidebar-drawer-close" id="mobileAdminSidebarClose" aria-label="Close menu">&times;</button>
         <div class="student-sidebar-profile">
           <div class="student-avatar-lg-wrap">
             <div class="student-avatar-lg admin-avatar-lg" id="adminSidebarAvatar">

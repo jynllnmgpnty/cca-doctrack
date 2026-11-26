@@ -4263,17 +4263,101 @@ function setupAdminRefPortalListeners() {
 // Mobile Drawers & Utilities
 // ==========================================
 function setupMobileDrawers() {
-  const studentSidebar = document.querySelector('.portal-sidebar.student-theme');
-  const adminSidebar = document.querySelector('.portal-sidebar.admin-theme');
+  const studentSidebar = document.getElementById('studentRefSidebar') || document.querySelector('.student-ref-sidebar');
+  const studentBackdrop = document.getElementById('studentSidebarBackdrop');
+  const adminSidebar = document.getElementById('adminRefSidebar') || document.querySelector('.admin-ref-sidebar');
+  const adminBackdrop = document.getElementById('adminSidebarBackdrop');
 
-  elements.mobileStudentToggle?.addEventListener('click', () => studentSidebar?.classList.add('open'));
-  elements.mobileStudentSidebarClose?.addEventListener('click', () => studentSidebar?.classList.remove('open'));
-  elements.mobileAdminToggle?.addEventListener('click', () => adminSidebar?.classList.add('open'));
-  elements.mobileAdminSidebarClose?.addEventListener('click', () => adminSidebar?.classList.remove('open'));
+  // Student portal drawer handlers
+  const openStudent = (e) => {
+    if (e) e.preventDefault();
+    studentSidebar?.classList.add('open');
+    studentBackdrop?.classList.add('active');
+  };
+  const closeStudent = (e) => {
+    if (e) e.preventDefault();
+    studentSidebar?.classList.remove('open');
+    studentBackdrop?.classList.remove('active');
+  };
+
+  document.getElementById('mobileStudentToggle')?.addEventListener('click', openStudent);
+  document.getElementById('mobileStudentSidebarClose')?.addEventListener('click', closeStudent);
+  studentBackdrop?.addEventListener('click', closeStudent);
+  studentSidebar?.querySelectorAll('.ref-nav-item')?.forEach((btn) => {
+    btn.addEventListener('click', closeStudent);
+  });
+
+  // Admin portal drawer handlers
+  const openAdmin = (e) => {
+    if (e) e.preventDefault();
+    adminSidebar?.classList.add('open');
+    adminBackdrop?.classList.add('active');
+  };
+  const closeAdmin = (e) => {
+    if (e) e.preventDefault();
+    adminSidebar?.classList.remove('open');
+    adminBackdrop?.classList.remove('active');
+  };
+
+  document.getElementById('mobileAdminToggle')?.addEventListener('click', openAdmin);
+  document.getElementById('mobileAdminSidebarClose')?.addEventListener('click', closeAdmin);
+  adminBackdrop?.addEventListener('click', closeAdmin);
+  adminSidebar?.querySelectorAll('.ref-nav-item')?.forEach((btn) => {
+    btn.addEventListener('click', closeAdmin);
+  });
+
+  // Landing page mobile hamburger menu
+  const landingToggle = document.getElementById('btnLandingNavToggle');
+  const landingMenu = document.getElementById('landingMobileMenu');
+  if (landingToggle && landingMenu) {
+    landingToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      landingMenu.classList.toggle('hidden');
+    });
+
+    document.getElementById('navItemLandingHome')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      landingMenu.classList.add('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('navItemLandingRequest')?.addEventListener('click', () => {
+      landingMenu.classList.add('hidden');
+      if (state.currentUser && state.currentUser.role === 'student') {
+        switchView('student');
+        switchStudentSubtab('request');
+      } else {
+        openAuthModal('signin', 'student');
+      }
+    });
+
+    document.getElementById('navItemLandingTrack')?.addEventListener('click', () => {
+      landingMenu.classList.add('hidden');
+      if (state.currentUser && state.currentUser.role === 'student') {
+        switchView('student');
+        switchStudentSubtab('tracking');
+      } else {
+        openAuthModal('signin', 'student');
+      }
+    });
+
+    document.getElementById('btnLandingMenuSignIn')?.addEventListener('click', () => {
+      landingMenu.classList.add('hidden');
+      openAuthModal('signin', 'student');
+    });
+
+    document.getElementById('btnLandingMenuRegister')?.addEventListener('click', () => {
+      landingMenu.classList.add('hidden');
+      openAuthModal('register', 'student');
+    });
+  }
 }
 
 function closeMobileDrawers() {
-  document.querySelectorAll('.portal-sidebar').forEach((s) => s.classList.remove('open'));
+  document.querySelectorAll('.student-ref-sidebar, .admin-ref-sidebar').forEach((s) => s.classList.remove('open'));
+  document.querySelectorAll('.sidebar-backdrop').forEach((b) => b.classList.remove('active'));
+  const landingMenu = document.getElementById('landingMobileMenu');
+  if (landingMenu) landingMenu.classList.add('hidden');
 }
 
 function showToast(msg, type = 'info') {
