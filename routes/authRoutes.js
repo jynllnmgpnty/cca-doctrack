@@ -634,6 +634,47 @@ router.patch('/students/:identifier/status', async (req, res) => {
 });
 
 /**
+ * @route   DELETE /api/auth/students/:identifier
+ * @route   DELETE /api/auth/users/:identifier
+ * @desc    Delete a user account and cascade delete all their document requests, reactivation requests, and history
+ * @access  Public (Admin)
+ */
+async function handleDeleteUser(req, res) {
+  try {
+    const { identifier } = req.params;
+    if (!identifier) {
+      return res.status(400).json({
+        success: false,
+        message: 'Identifier is required to delete account.'
+      });
+    }
+
+    const deleted = await dbUsers.delete(identifier);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: `Account '${identifier}' not found in database.`
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Account '${identifier}' and all associated document requests, reactivation records, and history successfully deleted from database.`
+    });
+  } catch (error) {
+    console.error('Error deleting account:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete account from database.',
+      error: error.message
+    });
+  }
+}
+
+router.delete('/students/:identifier', handleDeleteUser);
+router.delete('/users/:identifier', handleDeleteUser);
+
+/**
  * @route   POST /api/auth/reactivation-request
  * @desc    Student submits an account reactivation request
  * @access  Public

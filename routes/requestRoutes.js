@@ -243,4 +243,88 @@ router.patch('/:id', async (req, res) => {
   }
 });
 
+/**
+ * @route   PUT /api/requests/:id
+ * @desc    Update an existing document request in-place without creating a new record
+ * @access  Public
+ */
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, pickupDate, pickup_date } = req.body;
+    let numericId = parseInt(id, 10);
+    if (isNaN(numericId) || numericId <= 0) {
+      const extracted = String(id).replace(/\D/g, '');
+      if (extracted) numericId = parseInt(extracted, 10);
+    }
+
+    if (isNaN(numericId) || numericId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format.'
+      });
+    }
+
+    const resolvedStatus = status || 'Processing';
+    const resolvedPickupDate = pickupDate !== undefined ? pickupDate : pickup_date;
+    const updatedRequest = await dbRequests.updateStatus(numericId, resolvedStatus, resolvedPickupDate);
+
+    if (!updatedRequest) {
+      return res.status(404).json({
+        success: false,
+        message: `Document request with ID '${id}' was not found.`
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Document request #${id} updated in-place successfully.`,
+      data: updatedRequest
+    });
+  } catch (error) {
+    console.error('Error updating request via PUT:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while updating request.',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   DELETE /api/requests/:id
+ * @desc    Delete a document request by ID
+ * @access  Public (Admin)
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    let numericId = parseInt(id, 10);
+    if (isNaN(numericId) || numericId <= 0) {
+      const extracted = String(id).replace(/\D/g, '');
+      if (extracted) numericId = parseInt(extracted, 10);
+    }
+
+    if (isNaN(numericId) || numericId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format.'
+      });
+    }
+
+    const success = await dbRequests.delete(numericId);
+    return res.status(200).json({
+      success: true,
+      message: `Document request #${numericId} deleted successfully from database.`
+    });
+  } catch (error) {
+    console.error('Error deleting document request:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error while deleting document request.',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

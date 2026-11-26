@@ -55,6 +55,8 @@ function performLogoutWithLoading() {
 function executeActualLogout() {
   const lastUser = state.currentUser;
   state.currentUser = null;
+  state.studentRequests = [];
+  state.allRequests = [];
   localStorage.removeItem('cca_auth_user');
   localStorage.setItem('cca_current_view', 'landing');
   localStorage.removeItem('cca_student_active_tab');
@@ -736,6 +738,11 @@ async function handleLoginSubmit(e) {
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
 
+    // Reset and isolate requests for the authenticated user
+    state.studentRequests = [];
+    state.allRequests = [];
+    await fetchAllRequests();
+
     // Apply & cache user avatar across devices if returned from server
     if (result.user.avatar) {
       if (result.user.role === 'admin') {
@@ -865,6 +872,11 @@ async function handleRegisterSubmit(e) {
     // Auto login with new user
     state.currentUser = result.user;
     localStorage.setItem('cca_auth_user', JSON.stringify(result.user));
+
+    // Reset and isolate requests for the newly registered user (starts at 0)
+    state.studentRequests = [];
+    state.allRequests = [];
+    await fetchAllRequests();
 
     // Pre-fill login input with registered email/ID for seamless future logins
     if (elements.loginEmail) elements.loginEmail.value = result.user.email;
@@ -2335,6 +2347,10 @@ async function renderAdminStudentsTable() {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
               <span>Edit</span>
             </button>
+            <button type="button" class="btn-table-pill" style="color:#DC2626;" onclick="deleteStudent('${escapeHtml(s.studentId)}', '${escapeHtml(s.name)}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>Delete</span>
+            </button>
           </div>
         </td>
       </tr>
@@ -2545,10 +2561,88 @@ window.viewStudentDetails = function (studentId) {
 
 window.editStudentDetails = function (studentId) {
   const modal = document.getElementById('modalAdminAddStudent');
-  if (modal) {
-    const idIn = document.getElementById('adminNewStudentId');
-    if (idIn) idIn.value = studentId;
-    modal.style.display = 'flex';
+  if (!modal) return;
+  const student = cachedRegisteredStudents.find(s => s.studentId === studentId || String(s.id) === String(studentId));
+  const idIn = document.getElementById('adminNewStudentId');
+  const nameIn = document.getElementById('adminNewStudentName');
+  const courseIn = document.getElementById('adminNewStudentCourse');
+  const emailIn = document.getElementById('adminNewStudentEmail');
+  const form = document.getElementById('formAdminAddStudent');
+
+  if (idIn) idIn.value = student ? (student.studentId || studentId) : studentId;
+  if (nameIn) nameIn.value = student ? (student.name || '') : '';
+  if (courseIn) courseIn.value = student ? (student.course || 'BS Information Technology') : 'BS Information Technology';
+  if (emailIn) emailIn.value = student ? (student.email || '') : '';
+
+  if (form) {
+    form.setAttribute('data-mode', 'edit');
+    form.setAttribute('data-edit-id', studentId);
+  }
+  const title = modal.querySelector('.modal-title');
+  if (title) title.textContent = 'Edit Student Details';
+  const submitBtn = form?.querySelector('button[type="submit"]');
+  if (submitBtn) submitBtn.textContent = 'Save Changes';
+
+  modal.style.display = 'flex';
+};
+
+window.deleteStudent = async function (studentId, name) {
+  const displayName = name ? `"${name}" (${studentId})` : `student ${studentId}`;
+  if (!confirm(`Are you sure you want to permanently delete ${displayName}?\n\nThis will remove the student, all their document requests, and history from the database and system.`)) {
+    return;
+  }
+
+  try {
+    triggerAdminViewLoader();
+    const res = await fetch(`/api/auth/students/${encodeURIComponent(studentId)}`, {
+      method: 'DELETE'
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || 'Failed to delete student.');
+
+    // Remove student in-place from cache
+    cachedRegisteredStudents = cachedRegisteredStudents.filter(s => s.studentId !== studentId && String(s.id) !== String(studentId));
+
+    // Remove all their requests in-place from state.allRequests
+    state.allRequests = (state.allRequests || []).filter(r => (
+      r.student_id !== studentId &&
+      r.studentId !== studentId
+    ));
+
+    renderAdminStudentsTable();
+    renderAdminTable();
+    updateAdminDashboard();
+    showToast(`Student ${displayName} and all associated records deleted from database!`, 'success');
+  } catch (err) {
+    showToast('Delete error: ' + err.message, 'error');
+  }
+};
+
+window.deleteAdminRequest = async function (reqId) {
+  if (!confirm(`Are you sure you want to permanently delete document request #${reqId}?\n\nThis will remove it from the database and system.`)) {
+    return;
+  }
+
+  try {
+    triggerAdminViewLoader();
+    const res = await fetch(`/api/requests/${encodeURIComponent(reqId)}`, {
+      method: 'DELETE'
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || 'Failed to delete request.');
+
+    // Remove request in-place from state.allRequests
+    state.allRequests = (state.allRequests || []).filter(r => (
+      String(r.id) !== String(reqId) &&
+      r._id !== reqId &&
+      r.tracking_number !== reqId
+    ));
+
+    renderAdminTable();
+    updateAdminDashboard();
+    showToast(`Request #${reqId} deleted from database and system!`, 'success');
+  } catch (err) {
+    showToast('Delete error: ' + err.message, 'error');
   }
 };
 
@@ -3238,6 +3332,9 @@ function renderAdminTable() {
           <div style="display:flex; align-items:center; gap:8px;">
             <button type="button" class="btn-table-pill" onclick="openRequestDetailsModal('${escapeHtml(reqIdentifier)}')">View</button>
             <button type="button" class="btn-table-pill" style="padding:4px 8px;" onclick="openAdminStatusMenu('${escapeHtml(reqIdentifier)}')">&bull;&bull;&bull;</button>
+            <button type="button" class="btn-table-pill" style="color:#DC2626; padding:4px 8px;" title="Delete Request" onclick="deleteAdminRequest('${escapeHtml(reqIdentifier)}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
           </div>
         </td>
       </tr>
@@ -3593,7 +3690,8 @@ function setupAdminRefPortalListeners() {
     try {
       const res = await fetch('/api/requests');
       if (res.ok) {
-        state.allRequests = await res.json();
+        const json = await res.json();
+        state.allRequests = Array.isArray(json) ? json : (json.data || []);
       }
     } catch (e) { }
     updateAdminDashboard();
@@ -3628,7 +3726,19 @@ function setupAdminRefPortalListeners() {
   // Modal: Add Student
   const addStudentModal = document.getElementById('modalAdminAddStudent');
   document.getElementById('btnOpenAddStudentModal')?.addEventListener('click', () => {
-    if (addStudentModal) addStudentModal.style.display = 'flex';
+    if (addStudentModal) {
+      const form = document.getElementById('formAdminAddStudent');
+      if (form) {
+        form.reset();
+        form.removeAttribute('data-mode');
+        form.removeAttribute('data-edit-id');
+      }
+      const title = addStudentModal.querySelector('.modal-title');
+      if (title) title.textContent = 'Add New Student Record';
+      const submitBtn = form?.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.textContent = 'Save Student Record';
+      addStudentModal.style.display = 'flex';
+    }
   });
   document.getElementById('btnCloseAddStudent')?.addEventListener('click', () => {
     if (addStudentModal) addStudentModal.style.display = 'none';
@@ -3639,29 +3749,94 @@ function setupAdminRefPortalListeners() {
   document.getElementById('backdropAddStudent')?.addEventListener('click', () => {
     if (addStudentModal) addStudentModal.style.display = 'none';
   });
-  document.getElementById('formAdminAddStudent')?.addEventListener('submit', (e) => {
+  document.getElementById('formAdminAddStudent')?.addEventListener('submit', async (e) => {
     e.preventDefault();
+    const form = document.getElementById('formAdminAddStudent');
+    const isEdit = form?.getAttribute('data-mode') === 'edit';
+    const editId = form?.getAttribute('data-edit-id');
     const studentId = document.getElementById('adminNewStudentId')?.value.trim();
     const name = document.getElementById('adminNewStudentName')?.value.trim();
-    const course = document.getElementById('adminNewStudentCourse')?.value || 'BSIT';
-    const year = document.getElementById('adminNewStudentYear')?.value || '1st Year';
+    const course = document.getElementById('adminNewStudentCourse')?.value || 'BS Information Technology';
+    const email = document.getElementById('adminNewStudentEmail')?.value.trim();
 
     if (!studentId || !name) {
       showToast('Student ID and Name are required.', 'error');
       return;
     }
 
-    const newStudent = { studentId, name, course, year, status: 'Active' };
-    try {
-      const existing = JSON.parse(localStorage.getItem('cca_custom_students') || '[]');
-      existing.unshift(newStudent);
-      localStorage.setItem('cca_custom_students', JSON.stringify(existing));
-    } catch (err) { }
+    if (isEdit && editId) {
+      try {
+        triggerAdminViewLoader();
+        const res = await fetch('/api/auth/profile', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            identifier: editId,
+            studentId: studentId,
+            fullName: name,
+            course: course,
+            email: email
+          })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message || 'Failed to update student profile.');
 
-    triggerAdminViewLoader();
-    renderAdminStudentsTable();
-    if (addStudentModal) addStudentModal.style.display = 'none';
-    showToast('New student record saved successfully!', 'success');
+        // Update in-place in cachedRegisteredStudents (no new record created)
+        const existingIdx = cachedRegisteredStudents.findIndex(s => s.studentId === editId || String(s.id) === String(editId));
+        if (existingIdx !== -1) {
+          cachedRegisteredStudents[existingIdx].studentId = studentId;
+          cachedRegisteredStudents[existingIdx].name = name;
+          cachedRegisteredStudents[existingIdx].course = course;
+          if (email) cachedRegisteredStudents[existingIdx].email = email;
+        }
+
+        // Also update any requests matching this student in state.allRequests in-place
+        (state.allRequests || []).forEach(r => {
+          if (r.student_id === editId || r.studentId === editId) {
+            r.student_id = studentId;
+            r.studentId = studentId;
+            r.student_name = name;
+            r.studentName = name;
+            r.course = course;
+          }
+        });
+
+        renderAdminStudentsTable();
+        renderAdminTable();
+        if (addStudentModal) addStudentModal.style.display = 'none';
+        form.removeAttribute('data-mode');
+        form.removeAttribute('data-edit-id');
+        showToast('Student record updated successfully in database!', 'success');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+      return;
+    }
+
+    // Creating new student record
+    try {
+      triggerAdminViewLoader();
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: name,
+          studentId: studentId,
+          course: course,
+          email: email || `${studentId.toLowerCase().replace(/[^a-z0-9]/g, '')}@cca.edu.ph`,
+          password: 'Password123'
+        })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || 'Failed to register student record.');
+
+      await fetchRegisteredStudents();
+      renderAdminStudentsTable();
+      if (addStudentModal) addStudentModal.style.display = 'none';
+      showToast('New student record saved successfully in database!', 'success');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
   });
 
   // Modal: Create Announcement
@@ -4633,13 +4808,16 @@ function renderStudentNotifications() {
   const sidebarBadge = document.getElementById('studentSidebarNotifBadge');
   if (!container) return;
 
+  const currentUserId = (state.currentUser && (state.currentUser.studentId || state.currentUser.email)) ? (state.currentUser.studentId || state.currentUser.email).toLowerCase() : 'guest';
+  const notifKey = 'cca_student_notifs_' + currentUserId;
+
   let list = [];
   try {
-    list = JSON.parse(localStorage.getItem('cca_student_notifications') || '[]');
+    list = JSON.parse(localStorage.getItem(notifKey) || '[]');
   } catch (e) { }
 
   if (list.length === 0) {
-    const userRequests = state.allRequests || [];
+    const userRequests = (state.currentUser && state.currentUser.role !== 'admin') ? (state.studentRequests || []) : (state.allRequests || []);
     if (userRequests.length > 0) {
       const topReq = userRequests[0];
       list = [
@@ -4664,7 +4842,7 @@ function renderStudentNotifications() {
         }
       ];
     }
-    localStorage.setItem('cca_student_notifications', JSON.stringify(list));
+    localStorage.setItem(notifKey, JSON.stringify(list));
   }
 
   const unreadCount = list.filter(n => n.unread).length;
@@ -4713,7 +4891,7 @@ function renderStudentNotifications() {
 
 function renderStudentDashboardData() {
   const isStudent = state.currentUser && state.currentUser.role !== 'admin';
-  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
+  const all = isStudent ? (state.studentRequests || []) : (state.allRequests || []);
   const total = all.length;
   const inProcess = all.filter(r => (r.status || '').toUpperCase().includes('PROCESS')).length;
   const completed = all.filter(r => ['APPROVED', 'RELEASED', 'COMPLETED', 'FOR RELEASE'].includes((r.status || '').toUpperCase())).length;
@@ -4755,13 +4933,13 @@ function renderStudentDashboardData() {
       `;
     }).join('');
   } else {
-    listEl.innerHTML = `<div style="padding:20px; text-align:center; color:#64748B; font-size:13px;">No document requests submitted yet.</div>`;
+    listEl.innerHTML = `<div style="padding:24px 16px; text-align:center; color:#64748B; font-size:13px;">No recent document requests found.</div>`;
   }
 }
 
 function renderStudentTrackingCards() {
   const isStudent = state.currentUser && state.currentUser.role !== 'admin';
-  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
+  const all = isStudent ? (state.studentRequests || []) : (state.allRequests || []);
   const container = document.getElementById('trackCardsList');
   if (!container) return;
 
@@ -4886,7 +5064,7 @@ function renderStudentTrackingCards() {
 
 function renderStudentHistoryTable() {
   const isStudent = state.currentUser && state.currentUser.role !== 'admin';
-  const all = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
+  const all = isStudent ? (state.studentRequests || []) : (state.allRequests || []);
   const tbody = document.getElementById('studentHistoryTableBody');
   if (!tbody) return;
 
@@ -4967,7 +5145,7 @@ function openRequestDetailsModal(reqId) {
   if (!modal) return;
 
   const isStudent = state.currentUser && state.currentUser.role !== 'admin';
-  const pool = (isStudent && state.studentRequests !== undefined) ? (state.studentRequests || []) : (state.allRequests || []);
+  const pool = isStudent ? (state.studentRequests || []) : (state.allRequests || []);
   const req = pool.find(r => (
     r.tracking_number === reqId ||
     r._id === reqId ||

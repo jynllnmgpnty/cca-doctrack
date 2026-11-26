@@ -49,9 +49,36 @@ const dbRequests = {
    */
   async getAll(studentId, email) {
     const client = getSupabaseClient();
-    let query = client.from('document_requests').select('*').order('id', { ascending: false });
     const sId = studentId ? studentId.trim() : '';
     const em = email ? email.trim().toLowerCase() : '';
+
+    // If filtering by specific student, ensure student exists in users table
+    if (sId || em) {
+      let uQuery = client.from('users').select('id, student_id, email');
+      if (sId && em) {
+        uQuery = uQuery.or(`student_id.ilike.${sId},email.ilike.${em}`);
+      } else if (sId) {
+        uQuery = uQuery.ilike('student_id', sId);
+      } else {
+        uQuery = uQuery.ilike('email', em);
+      }
+      const { data: matchedUsers } = await uQuery;
+      if (!matchedUsers || matchedUsers.length === 0) {
+        // User was deleted from database: cascade clean any leftover requests for this missing user
+        try {
+          if (sId && em) {
+            await client.from('document_requests').delete().or(`student_id.eq.${sId},email.ilike.${em}`);
+          } else if (sId) {
+            await client.from('document_requests').delete().eq('student_id', sId);
+          } else {
+            await client.from('document_requests').delete().ilike('email', em);
+          }
+        } catch (cleanErr) { }
+        return [];
+      }
+    }
+
+    let query = client.from('document_requests').select('*').order('id', { ascending: false });
     if (sId && em) {
       query = query.or(`student_id.eq.${sId},email.ilike.${em}`);
     } else if (sId) {
@@ -444,6 +471,32 @@ const dbUsers = {
           // Non-critical if requests table pending
         }
       }
+
+      // Synchronize student_id and email updates across requests and reactivations
+      if (updatePayload.student_id && user.student_id && updatePayload.student_id !== user.student_id) {
+        try {
+          await client
+            .from('document_requests')
+            .update({ student_id: updatePayload.student_id })
+            .eq('student_id', user.student_id);
+          await client
+            .from('reactivation_requests')
+            .update({ student_id: updatePayload.student_id })
+            .eq('student_id', user.student_id);
+        } catch (e) { }
+      }
+      if (updatePayload.email && user.email && updatePayload.email !== user.email) {
+        try {
+          await client
+            .from('document_requests')
+            .update({ email: updatePayload.email })
+            .ilike('email', user.email);
+          await client
+            .from('reactivation_requests')
+            .update({ email: updatePayload.email })
+            .ilike('email', user.email);
+        } catch (e) { }
+      }
     }
 
     return {
@@ -454,6 +507,70 @@ const dbUsers = {
       course: updatePayload.course || user.course,
       role: user.role
     };
+  },
+
+  /**
+   * Delete student/user and cascade delete all their document requests, reactivation requests, and history
+   */
+  async delete(identifier) {
+    if (!identifier) return false;
+    const target = String(identifier).trim().toLowerCase();
+    const isPureNum = /^\d+$/.test(String(identifier).trim());
+    const client = getSupabaseClient();
+
+    let query = client.from('users').select('id, full_name, student_id, email, role');
+    if (isPureNum) {
+      const numId = parseInt(identifier, 10);
+      query = query.or(`student_id.ilike.${target},email.ilike.${target},id.eq.${numId}`);
+    } else {
+      query = query.or(`student_id.ilike.${target},email.ilike.${target}`);
+    }
+
+    const { data: users, error: findErr } = await query;
+    if (findErr) {
+      console.error('Supabase query error [users.delete find]:', findErr.message);
+      throw findErr;
+    }
+    if (!users || users.length === 0) return false;
+
+    const user = users[0];
+    const sId = user.student_id ? user.student_id.trim() : '';
+    const em = user.email ? user.email.trim().toLowerCase() : '';
+
+    // Cascade 1: Delete all document requests belonging to this user
+    try {
+      if (sId && em) {
+        await client.from('document_requests').delete().or(`student_id.eq.${sId},email.ilike.${em}`);
+      } else if (sId) {
+        await client.from('document_requests').delete().eq('student_id', sId);
+      } else if (em) {
+        await client.from('document_requests').delete().ilike('email', em);
+      }
+    } catch (reqErr) {
+      console.warn('Could not cascade delete document_requests:', reqErr.message);
+    }
+
+    // Cascade 2: Delete all reactivation requests belonging to this user
+    try {
+      if (sId && em) {
+        await client.from('reactivation_requests').delete().or(`student_id.ilike.${sId},email.ilike.${em}`);
+      } else if (sId) {
+        await client.from('reactivation_requests').delete().ilike('student_id', sId);
+      } else if (em) {
+        await client.from('reactivation_requests').delete().ilike('email', em);
+      }
+    } catch (reactErr) {
+      console.warn('Could not cascade delete reactivation_requests:', reactErr.message);
+    }
+
+    // Cascade 3: Delete user record from users table
+    const { error: delErr } = await client.from('users').delete().eq('id', user.id);
+    if (delErr) {
+      console.error('Supabase delete error [users.delete]:', delErr.message);
+      throw delErr;
+    }
+
+    return true;
   },
 
   /**
