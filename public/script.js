@@ -275,6 +275,7 @@ const elements = {
 // ==========================================
 function initApp() {
   dismissInitialLoader();
+  closeAuthModal();
   try {
     // Check for existing session in localStorage
     restoreSession();
@@ -748,6 +749,9 @@ async function handleLoginSubmit(e) {
         applyAvatarToElements(result.user.avatar);
       }
     }
+
+    // Immediately dismiss auth modal
+    closeAuthModal();
 
     // Smooth loading overlay for login
     showAppLoading('Signing In...', 'Authenticating credentials and preparing workspace...');
