@@ -3261,6 +3261,35 @@ input:focus, select:focus, textarea:focus {
   padding-bottom: 8px;
 }
 
+.sidebar-profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.sidebar-profile-info .student-sidebar-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 2px 0;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.sidebar-profile-info .student-sidebar-meta {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.sidebar-profile-info .admin-status-online {
+  margin-top: 6px;
+}
+
 .student-avatar-lg-wrap {
   position: relative;
   width: 84px;
@@ -4966,14 +4995,54 @@ input:focus, select:focus, textarea:focus {
   }
   .student-sidebar-profile {
     display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
     gap: 12px !important;
     text-align: left !important;
     padding-bottom: 12px !important;
     border-bottom: 1px solid #F1F5F9 !important;
     margin-bottom: 12px !important;
-    padding-right: 42px !important;
+    padding-right: 52px !important;
     position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    width: auto !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .student-sidebar-name {
+    margin: 0 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    color: #0F172A !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .student-sidebar-meta {
+    margin: 2px 0 0 0 !important;
+    font-size: 12px !important;
+    color: #64748B !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .admin-status-online {
+    margin-top: 4px !important;
+    align-self: flex-start !important;
+    display: inline-flex !important;
   }
   .student-avatar-lg-wrap {
     margin: 0 !important;
@@ -7499,7 +7568,7 @@ html, body {
     align-items: center !important;
     justify-content: center !important;
     cursor: pointer !important;
-    z-index: 10 !important;
+    z-index: 50 !important;
     touch-action: manipulation !important;
   }
   .sidebar-drawer-close:hover {
@@ -7508,14 +7577,54 @@ html, body {
   }
   .student-sidebar-profile {
     display: flex !important;
+    flex-direction: row !important;
     align-items: center !important;
     gap: 12px !important;
     text-align: left !important;
     padding-bottom: 12px !important;
     border-bottom: 1px solid #F1F5F9 !important;
     margin-bottom: 12px !important;
-    padding-right: 42px !important;
+    padding-right: 52px !important;
     position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    min-width: 0 !important;
+    flex: 1 !important;
+    width: auto !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .student-sidebar-name {
+    margin: 0 !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.25 !important;
+    color: #0F172A !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .student-sidebar-meta {
+    margin: 2px 0 0 0 !important;
+    font-size: 12px !important;
+    color: #64748B !important;
+    line-height: 1.3 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  .student-sidebar-profile .sidebar-profile-info .admin-status-online {
+    margin-top: 4px !important;
+    align-self: flex-start !important;
+    display: inline-flex !important;
   }
   .student-avatar-lg-wrap {
     margin: 0 !important;

@@ -124,6 +124,10 @@ async function testNewFixes() {
 
     // 4. Requirement: Admin Profile Update & Cross-Account/Session Visibility
     console.log('\n--- Test 4: Admin Profile Update & Cross-Account Visibility ---');
+    const prevAdmin = await dbUsers.getAdminUser();
+    const prevAdminName = (prevAdmin && prevAdmin.full_name) || 'Admin';
+    const prevAdminEmail = (prevAdmin && prevAdmin.email) || 'admin@cca.edu.ph';
+
     const updatedAdminName = 'Office of the College Registrar (Head)';
     const patchAdminRes = await fetch(`${baseUrl}/api/auth/profile`, {
       method: 'PATCH',
@@ -155,6 +159,19 @@ async function testNewFixes() {
     assert(getAdminFallbackRes.status === 200, 'GET /api/auth/profile?identifier=admin fallback works');
     const getAdminFallbackJson = await getAdminFallbackRes.json();
     assert(getAdminFallbackJson.user.role === 'admin', 'Fallback returns admin user');
+
+    // Restore original admin profile in database so test runs never alter production admin state
+    await fetch(`${baseUrl}/api/auth/profile`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: 'admin@cca.edu.ph',
+        fullName: prevAdminName,
+        email: prevAdminEmail,
+        role: 'admin'
+      })
+    });
+    console.log(`  ✅ PASS: Verified admin update and restored admin profile to "${prevAdminName}"`);
 
     // --- Test 5: Cross-Device Student Login Returns Updated Profile After Edit ---
     console.log('\n--- Test 5: Cross-Device Student Login Returns Updated Profile After Edit ---');

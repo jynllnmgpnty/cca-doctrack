@@ -386,16 +386,22 @@ router.post('/change-password', async (req, res) => {
 router.get('/profile', async (req, res) => {
   try {
     const identifier = req.query.identifier || req.query.email || req.query.studentId || req.query.id;
-    if (!identifier) {
+    const requestedRole = req.query.role ? String(req.query.role).trim().toLowerCase() : '';
+    if (!identifier && requestedRole !== 'admin') {
       return res.status(400).json({
         success: false,
         message: 'Identifier is required to fetch profile.'
       });
     }
 
-    const normalized = String(identifier).trim().toLowerCase();
-    let user = await dbUsers.findByEmailOrStudentId(normalized);
-    if (!user && (normalized === 'admin' || normalized.includes('admin'))) {
+    let user = null;
+    if (identifier) {
+      const normalized = String(identifier).trim().toLowerCase();
+      user = await dbUsers.findByEmailOrStudentId(normalized);
+      if (!user && (normalized === 'admin' || normalized.includes('admin') || requestedRole === 'admin')) {
+        user = await dbUsers.getAdminUser();
+      }
+    } else if (requestedRole === 'admin') {
       user = await dbUsers.getAdminUser();
     }
 
@@ -411,7 +417,9 @@ router.get('/profile', async (req, res) => {
       user: {
         id: user.id,
         fullName: user.full_name,
+        full_name: user.full_name,
         studentId: user.student_id,
+        student_id: user.student_id,
         email: user.email,
         course: user.course,
         role: user.role,
@@ -541,11 +549,14 @@ router.patch('/profile', async (req, res) => {
       });
     }
 
+    const resolvedFullName = updatedUser.fullName || updatedUser.full_name || fullName;
     return res.status(200).json({
       success: true,
       message: 'Profile updated successfully in database.',
       user: {
         ...updatedUser,
+        fullName: resolvedFullName,
+        full_name: resolvedFullName,
         avatar: getStoredAvatar(updatedUser.email || updatedUser.studentId || targetIdentifier)
       }
     });

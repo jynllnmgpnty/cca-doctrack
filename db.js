@@ -223,10 +223,16 @@ const dbUsers = {
       if (student) return student;
     }
 
-    const { data, error } = await client
-      .from('users')
-      .select('*')
-      .or(`email.ilike.${target},student_id.ilike.${target}`);
+    const isPureNum = /^\d+$/.test(target);
+    let query = client.from('users').select('*');
+    if (isPureNum) {
+      const numId = parseInt(target, 10);
+      query = query.or(`email.ilike.${target},student_id.ilike.${target},id.eq.${numId}`);
+    } else {
+      query = query.or(`email.ilike.${target},student_id.ilike.${target}`);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Supabase query error [users.findByEmailOrStudentId]:', error.message);
@@ -648,11 +654,12 @@ async function seedDefaultAccounts() {
   try {
     const client = getSupabaseClient();
 
-    // 1. Seed administrator if not exists
+    // 1. Seed administrator if not exists (preserve existing admin account)
     const { data: adminExists, error: adminErr } = await client
       .from('users')
-      .select('id')
-      .eq('email', 'admin@cca.edu.ph');
+      .select('id, full_name, email')
+      .or('role.eq.admin,email.eq.admin@cca.edu.ph')
+      .limit(1);
 
     if (adminErr) {
       if (adminErr.code !== 'PGRST205' && (!adminErr.message || !adminErr.message.includes('schema cache'))) {

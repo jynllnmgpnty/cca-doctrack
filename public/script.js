@@ -347,13 +347,15 @@ function restoreSession() {
         }
 
         // Live refresh of admin profile from Supabase database
-        const aIdent = state.currentUser.email || state.currentUser.id || 'admin@cca.edu.ph';
-        fetch('/api/auth/profile?identifier=' + encodeURIComponent(aIdent))
+        const aIdent = (state.currentUser && (state.currentUser.email || state.currentUser.id || state.currentUser.studentId)) || 'admin@cca.edu.ph';
+        fetch('/api/auth/profile?identifier=' + encodeURIComponent(aIdent) + '&role=admin')
           .then(r => r.json())
           .then(res => {
             if (res && res.success && res.user) {
-              state.currentUser.fullName = res.user.fullName;
-              state.currentUser.email = res.user.email;
+              const freshName = res.user.fullName || res.user.full_name || state.currentUser.fullName || state.currentUser.full_name;
+              state.currentUser.fullName = freshName;
+              state.currentUser.full_name = freshName;
+              state.currentUser.email = res.user.email || state.currentUser.email;
               state.currentUser.role = res.user.role || 'admin';
               if (res.user.avatar) {
                 state.currentUser.avatar = res.user.avatar;
@@ -3481,7 +3483,7 @@ function restoreAdminDarkModeState() {
 
 function syncAdminProfileInfo() {
   const user = state.currentUser || {};
-  const adminName = user.fullName || 'Office of the College Registrar';
+  const adminName = user.fullName || user.full_name || 'Admin';
   const adminEmail = user.email || 'admin@cca.edu.ph';
   const adminRole = user.role === 'admin' ? 'System Administrator' : (user.role || 'System Administrator');
 
@@ -3574,16 +3576,18 @@ async function initAdminRefPortal() {
 
   // Fetch live fresh admin profile from Supabase database
   try {
-    const ident = (state.currentUser && (state.currentUser.email || state.currentUser.id)) || 'admin@cca.edu.ph';
-    const pRes = await fetch('/api/auth/profile?identifier=' + encodeURIComponent(ident));
+    const ident = (state.currentUser && (state.currentUser.email || state.currentUser.id || state.currentUser.studentId)) || 'admin@cca.edu.ph';
+    const pRes = await fetch('/api/auth/profile?identifier=' + encodeURIComponent(ident) + '&role=admin');
     if (pRes.ok) {
       const pData = await pRes.json();
       if (pData && pData.success && pData.user) {
         if (!state.currentUser) state.currentUser = {};
-        state.currentUser.fullName = pData.user.fullName;
-        state.currentUser.email = pData.user.email;
+        const freshName = pData.user.fullName || pData.user.full_name || state.currentUser.fullName || state.currentUser.full_name;
+        state.currentUser.fullName = freshName;
+        state.currentUser.full_name = freshName;
+        state.currentUser.email = pData.user.email || state.currentUser.email;
         state.currentUser.role = pData.user.role || 'admin';
-        state.currentUser.course = pData.user.course;
+        state.currentUser.course = pData.user.course || state.currentUser.course;
         if (pData.user.avatar) {
           state.currentUser.avatar = pData.user.avatar;
           localStorage.setItem('cca_admin_avatar', pData.user.avatar);
@@ -3997,8 +4001,11 @@ function setupAdminRefPortalListeners() {
       }
 
       if (!state.currentUser) state.currentUser = {};
-      state.currentUser.fullName = resData.user.fullName || full;
-      state.currentUser.email = resData.user.email || email;
+      const savedFullName = (resData.user && (resData.user.fullName || resData.user.full_name)) || full;
+      const savedEmail = (resData.user && resData.user.email) || email;
+      state.currentUser.fullName = savedFullName;
+      state.currentUser.full_name = savedFullName;
+      state.currentUser.email = savedEmail;
       if (contact) state.currentUser.phone = contact;
       localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
 
