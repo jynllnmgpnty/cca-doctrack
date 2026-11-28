@@ -210,7 +210,7 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check password (try raw, trimmed, default accounts, and plaintext fallback)
+    // Check password strictly with bcrypt
     let isMatch = false;
     try {
       isMatch = await bcrypt.compare(rawPassword, user.password);
@@ -219,28 +219,6 @@ router.post('/login', async (req, res) => {
       }
     } catch (e) {
       isMatch = false;
-    }
-
-    // Fallback checks for default accounts and plaintext passwords
-    if (!isMatch) {
-      const lowerPw = trimmedPassword.toLowerCase();
-      if (user.role === 'admin' && ['admin123', 'admin@123'].includes(lowerPw)) {
-        isMatch = true;
-      } else if (user.role === 'student' && ['student123', 'student@123'].includes(lowerPw)) {
-        isMatch = true;
-      } else if (user.password === rawPassword || user.password === trimmedPassword) {
-        isMatch = true;
-      }
-
-      // If matched via fallback, synchronize bcrypt hash into database
-      if (isMatch) {
-        try {
-          const newHash = await bcrypt.hash(trimmedPassword, 10);
-          await dbUsers.updatePassword(user.id, newHash);
-        } catch (updErr) {
-          console.warn('Note: Could not upgrade user password hash:', updErr.message);
-        }
-      }
     }
 
     if (!isMatch) {
@@ -528,6 +506,10 @@ router.patch('/profile', async (req, res) => {
     if (course !== undefined && String(course).trim()) updates.course = String(course).trim();
     if (studentId !== undefined && String(studentId).trim()) updates.studentId = String(studentId).trim();
     if (role !== undefined && String(role).trim()) updates.role = String(role).trim();
+    if (req.body.phone !== undefined || req.body.contactNumber !== undefined) {
+      updates.phone = String(req.body.phone || req.body.contactNumber).trim();
+      updates.contactNumber = updates.phone;
+    }
 
     // Check if new email is provided
     if (newEmail && String(newEmail).trim()) {

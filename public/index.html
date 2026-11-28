@@ -239,22 +239,7 @@
 
           <div class="flowize-nav-actions" id="landingAuthActions">
             <button class="btn btn-flowize-primary" id="btnLandingSignIn">Log in</button>
-            <button type="button" class="hamburger-btn landing-hamburger" id="btnLandingNavToggle" aria-label="Toggle navigation menu" title="Navigation Menu" style="display: none !important;">
-              <span class="hamburger-line"></span>
-              <span class="hamburger-line"></span>
-              <span class="hamburger-line"></span>
-            </button>
           </div>
-        </div>
-
-        <!-- Landing Mobile Navigation Dropdown Menu (Disabled per user request) -->
-        <div class="landing-mobile-menu hidden" id="landingMobileMenu" style="display: none !important;">
-          <a href="#" class="landing-mobile-item" id="navItemLandingHome">Home</a>
-          <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingRequest">Request Document</a>
-          <a href="javascript:void(0)" class="landing-mobile-item" id="navItemLandingTrack">Track Status</a>
-          <div class="landing-mobile-divider"></div>
-          <button type="button" class="btn btn-navy btn-block" id="btnLandingMobileSignIn">Sign In</button>
-          <button type="button" class="btn btn-ref-outline btn-block" id="btnLandingMobileRegister" style="margin-top: 8px;">Register</button>
         </div>
       </header>
 
@@ -924,75 +909,11 @@
           </div>
         </div>
 
-        <!-- User Chip (Dropdown removed: navigation available via sidebar / mobile hamburger) -->
+        <!-- User Chip (Navigates directly to My Profile) -->
         <div class="topbar-user-menu-wrapper">
           <button class="topbar-user-chip" id="topbarUserChip" aria-expanded="false" title="My Profile" style="cursor: pointer;">
             <div class="user-chip-avatar" id="topbarUserAvatar">JD</div>
           </button>
-          <div class="student-user-dropdown" id="studentUserDropdown" style="display: none !important;">
-            <div class="dropdown-header">
-              <div class="dropdown-user-name" id="dropdownUserName">Juan Dela Cruz</div>
-              <div class="dropdown-user-email" id="dropdownUserEmail">juan.delacruz@cca.edu.ph</div>
-            </div>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item" data-student-tab="dashboard">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="9" rx="1.5" />
-                <rect x="14" y="3" width="7" height="5" rx="1.5" />
-                <rect x="14" y="12" width="7" height="9" rx="1.5" />
-                <rect x="3" y="16" width="7" height="5" rx="1.5" />
-              </svg>
-              <span>Dashboard</span>
-            </button>
-            <button class="dropdown-item" data-student-tab="profile">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              <span>My Profile</span>
-            </button>
-            <button class="dropdown-item" data-student-tab="request">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-              <span>Document Request</span>
-            </button>
-            <button class="dropdown-item" data-student-tab="tracking">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-              <span>Track Document Request</span>
-            </button>
-            <button class="dropdown-item" data-student-tab="settings">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                </path>
-              </svg>
-              <span>Settings</span>
-            </button>
-            <button class="dropdown-item" data-student-tab="change-password">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <span>Change Password</span>
-            </button>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item dropdown-logout" id="dropdownBtnLogout">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span>Log Out</span>
-            </button>
-          </div>
         </div>
       </div>
     </header>
@@ -1003,8 +924,8 @@
       <!-- Sidebar (Without Need Help Card, First Nav is Dashboard) -->
       <aside class="student-ref-sidebar" id="studentRefSidebar">
         <button type="button" class="sidebar-drawer-close" id="mobileStudentSidebarClose" aria-label="Close menu">&times;</button>
-        <div class="student-sidebar-profile">
-          <div class="student-avatar-lg-wrap">
+        <div class="student-sidebar-profile" style="display: flex; align-items: center; gap: 12px; padding-right: 52px; position: relative; text-align: left;">
+          <div class="student-avatar-lg-wrap" style="flex-shrink: 0;">
             <div class="student-avatar-lg" id="sidebarProfileAvatar">
               <svg width="56" height="56" viewBox="0 0 24 24" fill="#2563EB">
                 <path
@@ -2621,81 +2542,11 @@
           </div>
         </div>
 
-        <!-- Admin User Chip (Dropdown removed: navigation available via sidebar / mobile hamburger) -->
+        <!-- Admin User Chip (Navigates directly to Settings) -->
         <div class="topbar-user-menu-wrapper">
-          <button class="topbar-user-chip" id="adminUserChip" aria-expanded="false" title="Admin Profile" style="cursor: pointer;">
+          <button class="topbar-user-chip" id="adminUserChip" aria-expanded="false" title="Admin Settings" style="cursor: pointer;">
             <div class="user-chip-avatar" id="adminTopbarAvatar">AR</div>
           </button>
-          <div class="student-user-dropdown" id="adminUserDropdown" style="display: none !important;">
-            <div class="dropdown-header">
-              <div class="dropdown-user-name" id="adminDropdownUserName">---</div>
-              <div class="dropdown-user-email" id="adminDropdownUserEmail">admin@cca.edu.ph</div>
-            </div>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item" data-admin-tab="dashboard">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-              <span>Dashboard</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="manage">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-                <path d="M9 14h6" />
-                <path d="M9 18h6" />
-                <path d="M9 10h2" />
-              </svg>
-              <span>Manage Requests</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="students">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                <path d="M6 12v5c3 3 9 3 12 0v-5" />
-              </svg>
-              <span>Manage Students</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="announcements">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              <span>Announcements</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="reports">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-              <span>Reports</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="settings">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                </path>
-              </svg>
-              <span>Settings</span>
-            </button>
-            <button class="dropdown-item" data-admin-tab="audit">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 14 14" />
-              </svg>
-              <span>Audit Logs</span>
-            </button>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item dropdown-logout" id="btnAdminDropdownLogout">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span>Log Out</span>
-            </button>
-          </div>
         </div>
       </div>
     </header>
@@ -2706,8 +2557,8 @@
       <!-- Admin Sidebar -->
       <aside class="student-ref-sidebar admin-ref-sidebar" id="adminRefSidebar">
         <button type="button" class="sidebar-drawer-close" id="mobileAdminSidebarClose" aria-label="Close menu">&times;</button>
-        <div class="student-sidebar-profile admin-sidebar-profile">
-          <div class="student-avatar-lg-wrap">
+        <div class="student-sidebar-profile admin-sidebar-profile" style="display: flex; align-items: center; gap: 12px; padding-right: 52px; position: relative; text-align: left;">
+          <div class="student-avatar-lg-wrap" style="flex-shrink: 0;">
             <div class="student-avatar-lg admin-avatar-lg" id="adminSidebarAvatar">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="#2563EB">
                 <path
@@ -4739,11 +4590,11 @@
   <div class="modal" id="modalConfirmLogout" style="display:none;">
     <div class="modal-backdrop" id="backdropConfirmLogout"></div>
     <div class="modal-dialog ref-dialog-md"
-      style="max-width: 420px; text-align: center; padding: 28px 24px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
+      style="max-width: 420px; width: min(420px, calc(100vw - 32px)); text-align: center; padding: 28px 24px; position:relative; z-index:10002; background:#FFFFFF; border-radius:16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: auto; box-sizing: border-box;">
       <div class="logout-modal-icon-wrap"
-        style="width: 56px; height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        style="width: 56px; height: 56px; min-width: 56px; max-width: 56px; min-height: 56px; max-height: 56px; border-radius: 50%; background: #FEF2F2; color: #DC2626; display: flex; align-items: center; justify-content: center; align-self: center; margin: 0 auto 16px; flex-shrink: 0; box-sizing: border-box;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
+          stroke-linecap="round" stroke-linejoin="round" style="margin: auto; display: block;">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
           <line x1="21" y1="12" x2="9" y2="12"></line>

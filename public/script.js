@@ -357,6 +357,11 @@ function restoreSession() {
               state.currentUser.full_name = freshName;
               state.currentUser.email = res.user.email || state.currentUser.email;
               state.currentUser.role = res.user.role || 'admin';
+              if (res.user.phone || res.user.contactNumber) {
+                state.currentUser.phone = res.user.phone || res.user.contactNumber;
+              } else if (localStorage.getItem('cca_admin_custom_phone')) {
+                state.currentUser.phone = localStorage.getItem('cca_admin_custom_phone');
+              }
               if (res.user.avatar) {
                 state.currentUser.avatar = res.user.avatar;
                 localStorage.setItem('cca_admin_avatar', res.user.avatar);
@@ -3483,8 +3488,13 @@ function restoreAdminDarkModeState() {
 
 function syncAdminProfileInfo() {
   const user = state.currentUser || {};
-  const adminName = user.fullName || user.full_name || 'Admin';
-  const adminEmail = user.email || 'admin@cca.edu.ph';
+  const customSavedName = localStorage.getItem('cca_admin_custom_name');
+  const customSavedEmail = localStorage.getItem('cca_admin_custom_email');
+  const customSavedPhone = localStorage.getItem('cca_admin_custom_phone');
+
+  const adminName = user.fullName || user.full_name || customSavedName || 'Admin';
+  const adminEmail = user.email || customSavedEmail || 'admin@cca.edu.ph';
+  const adminPhone = user.phone || user.contactNumber || customSavedPhone || '';
   const adminRole = user.role === 'admin' ? 'System Administrator' : (user.role || 'System Administrator');
 
   const heroGreet = document.getElementById('adminHeroGreetingName');
@@ -3513,7 +3523,7 @@ function syncAdminProfileInfo() {
   if (setEmail) setEmail.value = adminEmail;
 
   const setContact = document.getElementById('adminSettingsContact');
-  if (setContact) setContact.value = user.phone || '';
+  if (setContact) setContact.value = adminPhone;
 
   const inName = document.getElementById('adminInputFullName');
   if (inName) inName.value = adminName;
@@ -3588,6 +3598,11 @@ async function initAdminRefPortal() {
         state.currentUser.email = pData.user.email || state.currentUser.email;
         state.currentUser.role = pData.user.role || 'admin';
         state.currentUser.course = pData.user.course || state.currentUser.course;
+        if (pData.user.phone || pData.user.contactNumber) {
+          state.currentUser.phone = pData.user.phone || pData.user.contactNumber;
+        } else if (localStorage.getItem('cca_admin_custom_phone')) {
+          state.currentUser.phone = localStorage.getItem('cca_admin_custom_phone');
+        }
         if (pData.user.avatar) {
           state.currentUser.avatar = pData.user.avatar;
           localStorage.setItem('cca_admin_avatar', pData.user.avatar);
@@ -3991,6 +4006,8 @@ function setupAdminRefPortalListeners() {
           identifier: currentIdent,
           fullName: full,
           email: email,
+          phone: contact,
+          contactNumber: contact,
           role: 'admin'
         })
       });
@@ -4008,6 +4025,9 @@ function setupAdminRefPortalListeners() {
       state.currentUser.email = savedEmail;
       if (contact) state.currentUser.phone = contact;
       localStorage.setItem('cca_auth_user', JSON.stringify(state.currentUser));
+      localStorage.setItem('cca_admin_custom_name', savedFullName);
+      localStorage.setItem('cca_admin_custom_email', savedEmail);
+      if (contact) localStorage.setItem('cca_admin_custom_phone', contact);
 
       syncAdminProfileInfo();
       addAdminAuditLog(`Updated administrator profile: ${full} (${email})`, 'CONFIG');
@@ -4661,27 +4681,24 @@ function triggerStudentViewLoader() {
 }
 
 function syncStudentRefProfile() {
-  const user = state.currentUser || {
-    fullName: 'Juan Dela Cruz',
-    studentId: 'REQ-00234',
-    course: 'BS Information Technology (BSIT)',
-    email: 'juan.delacruz@cca.edu.ph'
-  };
-
-  const storedKey = 'cca_student_profile_' + (user.studentId || 'default');
+  const user = state.currentUser || {};
+  const studentId = user.studentId || user.student_id || '';
+  const storedKey = studentId ? ('cca_student_profile_' + studentId) : null;
   let stored = {};
-  try {
-    const raw = localStorage.getItem(storedKey) || localStorage.getItem('cca_student_profile');
-    if (raw) stored = JSON.parse(raw);
-  } catch (e) {
-    console.warn('Profile parse error:', e);
+  if (storedKey) {
+    try {
+      const raw = localStorage.getItem(storedKey);
+      if (raw) stored = JSON.parse(raw);
+    } catch (e) {
+      console.warn('Profile parse error:', e);
+    }
   }
 
   const profile = {
-    fullName: stored.fullName || user.fullName || 'Juan Dela Cruz',
-    studentId: stored.studentId || user.studentId || 'REQ-00234',
-    course: stored.course || user.course || 'BS Information Technology (BSIT)',
-    email: stored.email || user.email || 'juan.delacruz@cca.edu.ph'
+    fullName: stored.fullName || user.fullName || user.full_name || 'Student',
+    studentId: stored.studentId || studentId || '---',
+    course: stored.course || user.course || 'BS Information Technology',
+    email: stored.email || user.email || ''
   };
 
   // Topbar
@@ -4932,10 +4949,17 @@ function renderStudentTrackingCards() {
     container.innerHTML = `
       <div style="text-align:center; padding:48px 16px; background:#FFFFFF; border-radius:16px; border:1px solid #E2E8F0; color:#64748B;">
         <svg style="width:48px;height:48px;color:#94A3B8;margin-bottom:12px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <h4 style="font-size:16px; font-weight:700; color:#1E293B; margin-bottom:6px;">No Document Requests Found</h4>
-        <p style="font-size:13px; color:#64748B;">You have no active document requests. Click "Document Request" to create one.</p>
+        <h4 style="font-size:16px; font-weight:700; color:#1E293B; margin-bottom:6px;">You haven't submitted any document requests yet.</h4>
+        <p style="font-size:13px; color:#64748B; margin-bottom:18px;">Submit your first document request to start tracking your records.</p>
+        <button type="button" class="btn btn-flowize-primary" id="btnTrackEmptySubmitFirst" style="display:inline-flex; align-items:center; gap:8px; padding:10px 20px; font-weight:600; font-size:13.5px; border-radius:10px; margin:0 auto; cursor:pointer;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          <span>Submit First Request</span>
+        </button>
       </div>
     `;
+    document.getElementById('btnTrackEmptySubmitFirst')?.addEventListener('click', () => {
+      switchStudentSubtab('request');
+    });
     const elTot = document.getElementById('trackStatTotal'); if (elTot) elTot.textContent = '0';
     const elProc = document.getElementById('trackStatProcessing'); if (elProc) elProc.textContent = '0';
     const elApp = document.getElementById('trackStatApproved'); if (elApp) elApp.textContent = '0';
