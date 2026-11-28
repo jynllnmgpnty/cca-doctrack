@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "migrate:supabase": "node migrate_turso_to_supabase.js",
+    "test": "node test_system.js",
+    "test:system": "node test_system.js",
     "test:endpoints": "node test_http_endpoints.js"
   },
   "keywords": [
@@ -27,7 +28,6 @@
     "express": "^4.19.2"
   },
   "devDependencies": {
-    "@libsql/client": "^0.18.0",
     "nodemon": "^3.1.0"
   },
   "engines": {

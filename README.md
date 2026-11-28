@@ -163,10 +163,7 @@ cca-doctrack/
 ├── db.js                                    # Supabase client initialization, queries, and auto-seeding
 ├── server.js                                # Express server setup, middleware, health check, and routing
 ├── supabase_schema.sql                      # Complete Supabase PostgreSQL schema with RLS policies
-├── test_new_fixes.js                        # 88-assertion integration test suite covering user requirements
-├── test_unified_login_and_drawer.js         # Verification suite for unified login & responsive drawer
-├── test_drawer_and_admin_persistence.js     # Verification suite for mobile drawer layout & admin profile persistence
-├── test_isolation_and_cascade.js            # Verification suite for request isolation and cascading deletions
+├── test_system.js                           # Comprehensive system, auth, isolation, and security test suite
 ├── test_http_endpoints.js                   # REST API status code and validation test suite
 ├── .env                                     # Environment variables (excluded from Git)
 ├── .env.example                             # Environment configuration template
@@ -212,21 +209,16 @@ npm install
 ```
 
 ### 3. Run Automated Verification Test Suites
-Execute the comprehensive test suites:
+Execute the clean automated test suites:
 ```bash
-# Test 1: Complete 88-assertion verification of all system requirements
-node test_new_fixes.js
+# Test 1: Comprehensive System Integration, Security Policies, Auth & Isolation Tests
+npm test
+# or
+node test_system.js
 
-# Test 2: Unified login and responsive drawer tests
-node test_unified_login_and_drawer.js
-
-# Test 3: Mobile drawer profile header & Supabase admin persistence tests
-node test_drawer_and_admin_persistence.js
-
-# Test 4: Student request isolation and user cascade deletion tests
-node test_isolation_and_cascade.js
-
-# Test 5: Standard HTTP endpoints and REST validation tests
+# Test 2: Standard HTTP Endpoints & REST Status Code Validation Tests
+npm run test:endpoints
+# or
 node test_http_endpoints.js
 ```
 
