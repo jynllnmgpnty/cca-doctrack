@@ -168,6 +168,32 @@ button {
   overflow-y: auto;
 }
 
+/* Logout Confirmation Modal Icon Centering (All Viewports) */
+.logout-modal-icon-wrap,
+#modalConfirmLogout .logout-modal-icon-wrap {
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  border-radius: 50% !important;
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 auto 16px !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+.logout-modal-icon-wrap svg,
+#modalConfirmLogout .logout-modal-icon-wrap svg {
+  margin: auto !important;
+  display: block !important;
+  stroke: #DC2626 !important;
+  flex-shrink: 0 !important;
+}
+
 .hidden {
   display: none !important;
 }

@@ -1,0 +1,308 @@
+{
+  "info": {
+    "_postman_id": "a823c4d5-911b-4f76-bc32-159ef493b8aa",
+    "name": "CCA-DocTrack REST API",
+    "description": "IT 412 Rubric Verification Collection for Christ Centered Academy Document Tracking System (CCA DocTrack).\nTests health status, request retrieval, creation validation, non-existent record handling, invalid ID format rejection, and status transitions.\n\nNote: Default baseUrl is set to http://localhost:3000 for local testing. Switch variable to https://cca-doctrack.onrender.com for live production verification.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Base URL of the CCA DocTrack instance (switch to https://cca-doctrack.onrender.com for production)"
+    },
+    {
+      "key": "requestId",
+      "value": "1",
+      "type": "string",
+      "description": "Dynamic ID captured from valid POST request test"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. GET Health Check (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Verifies that the server and Supabase PostgreSQL database connection are operational."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Service status is UP', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql('UP');",
+              "    pm.expect(jsonData.database.status).to.eql('Connected');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. GET All Document Requests (200 OK)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/requests",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests"]
+        },
+        "description": "Retrieves the list of document requests formatted in camelCase."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Returns success true and data array', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. POST Create Request - Valid Body (201 Created)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Juan Dela Cruz\",\n  \"studentId\": \"23-01042\",\n  \"course\": \"BS Information Technology\",\n  \"email\": \"jdelacruz@cca.edu.ph\",\n  \"documentType\": \"Transcript of Records\",\n  \"purpose\": \"Scholarship Application Requirement\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/requests",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests"]
+        },
+        "description": "Creates a new document request with valid body and verifies 201 Created response."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Response includes success true and saved request data', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.true;",
+              "    pm.expect(jsonData.data).to.have.property('id');",
+              "    pm.collectionVariables.set('requestId', String(jsonData.data.id));",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. POST Create Request - Missing Purpose (400 Bad Request)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"studentName\": \"Juan Dela Cruz\",\n  \"studentId\": \"23-01042\",\n  \"course\": \"BS Information Technology\",\n  \"email\": \"jdelacruz@cca.edu.ph\",\n  \"documentType\": \"Transcript of Records\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/requests",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests"]
+        },
+        "description": "Attempts to create a request without required purpose field; must return 400 Bad Request."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400 Bad Request', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Response contains validation errors array mentioning purpose', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.errors).to.be.an('array');",
+              "    pm.expect(jsonData.errors.some(function(e) { return e.toLowerCase().includes('purpose'); })).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. GET Request by Non-Existent ID (404 Not Found)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/requests/999999",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests", "999999"]
+        },
+        "description": "Queries a non-existent document request ID; must return 404 Not Found."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "pm.test('Response returns success false', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. GET Request with Non-Numeric ID (400 Bad Request)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/requests/abc",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests", "abc"]
+        },
+        "description": "Supplies an invalid string ID 'abc'; must return 400 Bad Request without stripping non-digits."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400 Bad Request', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Error message notes invalid request ID format', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.message).to.include('Invalid request ID format');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. PATCH Request - Invalid Status (400 Bad Request)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"InvalidCustomStatus\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/requests/{{requestId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "requests", "{{requestId}}"]
+        },
+        "description": "Attempts to update status to an unallowed value; must return 400 Bad Request."
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 400 Bad Request', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Error message identifies invalid status', function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.success).to.be.false;",
+              "    pm.expect(jsonData.message).to.include('Invalid status');",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

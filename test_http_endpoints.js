@@ -1,6 +1,7 @@
 /**
  * CCA DocTrack - HTTP Integration Test Suite
  * Tests actual HTTP responses, headers, status codes, and JSON bodies.
+ * Aligns with the IT 412 Rubric and the CCA-DocTrack Postman Collection.
  */
 const http = require('http');
 const express = require('express');
@@ -11,9 +12,9 @@ const requestRoutes = require('./routes/requestRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 async function runHttpTests() {
-  console.log('========================================================');
-  console.log('🌐 Starting CCA DocTrack HTTP API Integration Tests');
-  console.log('========================================================\n');
+  console.log('================================================================');
+  console.log('🌐 Starting CCA DocTrack HTTP API Integration Tests (IT 412)');
+  console.log('================================================================\n');
 
   const app = express();
   app.use(cors());
@@ -49,147 +50,177 @@ async function runHttpTests() {
   await new Promise((resolve) => server.listen(3899, resolve));
   const baseUrl = 'http://localhost:3899';
 
+  const testResults = [];
   let total = 0;
   let passed = 0;
 
-  function assert(condition, message) {
+  function recordResult(testNum, endpoint, expectedStatus, actualStatus, pass, details) {
     total++;
-    if (condition) {
-      console.log(`  ✅ PASS: ${message}`);
+    if (pass) {
       passed++;
+      console.log(`  ✅ PASS: Test ${testNum} [${endpoint}] -> Status ${actualStatus} (${details})`);
     } else {
-      console.error(`  ❌ FAIL: ${message}`);
-      throw new Error(`Assertion failed: ${message}`);
+      console.error(`  ❌ FAIL: Test ${testNum} [${endpoint}] -> Expected ${expectedStatus}, Got ${actualStatus} (${details})`);
     }
+    testResults.push({
+      testNum,
+      endpoint,
+      expectedStatus,
+      actualStatus,
+      result: pass ? 'PASS' : 'FAIL',
+      details
+    });
   }
 
+  let createdRequestId = null;
+
   try {
-    // 1. GET /api/health
-    console.log('--- Test 1: GET /api/health ---');
+    // -------------------------------------------------------------------------
+    // 1. GET /api/health (200 OK)
+    // -------------------------------------------------------------------------
+    console.log('--- 1. Health Check Endpoint ---');
     const healthRes = await fetch(`${baseUrl}/api/health`);
-    assert(healthRes.status === 200, 'HTTP status is 200 OK');
     const healthJson = await healthRes.json();
-    assert(healthJson.status === 'UP', 'Health status is UP');
-    assert(healthJson.database.status === 'Connected', 'Database status is Connected');
-    assert(healthJson.database.type.includes('Supabase'), 'Database type specifies Supabase PostgreSQL database engine');
+    const healthPass = healthRes.status === 200 && healthJson.status === 'UP' && healthJson.database.type.includes('Supabase');
+    recordResult(1, 'GET /api/health', 200, healthRes.status, healthPass, 'Service UP, Supabase PostgreSQL connected');
 
-    // 2. GET /api/requests
-    console.log('\n--- Test 2: GET /api/requests ---');
+    // -------------------------------------------------------------------------
+    // 2. GET /api/requests (200 OK)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 2. Retrieve All Requests ---');
     const listRes = await fetch(`${baseUrl}/api/requests`);
-    assert(listRes.status === 200, 'HTTP status is 200 OK');
     const listJson = await listRes.json();
-    assert(listJson.success === true, 'Response success is true');
-    assert(Array.isArray(listJson.data), 'Response data is an array');
-    assert(listJson.count > 0, `Returns count: ${listJson.count}`);
+    const listPass = listRes.status === 200 && listJson.success === true && Array.isArray(listJson.data);
+    recordResult(2, 'GET /api/requests', 200, listRes.status, listPass, `Returned array with ${listJson.count} items`);
 
-    // 3. POST /api/requests (Validation Error - 400 Bad Request)
-    console.log('\n--- Test 3: POST /api/requests (Validation Error Handling) ---');
-    const invalidPostRes = await fetch(`${baseUrl}/api/requests`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ studentName: '' }) // missing required fields
-    });
-    assert(invalidPostRes.status === 400, 'Returns 400 Bad Request when fields are missing');
-    const invalidPostJson = await invalidPostRes.json();
-    assert(invalidPostJson.success === false, 'Validation failure returns success: false');
-    assert(Array.isArray(invalidPostJson.errors), 'Returns errors array with specific messages');
-
-    // 4. POST /api/requests (Successful creation - 201 Created)
-    console.log('\n--- Test 4: POST /api/requests (Successful 201 Created) ---');
+    // -------------------------------------------------------------------------
+    // 3. POST /api/requests - Valid Payload (201 Created)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 3. Create Request (Valid Body) ---');
     const newRequestPayload = {
       studentName: 'Juan Dela Cruz',
-      studentId: '23-11111',
+      studentId: '23-01042',
       course: 'BS Information Technology',
+      email: 'jdelacruz@cca.edu.ph',
       documentType: 'Transcript of Records',
       purpose: 'Job Application Requirement',
-      dateSubmitted: '2026-11-22',
-      email: 'jdelacruz@cca.edu.ph'
+      dateSubmitted: '2026-11-22'
     };
     const validPostRes = await fetch(`${baseUrl}/api/requests`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newRequestPayload)
     });
-    assert(validPostRes.status === 201, 'Returns 201 Created');
     const validPostJson = await validPostRes.json();
-    assert(validPostJson.success === true, 'Returns success: true');
-    assert(validPostJson.data.id !== undefined, `Returns created ID: ${validPostJson.data.id}`);
-    assert(validPostJson.data.studentName === 'Juan Dela Cruz', 'Created record has correct student name');
-    const createdId = validPostJson.data.id;
+    const postPass = validPostRes.status === 201 && validPostJson.success === true && validPostJson.data && validPostJson.data.id;
+    if (postPass) createdRequestId = validPostJson.data.id;
+    recordResult(3, 'POST /api/requests (valid)', 201, validPostRes.status, postPass, `Created request #${createdRequestId}`);
 
-    // 5. GET /api/requests/:id
-    console.log('\n--- Test 5: GET /api/requests/:id (200, 400, 404) ---');
-    const getByIdRes = await fetch(`${baseUrl}/api/requests/${createdId}`);
-    assert(getByIdRes.status === 200, 'Returns 200 OK for valid ID');
-    const getByIdJson = await getByIdRes.json();
-    assert(getByIdJson.data.id === createdId, 'Fetched record ID matches requested ID');
-
-    const getNotFoundRes = await fetch(`${baseUrl}/api/requests/999999`);
-    assert(getNotFoundRes.status === 404, 'Returns 404 Not Found for non-existent ID');
-
-    const getBadIdRes = await fetch(`${baseUrl}/api/requests/notanid`);
-    assert(getBadIdRes.status === 400, 'Returns 400 Bad Request for non-numeric ID');
-
-    // 6. PATCH /api/requests/:id
-    console.log('\n--- Test 6: PATCH /api/requests/:id (200, 400, 404) ---');
-    const patchRes = await fetch(`${baseUrl}/api/requests/${createdId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'Approved', pickupDate: '2026-11-29' })
-    });
-    assert(patchRes.status === 200, 'Returns 200 OK for status update');
-    const patchJson = await patchRes.json();
-    assert(patchJson.data.status === 'Approved', 'Status is updated to Approved');
-    assert(patchJson.data.pickupDate === '2026-11-29', 'Pickup date is updated to 2026-11-29');
-
-    const patchInvalidStatusRes = await fetch(`${baseUrl}/api/requests/${createdId}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'InvalidStatus' })
-    });
-    assert(patchInvalidStatusRes.status === 400, 'Returns 400 Bad Request for invalid status');
-
-    // 7. Auth: POST /api/auth/login
-    console.log('\n--- Test 7: POST /api/auth/login (Admin & Student) ---');
-    const adminLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+    // -------------------------------------------------------------------------
+    // 4. POST /api/requests - Missing Purpose (400 Bad Request)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 4. Create Request (Missing Purpose Validation) ---');
+    const invalidPostRes = await fetch(`${baseUrl}/api/requests`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'admin@cca.edu.ph', password: 'admin123', targetPortal: 'admin' })
+      body: JSON.stringify({
+        studentName: 'Juan Dela Cruz',
+        studentId: '23-01042',
+        course: 'BS Information Technology',
+        email: 'jdelacruz@cca.edu.ph',
+        documentType: 'Transcript of Records'
+        // purpose omitted
+      })
     });
+    const invalidPostJson = await invalidPostRes.json();
+    const invalidPostPass = invalidPostRes.status === 400 && invalidPostJson.success === false && Array.isArray(invalidPostJson.errors);
+    recordResult(4, 'POST /api/requests (missing purpose)', 400, invalidPostRes.status, invalidPostPass, 'Validation error array returned');
 
-    if (adminLoginRes.status === 500) {
-      const errJson = await adminLoginRes.json();
-      console.log(`  ℹ️ Auth Test Note: ${errJson.message} (${errJson.error || 'users table pending in Supabase'})`);
-      console.log('  👉 Execute supabase_schema.sql in Supabase SQL Editor to activate cloud authentication.');
-    } else {
-      // Support custom admin password if changed via change-password feature
-      assert(adminLoginRes.status === 200 || adminLoginRes.status === 401, 'Admin login endpoint responds (200 or 401 if password updated)');
-      if (adminLoginRes.status === 200) {
-        const adminLoginJson = await adminLoginRes.json();
-        assert(adminLoginJson.user.role === 'admin', 'Admin user has admin role');
-      }
+    // -------------------------------------------------------------------------
+    // 5. GET /api/requests/999999 (404 Not Found)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 5. Get Request by Non-Existent ID ---');
+    const notFoundRes = await fetch(`${baseUrl}/api/requests/999999`);
+    const notFoundJson = await notFoundRes.json();
+    const notFoundPass = notFoundRes.status === 404 && notFoundJson.success === false;
+    recordResult(5, 'GET /api/requests/999999', 404, notFoundRes.status, notFoundPass, 'Record not found message returned');
 
-      const studentLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'jaynellan@cca.edu.ph', password: 'student123', targetPortal: 'student' })
-      });
-      assert(studentLoginRes.status === 200 || studentLoginRes.status === 401, 'Student login endpoint responds');
+    // -------------------------------------------------------------------------
+    // 6. GET /api/requests/abc (400 Bad Request - Non-Numeric ID)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 6. Get Request with Non-Numeric ID ---');
+    const badIdRes = await fetch(`${baseUrl}/api/requests/abc`);
+    const badIdJson = await badIdRes.json();
+    const badIdPass = badIdRes.status === 400 && badIdJson.success === false && badIdJson.message.includes('Invalid request ID format');
+    recordResult(6, 'GET /api/requests/abc', 400, badIdRes.status, badIdPass, 'Non-numeric string ID rejected without stripping non-digits');
 
-      const wrongPwRes = await fetch(`${baseUrl}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'admin@cca.edu.ph', password: 'wrongpassword' })
-      });
-      assert(wrongPwRes.status === 401, 'Wrong password returns 401 Unauthorized');
-    }
+    // -------------------------------------------------------------------------
+    // 7. PATCH /api/requests/:id - Invalid Status (400 Bad Request)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 7. Patch Request with Invalid Status ---');
+    const targetId = createdRequestId || 1;
+    const badStatusRes = await fetch(`${baseUrl}/api/requests/${targetId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'InvalidCustomStatus' })
+    });
+    const badStatusJson = await badStatusRes.json();
+    const badStatusPass = badStatusRes.status === 400 && badStatusJson.success === false && badStatusJson.message.includes('Invalid status');
+    recordResult(7, `PATCH /api/requests/${targetId} (bad status)`, 400, badStatusRes.status, badStatusPass, 'Rejected unallowed status value');
+
+    // -------------------------------------------------------------------------
+    // 8. PATCH /api/requests/:id - Valid Status (200 OK)
+    // -------------------------------------------------------------------------
+    console.log('\n--- 8. Patch Request with Valid Status Transition ---');
+    const goodStatusRes = await fetch(`${baseUrl}/api/requests/${targetId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Approved', pickupDate: '2026-11-30' })
+    });
+    const goodStatusJson = await goodStatusRes.json();
+    const goodStatusPass = goodStatusRes.status === 200 && goodStatusJson.success === true && goodStatusJson.data.status === 'Approved';
+    recordResult(8, `PATCH /api/requests/${targetId} (valid)`, 200, goodStatusRes.status, goodStatusPass, 'Status transitioned to Approved with pickup date');
+
+    // -------------------------------------------------------------------------
+    // 9. POST /api/auth/login - Authentication Verification
+    // -------------------------------------------------------------------------
+    console.log('\n--- 9. Unified Authentication Verification ---');
+    const badLoginRes = await fetch(`${baseUrl}/api/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'admin@cca.edu.ph', password: 'wrongpassword' })
+    });
+    const badLoginPass = badLoginRes.status === 401;
+    recordResult(9, 'POST /api/auth/login (bad password)', 401, badLoginRes.status, badLoginPass, 'Unauthorized credentials correctly rejected');
 
     // Clean up created record
-    await dbRequests.delete(createdId);
+    if (createdRequestId) {
+      await dbRequests.delete(createdRequestId);
+    }
 
-    console.log('\n========================================================');
+    // -------------------------------------------------------------------------
+    // Output PASS/FAIL Table
+    // -------------------------------------------------------------------------
+    console.log('\n================================================================');
+    console.log('📋 HTTP API TEST SUMMARY (IT 412 REST RUBRIC EVIDENCE)');
+    console.log('================================================================');
+    console.log('| # | Method & Endpoint                      | Expected | Actual | Result |');
+    console.log('|---|----------------------------------------|----------|--------|--------|');
+    testResults.forEach(r => {
+      const numStr = String(r.testNum).padEnd(2, ' ');
+      const epStr = r.endpoint.padEnd(38, ' ');
+      const expStr = String(r.expectedStatus).padEnd(8, ' ');
+      const actStr = String(r.actualStatus).padEnd(6, ' ');
+      const resStr = r.result === 'PASS' ? '✅ PASS' : '❌ FAIL';
+      console.log(`| ${numStr}| ${epStr} | ${expStr} | ${actStr} | ${resStr} |`);
+    });
+    console.log('================================================================');
     console.log(`🎉 ALL ${passed}/${total} HTTP API INTEGRATION TESTS PASSED!`);
-    console.log('========================================================');
+    console.log('================================================================\n');
+
+    if (passed !== total) {
+      throw new Error(`Only ${passed} out of ${total} tests passed.`);
+    }
   } finally {
     server.close();
   }

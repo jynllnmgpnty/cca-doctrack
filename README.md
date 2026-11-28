@@ -88,7 +88,7 @@ The system satisfies all technical competencies of **IT 412 Platform Technologie
 
 ## Database Schema Specification (Supabase PostgreSQL)
 
-The database schema is defined in [`supabase_schema.sql`](file:///c:/Users/alyan/cca-doctrack/supabase_schema.sql) and auto-provisioned upon server startup in [`db.js`](file:///c:/Users/alyan/cca-doctrack/db.js):
+The database schema is defined in [`supabase_schema.sql`](supabase_schema.sql) and auto-provisioned upon server startup in [`db.js`](db.js):
 
 ### 1. `users` Table
 ```sql
@@ -190,12 +190,15 @@ SUPABASE_SECRET_KEY=your-supabase-service-role-secret-key
 # DEFAULT_STUDENT_PASSWORD=your_custom_student_password
 ```
 
+> [!NOTE]
+> If `DEFAULT_ADMIN_PASSWORD` or `DEFAULT_STUDENT_PASSWORD` are unset, the server generates a cryptographically secure random password on first startup, seeds the account in Supabase, and prints it once to the server console log.
+
 > [!IMPORTANT]
 > The backend communicates with Supabase using the `SUPABASE_SECRET_KEY` (service role key), which securely bypasses client-side RLS to perform administrative evaluations and user management securely on the server. Never expose this key in client-side code!
 
 ---
 
-## ▶Running & Testing Locally
+## Running & Testing Locally
 
 ### 1. Prerequisites
 - **Node.js**: `v18.0.0` or higher
@@ -216,13 +219,27 @@ npm test
 # or
 node test_system.js
 
-# Test 2: Standard HTTP Endpoints & REST Status Code Validation Tests
+# Test 2: Standard HTTP Endpoints & REST Status Code Validation Tests (IT 412 Rubric)
 npm run test:endpoints
 # or
 node test_http_endpoints.js
 ```
 
-### 4. Start the Application
+### 4. Postman Test Suite & Testing Evidence
+An official Postman collection is provided in [`docs/postman/CCA-DocTrack.postman_collection.json`](docs/postman/CCA-DocTrack.postman_collection.json) to furnish testing evidence for the IT 412 REST API evaluation rubric.
+
+**Collection Specifications:**
+- **Variable `baseUrl`**: Defaults to `http://localhost:3000` (easily changed to `https://cca-doctrack.onrender.com` for live cloud testing).
+- **Automated Assertions Included**:
+  1. `GET {{baseUrl}}/api/health` &rarr; Asserts `200 OK`, `status === 'UP'`, database connected.
+  2. `GET {{baseUrl}}/api/requests` &rarr; Asserts `200 OK`, `success === true`, data array returned.
+  3. `POST {{baseUrl}}/api/requests` (valid) &rarr; Asserts `201 Created`, captures dynamic `requestId`.
+  4. `POST {{baseUrl}}/api/requests` (missing purpose) &rarr; Asserts `400 Bad Request`, errors array returned.
+  5. `GET {{baseUrl}}/api/requests/999999` &rarr; Asserts `404 Not Found` for non-existent record.
+  6. `GET {{baseUrl}}/api/requests/abc` &rarr; Asserts `400 Bad Request` for non-numeric ID.
+  7. `PATCH {{baseUrl}}/api/requests/:id` (invalid status) &rarr; Asserts `400 Bad Request` for unallowed status.
+
+### 5. Start the Application
 - **Development Mode** (auto-restart with nodemon):
   ```bash
   npm run dev
@@ -232,7 +249,7 @@ node test_http_endpoints.js
   npm start
   ```
 
-### 5. Access the Web Application
+### 6. Access the Web Application
 Open your browser to:
 ```text
 http://localhost:3000
@@ -243,7 +260,28 @@ http://localhost:3000
 
 All requests and responses use JSON format (`Content-Type: application/json`).
 
-### 1. System Health Check
+### API Endpoints Summary
+
+| Method | Endpoint | Success Status | Client Error Statuses | Description |
+|---|---|---|---|---|
+| `GET` | `/api/health` | `200 OK` | `503 Service Unavailable` | System health check and database connectivity |
+| `GET` | `/api/requests` | `200 OK` | — | Retrieve all document requests (supports `?studentId=` & `?email=`) |
+| `POST` | `/api/requests` | `201 Created` | `400 Bad Request` | Create new request with field length & presence checks |
+| `GET` | `/api/requests/:id` | `200 OK` | `400 Bad Request`, `404 Not Found` | Retrieve document request by numeric ID |
+| `PATCH` | `/api/requests/:id` | `200 OK` | `400 Bad Request`, `404 Not Found` | Update status (Pending, Processing, Approved, etc.) |
+| `PUT` | `/api/requests/:id` | `200 OK` | `400 Bad Request`, `404 Not Found` | Update existing request in-place |
+| `DELETE` | `/api/requests/:id` | `200 OK` | `400 Bad Request` | Delete document request by numeric ID |
+| `POST` | `/api/auth/login` | `200 OK` | `400 Bad Request`, `401 Unauthorized` | Unified single login for both student & admin |
+| `POST` | `/api/auth/register` | `201 Created` | `400 Bad Request`, `403 Forbidden` | Student registration with `@cca.edu.ph` email check |
+| `GET` | `/api/auth/profile` | `200 OK` | `400 Bad Request`, `404 Not Found` | Retrieve authenticated user profile |
+| `PATCH` | `/api/auth/profile` | `200 OK` | `400 Bad Request`, `404 Not Found` | Update student or administrator profile |
+| `POST` | `/api/auth/change-password` | `200 OK` | `400 Bad Request`, `401 Unauthorized` | Change password with complexity validation |
+| `GET` | `/api/auth/students` | `200 OK` | — | List all registered students (Admin only) |
+| `DELETE` | `/api/auth/students/:identifier` | `200 OK` | `400 Bad Request`, `404 Not Found` | Cascade delete student and all associated records |
+
+### Detailed Endpoint Specifications
+
+#### 1. System Health Check
 - **Endpoint**: `GET /api/health`
 - **Status Codes**: `200 OK` (Connected), `503 Service Unavailable` (Disconnected)
 - **Response**:
@@ -261,25 +299,28 @@ All requests and responses use JSON format (`Content-Type: application/json`).
   }
   ```
 
-### 2. Authentication & User Management
+#### 2. Authentication & User Management
 - **Unified Login**: `POST /api/auth/login`
-  - Accepts `{ email, password }` (email can be email address or Student ID number).
-  - Automatically returns authorized user role and profile details.
+  - Accepts `{ email, password }` (email can be institutional email address or Student ID number).
+  - Automatically identifies role (`student` or `admin`) and returns session profile details.
 - **Student Registration**: `POST /api/auth/register`
-  - Enforces `@cca.edu.ph` email, 8+ character password, and blocks `role=admin`.
+  - Enforces `@cca.edu.ph` institutional email, password complexity rules, and blocks direct public `role=admin` registration (`403 Forbidden`).
 - **Get Profile**: `GET /api/auth/profile?identifier=<email|studentId|id>&role=<student|admin>`
 - **Update Profile In-Place**: `PATCH /api/auth/profile`
 - **Change Password**: `POST /api/auth/change-password`
 - **Save Profile Avatar**: `POST /api/auth/avatar`
 - **Get All Registered Students**: `GET /api/auth/students` (Admin only)
-- **Cascade Delete Student**: `DELETE /api/auth/students/:identifier` (Cascades to requests and reactivations)
+- **Cascade Delete Student**: `DELETE /api/auth/students/:identifier` (Cascades to document requests and reactivations)
 
-### 3. Document Requests
+#### 3. Document Requests
 - **List Requests**: `GET /api/requests`
-  - Optional filter: `?studentId=<id>` (Enforces ownership isolation)
+  - Optional filters: `?studentId=<id>&email=<email>` (Used by the frontend client to display requests for the authenticated student; the endpoint returns all records when unparameterized).
 - **Submit Request**: `POST /api/requests`
+  - Validates required fields (`studentName`, `studentId`, `documentType`, `purpose`), checks field lengths, validates optional email syntax, and returns `201 Created` or `400 Bad Request`.
 - **Get Single Request**: `GET /api/requests/:id`
+  - Requires numeric integer ID (`400 Bad Request` if non-numeric). Returns `404 Not Found` if record does not exist.
 - **Update Request Status**: `PATCH /api/requests/:id` (Admin only)
+  - Validates allowed status (`Pending`, `Processing`, `Approved`, `For Release`, `Completed`, `Rejected`).
 - **Delete Request**: `DELETE /api/requests/:id`
 
 ---

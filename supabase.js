@@ -10,7 +10,7 @@
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lfstpiwrxaxjteucitnp.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 /**
@@ -61,7 +61,7 @@ async function checkSupabaseHealth() {
       connected: false,
       mode: 'Supabase PostgreSQL (Unconfigured)',
       url: SUPABASE_URL,
-      error: 'SUPABASE_SECRET_KEY contains placeholder or is missing in .env.'
+      error: !SUPABASE_URL ? 'SUPABASE_URL environment variable is missing in .env.' : 'SUPABASE_SECRET_KEY contains placeholder or is missing in .env.'
     };
   }
 

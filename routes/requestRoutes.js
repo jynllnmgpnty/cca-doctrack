@@ -33,8 +33,22 @@ const ALLOWED_STATUSES = [
 ];
 
 /**
+ * Helper to build 500 error responses without exposing raw internal error details in production
+ */
+function build500Response(message, error) {
+  const payload = {
+    success: false,
+    message: message
+  };
+  if (process.env.NODE_ENV === 'development') {
+    payload.error = error && error.message ? error.message : String(error);
+  }
+  return payload;
+}
+
+/**
  * @route   GET /api/requests
- * @desc    Retrieve student document requests (supports ?studentId= filter)
+ * @desc    Retrieve student document requests (supports ?studentId= and ?email= filter)
  * @access  Public
  */
 router.get('/', async (req, res) => {
@@ -49,11 +63,7 @@ router.get('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching document requests:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to retrieve document requests from database.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Failed to retrieve document requests from database.', error));
   }
 });
 
@@ -64,23 +74,54 @@ router.get('/', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   try {
-    const { studentName, studentId, course, email, documentType, purpose, dateSubmitted } = req.body;
+    // Reject non-object, null, array, or empty bodies
+    if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body) || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Request body must be a non-empty JSON object.',
+        errors: ['Request body must be a non-empty JSON object.']
+      });
+    }
+
+    const rawName = typeof req.body.studentName === 'string' ? req.body.studentName.trim() : '';
+    const rawStudentId = typeof req.body.studentId === 'string' ? req.body.studentId.trim() : '';
+    const rawCourse = typeof req.body.course === 'string' ? req.body.course.trim() : '';
+    const rawEmail = typeof req.body.email === 'string' ? req.body.email.trim() : '';
+    const rawDocType = typeof req.body.documentType === 'string' ? req.body.documentType.trim() : '';
+    const rawPurpose = typeof req.body.purpose === 'string' ? req.body.purpose.trim() : '';
+    const { dateSubmitted } = req.body;
 
     // Field-level validation
     const errors = [];
-    if (!studentName || !studentName.trim()) {
+    if (!rawName) {
       errors.push('Student name is required.');
+    } else if (rawName.length > 100) {
+      errors.push('Student name must not exceed 100 characters.');
     }
-    if (!studentId || !studentId.trim()) {
+
+    if (!rawStudentId) {
       errors.push('Student ID is required.');
+    } else if (rawStudentId.length > 30) {
+      errors.push('Student ID must not exceed 30 characters.');
     }
-    if (!documentType || !documentType.trim()) {
+
+    if (!rawDocType) {
       errors.push('Document type is required.');
-    } else if (documentType.trim().length < 2 || documentType.trim().length > 150) {
+    } else if (rawDocType.length < 2 || rawDocType.length > 150) {
       errors.push('Document type must be between 2 and 150 characters.');
     }
-    if (!purpose || !purpose.trim()) {
+
+    if (!rawPurpose) {
       errors.push('Purpose of request is required.');
+    } else if (rawPurpose.length > 500) {
+      errors.push('Purpose of request must not exceed 500 characters.');
+    }
+
+    if (rawEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(rawEmail)) {
+        errors.push('Invalid email format provided.');
+      }
     }
 
     // Return 400 Bad Request if validation errors exist
@@ -102,12 +143,12 @@ router.post('/', async (req, res) => {
     }
 
     const savedRequest = await dbRequests.create({
-      studentName,
-      studentId,
-      course,
-      email,
-      documentType,
-      purpose,
+      studentName: rawName,
+      studentId: rawStudentId,
+      course: rawCourse,
+      email: rawEmail,
+      documentType: rawDocType,
+      purpose: rawPurpose,
       dateSubmitted: submissionDate
     });
 
@@ -118,11 +159,7 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating document request:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error while saving document request.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Server error while saving document request.', error));
   }
 });
 
@@ -134,12 +171,20 @@ router.post('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const numericId = parseInt(id, 10);
 
+    // Validate ID: strictly positive numeric integer; do not strip non-digits
+    if (!/^\d+$/.test(String(id).trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format. ID must be a numeric integer.'
+      });
+    }
+
+    const numericId = parseInt(id, 10);
     if (isNaN(numericId) || numericId <= 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid request ID format.'
+        message: 'Invalid request ID format. ID must be a positive integer.'
       });
     }
 
@@ -170,11 +215,7 @@ router.get('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching request by ID:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error while fetching document request.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Server error while fetching document request.', error));
   }
 });
 
@@ -187,19 +228,20 @@ router.patch('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { status, pickupDate, pickup_date } = req.body;
-    let numericId = parseInt(id, 10);
-    if (isNaN(numericId) || numericId <= 0) {
-      const extracted = String(id).replace(/\D/g, '');
-      if (extracted) {
-        numericId = parseInt(extracted, 10);
-      }
+
+    // Validate ID: strictly positive numeric integer; do not strip non-digits
+    if (!/^\d+$/.test(String(id).trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format. ID must be a numeric integer.'
+      });
     }
 
-    // Validate ID format
+    const numericId = parseInt(id, 10);
     if (isNaN(numericId) || numericId <= 0) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid request ID format.'
+        message: 'Invalid request ID format. ID must be a positive integer.'
       });
     }
 
@@ -235,11 +277,7 @@ router.patch('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating request status:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error while updating request status.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Server error while updating request status.', error));
   }
 });
 
@@ -252,12 +290,15 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { status, pickupDate, pickup_date } = req.body;
-    let numericId = parseInt(id, 10);
-    if (isNaN(numericId) || numericId <= 0) {
-      const extracted = String(id).replace(/\D/g, '');
-      if (extracted) numericId = parseInt(extracted, 10);
+
+    if (!/^\d+$/.test(String(id).trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format. ID must be a numeric integer.'
+      });
     }
 
+    const numericId = parseInt(id, 10);
     if (isNaN(numericId) || numericId <= 0) {
       return res.status(400).json({
         success: false,
@@ -283,11 +324,7 @@ router.put('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating request via PUT:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error while updating request.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Server error while updating request.', error));
   }
 });
 
@@ -299,12 +336,15 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    let numericId = parseInt(id, 10);
-    if (isNaN(numericId) || numericId <= 0) {
-      const extracted = String(id).replace(/\D/g, '');
-      if (extracted) numericId = parseInt(extracted, 10);
+
+    if (!/^\d+$/.test(String(id).trim())) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid request ID format. ID must be a numeric integer.'
+      });
     }
 
+    const numericId = parseInt(id, 10);
     if (isNaN(numericId) || numericId <= 0) {
       return res.status(400).json({
         success: false,
@@ -319,11 +359,7 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting document request:', error.message);
-    return res.status(500).json({
-      success: false,
-      message: 'Server error while deleting document request.',
-      error: error.message
-    });
+    return res.status(500).json(build500Response('Server error while deleting document request.', error));
   }
 });
 

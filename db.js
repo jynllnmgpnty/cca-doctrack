@@ -9,6 +9,7 @@
 
 const { getSupabaseClient, checkSupabaseHealth, isSupabaseConfigured, SUPABASE_URL } = require('./supabase');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 require('dotenv').config();
 
 /**
@@ -64,16 +65,7 @@ const dbRequests = {
       }
       const { data: matchedUsers } = await uQuery;
       if (!matchedUsers || matchedUsers.length === 0) {
-        // User was deleted from database: cascade clean any leftover requests for this missing user
-        try {
-          if (sId && em) {
-            await client.from('document_requests').delete().or(`student_id.eq.${sId},email.ilike.${em}`);
-          } else if (sId) {
-            await client.from('document_requests').delete().eq('student_id', sId);
-          } else {
-            await client.from('document_requests').delete().ilike('email', em);
-          }
-        } catch (cleanErr) { }
+        // When student is not found in users table, return empty list without deleting data
         return [];
       }
     }
@@ -669,8 +661,12 @@ async function seedDefaultAccounts() {
     }
 
     if (!adminExists || adminExists.length === 0) {
-      const defaultAdminPw = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
-      const hashedAdminPw = await bcrypt.hash(defaultAdminPw, 10);
+      let adminPw = process.env.DEFAULT_ADMIN_PASSWORD;
+      if (!adminPw) {
+        adminPw = crypto.randomBytes(8).toString('hex');
+        console.log(`🔐 [Security Notice] DEFAULT_ADMIN_PASSWORD unset. Generated temporary random password: ${adminPw}`);
+      }
+      const hashedAdminPw = await bcrypt.hash(adminPw, 10);
       const { error: insAdminErr } = await client.from('users').insert([{
         full_name: 'Office of the College Registrar',
         student_id: 'ADMIN-001',
@@ -694,8 +690,12 @@ async function seedDefaultAccounts() {
       .or('email.eq.jaynellan@cca.edu.ph,email.eq.student@cca.edu.ph');
 
     if (!studentErr && (!studentExists || studentExists.length === 0)) {
-      const defaultStudentPw = process.env.DEFAULT_STUDENT_PASSWORD || 'student123';
-      const hashedStudentPw = await bcrypt.hash(defaultStudentPw, 10);
+      let studentPw = process.env.DEFAULT_STUDENT_PASSWORD;
+      if (!studentPw) {
+        studentPw = crypto.randomBytes(8).toString('hex');
+        console.log(`🔐 [Security Notice] DEFAULT_STUDENT_PASSWORD unset. Generated temporary random password: ${studentPw}`);
+      }
+      const hashedStudentPw = await bcrypt.hash(studentPw, 10);
       const { error: insStudentErr } = await client.from('users').insert([{
         full_name: 'Student Portal User',
         student_id: '23-67894',

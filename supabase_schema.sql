@@ -68,20 +68,29 @@ DROP POLICY IF EXISTS "Allow select for all" ON public.document_requests;
 DROP POLICY IF EXISTS "Allow insert for all" ON public.document_requests;
 DROP POLICY IF EXISTS "Allow update for all" ON public.document_requests;
 DROP POLICY IF EXISTS "Allow delete for all" ON public.document_requests;
+DROP POLICY IF EXISTS "Public can view requests" ON public.document_requests;
+DROP POLICY IF EXISTS "Public can submit requests" ON public.document_requests;
+DROP POLICY IF EXISTS "Backend can update requests" ON public.document_requests;
 
 DROP POLICY IF EXISTS "Allow select for users" ON public.users;
 DROP POLICY IF EXISTS "Allow insert for users" ON public.users;
 DROP POLICY IF EXISTS "Allow update for users" ON public.users;
 DROP POLICY IF EXISTS "Allow delete for users" ON public.users;
+DROP POLICY IF EXISTS "Deny direct public anon access to users" ON public.users;
 
 DROP POLICY IF EXISTS "Allow select for reactivation_requests" ON public.reactivation_requests;
 DROP POLICY IF EXISTS "Allow insert for reactivation_requests" ON public.reactivation_requests;
 DROP POLICY IF EXISTS "Allow update for reactivation_requests" ON public.reactivation_requests;
+DROP POLICY IF EXISTS "Students can submit reactivation requests" ON public.reactivation_requests;
+DROP POLICY IF EXISTS "Backend can manage reactivation requests" ON public.reactivation_requests;
 
 -- ------------------------------------------------------------------------------
 -- Document Requests Policies:
--- Backend uses service_role key which bypasses RLS automatically.
--- Public anon is granted read & insert, while updates/deletions require backend mediation.
+-- 1. SELECT (anon, authenticated): Allowed so that unauthenticated students or visitors
+--    can track document request progress via public tracking number lookups without login.
+-- 2. INSERT (anon, authenticated): Allowed so new document requests can be submitted.
+-- 3. UPDATE / DELETE: Strictly restricted TO service_role so anonymous or unauthorized
+--    clients cannot alter status (e.g. approve/reject) or delete requests directly.
 -- ------------------------------------------------------------------------------
 CREATE POLICY "Public can view requests" ON public.document_requests
     FOR SELECT TO anon, authenticated USING (true);
@@ -90,22 +99,24 @@ CREATE POLICY "Public can submit requests" ON public.document_requests
     FOR INSERT TO anon, authenticated WITH CHECK (true);
 
 CREATE POLICY "Backend can update requests" ON public.document_requests
-    FOR UPDATE USING (true);
+    FOR UPDATE TO service_role USING (true);
 
 -- ------------------------------------------------------------------------------
 -- Users Table Security:
--- NEVER allow public anon to query password hashes or user accounts directly!
--- All user authentication, registration, and queries must flow through Node.js backend.
+-- NEVER allow direct client/anon queries to users to prevent exposure of passwords.
+-- All login, registration, and user updates are mediated by the Node.js backend.
 -- ------------------------------------------------------------------------------
 CREATE POLICY "Deny direct public anon access to users" ON public.users
     FOR ALL TO anon USING (false);
 
 -- ------------------------------------------------------------------------------
 -- Reactivation Requests Security:
--- Students can submit reactivation requests; reviewing is managed by the backend.
+-- 1. INSERT (anon, authenticated): Allowed so students with deactivated accounts can
+--    submit an appeal/reactivation request.
+-- 2. ALL (service_role): Processing and status review is restricted TO service_role.
 -- ------------------------------------------------------------------------------
 CREATE POLICY "Students can submit reactivation requests" ON public.reactivation_requests
     FOR INSERT TO anon, authenticated WITH CHECK (true);
 
 CREATE POLICY "Backend can manage reactivation requests" ON public.reactivation_requests
-    FOR ALL USING (true);
+    FOR ALL TO service_role USING (true);
