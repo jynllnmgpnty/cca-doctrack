@@ -10,9 +10,9 @@
 
 ---
 
-## 📌 Project Overview
+## Project Overview
 
-**CCA DocTrack** is a cloud-based student document request and administrative tracking platform engineered for **Christ Centered Academy of Lipa City Inc. (CCA)**. It streamlines student document submissions, real-time registrar evaluations, automated audit logging, and document release workflows.
+**CCA DocTrack** is a cloud-based student document request and administrative tracking platform. It streamlines student document submissions, real-time registrar evaluations, automated audit logging, and document release workflows.
 
 The system satisfies all technical competencies of **IT 412 Platform Technologies**:
 1. **Interactive Multi-Portal Architecture**: Unified institutional portal with high-contrast CCA branding (Navy Blue `#002D62`, Royal Blue `#2563EB`, Crimson Red `#DC2626`), featuring dedicated Student and Registrar Administrator portals.
@@ -26,7 +26,7 @@ The system satisfies all technical competencies of **IT 412 Platform Technologie
 
 ---
 
-## 🚀 Key Features & Capabilities
+## Key Features & Capabilities
 
 ### 1. Unified Single Login & Authentication
 * **Single Sign-In Form**: Removed confusing multi-step tabs or manual portal selectors. Students and administrators log in from the same clean interface using either their **Institutional Email** or **Student ID Number**.
@@ -72,7 +72,7 @@ The system satisfies all technical competencies of **IT 412 Platform Technologie
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technology | Details & Purpose |
 |---|---|---|
@@ -86,7 +86,7 @@ The system satisfies all technical competencies of **IT 412 Platform Technologie
 
 ---
 
-## 🗄️ Database Schema Specification (Supabase PostgreSQL)
+## Database Schema Specification (Supabase PostgreSQL)
 
 The database schema is defined in [`supabase_schema.sql`](file:///c:/Users/alyan/cca-doctrack/supabase_schema.sql) and auto-provisioned upon server startup in [`db.js`](file:///c:/Users/alyan/cca-doctrack/db.js):
 
@@ -146,7 +146,7 @@ CREATE INDEX IF NOT EXISTS idx_reactivation_requests_student_id ON public.reacti
 
 ---
 
-## 📁 Project Directory Structure
+## Project Directory Structure
 
 ```text
 cca-doctrack/
@@ -174,7 +174,7 @@ cca-doctrack/
 
 ---
 
-## ⚙️ Environment Configuration
+## Environment Configuration
 
 Create or update your `.env` file in the project root:
 
@@ -198,7 +198,7 @@ SUPABASE_SECRET_KEY=your-supabase-service-role-secret-key
 
 ---
 
-## ▶️ Running & Testing Locally
+## ▶Running & Testing Locally
 
 ### 1. Prerequisites
 - **Node.js**: `v18.0.0` or higher
@@ -240,22 +240,9 @@ Open your browser to:
 ```text
 http://localhost:3000
 ```
-
 ---
 
-## 🔑 Default Demonstration Accounts
-
-> [!NOTE]
-> The accounts below are seeded exclusively for local development and academic demonstration. On live deployed environments, administrators and users should update default passwords upon first sign-in via Account Settings.
-
-| Portal | Login Identifier | Demo Password | Access Level |
-|---|---|---|---|
-| **Registrar Administrator Portal** | `admin@cca.edu.ph` (or `admin`) | `admin123` | Full Administrative Privileges |
-| **Student Document Portal** | `student@cca.edu.ph` (or `23-67894`) | `student123` | Student Request & Tracking Portal |
-
----
-
-## 📡 REST API Reference
+## REST API Reference
 
 All requests and responses use JSON format (`Content-Type: application/json`).
 
@@ -300,7 +287,7 @@ All requests and responses use JSON format (`Content-Type: application/json`).
 
 ---
 
-## 🌐 Deploying to Render (PaaS)
+## Deploying to Render (PaaS)
 
 The application is deployed live on **Render**. To deploy your own instance:
 
@@ -332,7 +319,7 @@ The application is deployed live on **Render**. To deploy your own instance:
 
 ---
 
-## 🛡️ Security & Integrity Highlights
+## Security & Integrity Highlights
 
 - **SQL Injection Immunization**: All database transactions execute via Supabase's parameterized query builder.
 - **Cryptographic Security**: Passwords salted and hashed with `bcryptjs` (10 rounds). Plaintext passwords are never stored.
