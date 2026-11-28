@@ -4,71 +4,144 @@
 > **Course**: IT 412 Platform Technologies  
 > **Project Type**: Final Academic Project  
 > **System Name**: CCA DocTrack  
-> **Database Architecture**: Turso Cloud Database (libSQL / SQLite) via `@libsql/client`  
+> **Database Architecture**: Supabase Cloud Database (PostgreSQL) via `@supabase/supabase-js`  
 > **Cloud Platform**: Render Web Services  
+> **Live Production Web App**: [https://cca-doctrack.onrender.com](https://cca-doctrack.onrender.com)  
 
 ---
 
 ## 📌 Project Overview
 
-**CCA DocTrack** is a cloud-based web application engineered for **Christ Centered Academy of Lipa City Inc. (CCA)** to streamline the submission, live tracking, and administrative processing of official student academic documents (Report Cards, Certificates of Enrollment, Good Moral Certificates, and Transcripts of Records).
+**CCA DocTrack** is a cloud-based student document request and administrative tracking platform engineered for **Christ Centered Academy of Lipa City Inc. (CCA)**. It streamlines student document submissions, real-time registrar evaluations, automated audit logging, and document release workflows.
 
-The system fulfills all academic specifications of **IT 412 Platform Technologies**:
-1. **Interactive Multi-Portal Frontend**: Institutional single-page application with high-contrast CCA branding (Navy Blue `#002D62`, Golden Yellow `#F59E0B`, Crimson Red `#DC2626`), featuring dedicated Student and Registrar Administrator portals.
-2. **Cloud Database Architecture**: Persistent SQL data storage powered by **Turso Cloud Database (libSQL / SQLite)** using `@libsql/client` with parameterized queries to prevent SQL injection.
-3. **Automated Schema Provisioning**: The server automatically initializes SQL tables (`document_requests`, `users`) on startup and seeds default accounts if they do not exist.
-4. **RESTful API**: Standards-compliant endpoints (`GET`, `POST`, `PATCH`, `GET :id`, `/health`) adhering to strict HTTP status codes (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Internal Server Error`).
-5. **Seamless Local & Cloud Hybrid Support**: Runs effortlessly with remote Turso Cloud credentials or falls back gracefully to a local SQLite database (`file:cca_doctrack.db`) for local testing.
-6. **Deployment-Ready**: Preconfigured for immediate zero-downtime deployment to **Render** with `.env` exclusion safeguards.
+The system satisfies all technical competencies of **IT 412 Platform Technologies**:
+1. **Interactive Multi-Portal Architecture**: Unified institutional portal with high-contrast CCA branding (Navy Blue `#002D62`, Royal Blue `#2563EB`, Crimson Red `#DC2626`), featuring dedicated Student and Registrar Administrator portals.
+2. **Cloud PostgreSQL Database**: Persistent cloud storage powered by **Supabase PostgreSQL** via `@supabase/supabase-js`, leveraging Row-Level Security (RLS) and parameterized queries to guarantee bulletproof protection against SQL injection.
+3. **Automated Schema Provisioning & Self-Healing**: Automatically provisions relational tables (`users`, `document_requests`, `reactivation_requests`) and performance indexes on startup, while preserving existing administrative and student records without destructive overwrites.
+4. **Unified Authentication & Security Controls**: Unified single login form, strict institutional email domain enforcement (`@cca.edu.ph`), password strength standards (8+ characters, uppercase, lowercase, numbers), and public administrator creation blocking (HTTP 403 Forbidden).
+5. **Data Privacy & Student Request Isolation**: Complete student record isolation ensuring students only see and manage their own submissions. Cross-user access is strictly blocked at the API layer.
+6. **In-Place Updates & Cascading Deletions**: User profile modifications update existing records in-place without generating duplicate entries. Account deletion cascades automatically across all linked requests, reactivations, and audit logs.
+7. **Mobile-First Responsive Engineering**: Fluid responsive interface with off-canvas hamburger navigation drawer, vertical profile layout, centered confirmation dialogs, and elimination of horizontal scrolling across all mobile and desktop viewport sizes.
+8. **Production-Ready Cloud Deployment**: Deployed on **Render** with health monitoring (`/api/health`), zero-downtime restarts, and Git environment variable exclusion safeguards (`.gitignore`).
 
 ---
 
-## 🚀 Technology Stack
+## 🚀 Key Features & Capabilities
+
+### 1. Unified Single Login & Authentication
+* **Single Sign-In Form**: Removed confusing multi-step tabs or manual portal selectors. Students and administrators log in from the same clean interface using either their **Institutional Email** or **Student ID Number**.
+* **Automatic Role Redirection**: The server automatically verifies credentials in Supabase and directs users to their authorized workspace (Student Portal vs. Registrar Administrator Portal).
+* **Strict Institutional Email Verification**: Registration requires an official `@cca.edu.ph` institutional email address (e.g., `student@cca.edu.ph`). Non-institutional domains are rejected with clear error guidance.
+* **Standardized Password Security Policy**: Universal policy across registration and password changes:
+  * Minimum 8 characters (supports arbitrarily long passwords >= 12 characters).
+  * Requires at least one uppercase letter (`A-Z`).
+  * Requires at least one lowercase letter (`a-z`).
+  * Requires at least one numerical digit (`0-9`).
+  * Supports optional special characters.
+* **Admin Privilege Escalation Protection**: Public registration is strictly restricted to students. Any attempt to register an administrative role via public endpoints is blocked (`403 Forbidden`).
+
+### 2. Student Privacy & Request Isolation
+* **Strict Ownership Enforcement**: Students only see requests submitted under their own authenticated account.
+* **Zero Request Leakage for New Accounts**: Newly registered student accounts start with a clean state (0 requests).
+* **Cross-User Protection**: Direct API queries targeting another student's document request are rejected with `403 Forbidden`.
+
+### 3. In-Place Updates & Cascade Deletion
+* **In-Place Record Modification**: Updating student or administrator names, emails, or courses updates the affected row directly in Supabase without creating redundant duplicate rows. Changes propagate immediately across all historical document requests.
+* **Cascade Deletion**: When an administrator deletes a student account, the system cascades the deletion in both Supabase and the active session, deleting all associated:
+  * Document requests (`document_requests`)
+  * Account reactivation requests (`reactivation_requests`)
+  * Cached profile avatars and local records
+
+### 4. Full Mobile Responsiveness & Drawer Navigation
+* **Off-Canvas Navigation Drawer**: On tablet and mobile devices (<= 768px), navigation collapses into a smooth off-canvas drawer triggered by a touch-friendly hamburger button.
+* **Clean Drawer Profile Header**: Displays user avatar on the left, full name on the top line, role on the second line, and the "• Online" status badge underneath with ample clearance preventing overlap with the `✕` close button.
+* **Centered Logout Experience**: Centered logout action button with leave icon in the mobile navigation drawer and a centered confirmation dialog modal.
+* **Zero Horizontal Scrollbar**: Enforced `max-width: 100vw` and `overflow-x: hidden` preventing awkward sideways scrolling.
+
+### 5. Multi-Document Request Lifecycle
+* **Supported Official Documents**:
+  * Transcript of Records (TOR)
+  * Certificate of Enrollment (COE)
+  * Good Moral Certificate
+  * Report Card / Form 137
+  * Certificate of Graduation
+  * Certified True Copy (CTC)
+  * Others (customizable request purpose)
+* **Real-Time Status Progression**: `Pending` &rarr; `Processing` &rarr; `Approved` / `For Release` &rarr; `Completed` (or `Rejected`).
+* **Registrar Evaluation Controls**: Administrators can approve, reject, schedule pickup dates, add evaluation notes, and export official reports to PDF with CCA registrar branding.
+
+---
+
+## 🛠️ Technology Stack
 
 | Layer | Technology | Details & Purpose |
 |---|---|---|
-| **Frontend** | HTML5, CSS3, Modern JavaScript (ES6+) | Institutional portal UI, dynamic multi-step stepper, live table filtering |
-| **Backend** | Node.js (>=18.0.0), Express.js (v4.x) | Parameterized REST API routing, CORS handling, static serving |
-| **Database** | Turso Cloud Database (libSQL / SQLite) | Distributed cloud SQLite database engine with ultra-low latency |
-| **Database Client**| `@libsql/client` | Official libSQL/SQLite SDK for Node.js |
-| **Authentication** | `bcryptjs` | Salting and hashing for administrative and student user passwords |
-| **Cloud Hosting** | Render Web Services | Production PaaS deployment |
-| **Version Control**| Git & GitHub | Source tracking with sensitive file exclusion (`.gitignore`) |
+| **Frontend** | HTML5, CSS3, Modern JavaScript (ES6+) | Institutional single-page UI, responsive drawers, modal dialogs, live filtering |
+| **Backend** | Node.js (>=18.0.0), Express.js (v4.x) | Parameterized REST API routing, CORS handling, authentication middleware |
+| **Database** | Supabase Cloud Database (PostgreSQL) | Scalable PostgreSQL database with Row-Level Security (RLS) |
+| **Database Client**| `@supabase/supabase-js` (v2.x) | Official Supabase JavaScript SDK |
+| **Password Security**| `bcryptjs` (v3.x) | 10 salt rounds cryptographic password hashing |
+| **Cloud Hosting** | Render Web Services | Cloud PaaS deployment with automatic CI/CD deployment from GitHub |
+| **Version Control**| Git & GitHub | Distributed version control with sensitive file protection (`.gitignore`) |
 
 ---
 
-## 🗄️ Database Schema Specification
+## 🗄️ Database Schema Specification (Supabase PostgreSQL)
 
-The application automatically creates the required tables on server launch:
+The database schema is defined in [`supabase_schema.sql`](file:///c:/Users/alyan/cca-doctrack/supabase_schema.sql) and auto-provisioned upon server startup in [`db.js`](file:///c:/Users/alyan/cca-doctrack/db.js):
 
-### 1. `document_requests` Table
+### 1. `users` Table
 ```sql
-CREATE TABLE IF NOT EXISTS document_requests (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  student_name TEXT NOT NULL,
-  student_id TEXT NOT NULL,
-  document_type TEXT NOT NULL,
-  purpose TEXT NOT NULL,
-  date_submitted TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'Pending',
-  course TEXT DEFAULT 'BS Information Technology',
-  email TEXT DEFAULT '',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS public.users (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    full_name TEXT NOT NULL,
+    student_id TEXT DEFAULT '',
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    course TEXT DEFAULT 'BS Information Technology',
+    role TEXT DEFAULT 'student' CHECK (role IN ('student', 'admin')),
+    status TEXT DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'deactivated')),
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON public.users(email);
+CREATE INDEX IF NOT EXISTS idx_users_student_id ON public.users(student_id);
 ```
 
-### 2. `users` Table (Authentication & Portals)
+### 2. `document_requests` Table
 ```sql
-CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  full_name TEXT NOT NULL,
-  student_id TEXT DEFAULT '',
-  email TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  course TEXT DEFAULT 'BS Information Technology',
-  role TEXT DEFAULT 'student',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE IF NOT EXISTS public.document_requests (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    student_name TEXT NOT NULL,
+    student_id TEXT NOT NULL,
+    document_type TEXT NOT NULL,
+    purpose TEXT NOT NULL,
+    date_submitted DATE NOT NULL DEFAULT CURRENT_DATE,
+    status TEXT NOT NULL DEFAULT 'Pending' CHECK (status IN ('Pending', 'Processing', 'Approved', 'For Release', 'Completed', 'Rejected')),
+    course TEXT DEFAULT 'BS Information Technology',
+    email TEXT DEFAULT '',
+    pickup_date TEXT DEFAULT '',
+    created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_document_requests_student_id ON public.document_requests(student_id);
+CREATE INDEX IF NOT EXISTS idx_document_requests_status ON public.document_requests(status);
+CREATE INDEX IF NOT EXISTS idx_document_requests_created_at ON public.document_requests(created_at DESC);
+```
+
+### 3. `reactivation_requests` Table
+```sql
+CREATE TABLE IF NOT EXISTS public.reactivation_requests (
+    id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+    student_id TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    reason TEXT NOT NULL,
+    status TEXT DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Rejected')),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_reactivation_requests_student_id ON public.reactivation_requests(student_id);
 ```
 
 ---
@@ -78,110 +151,87 @@ CREATE TABLE IF NOT EXISTS users (
 ```text
 cca-doctrack/
 ├── public/
-│   ├── index.html              # Multi-portal UI (Landing, Student Portal, Registrar Admin Portal)
-│   ├── style.css               # Official CCA branding (Navy Blue, Yellow, Red) & responsive design
-│   ├── script.js               # Client fetch logic, DOM state, live search, and modal handling
-│   └── logo.png                # Official Christ Centered Academy seal
+│   ├── index.html                           # Multi-portal institutional interface (Landing, Student, Admin)
+│   ├── style.css                            # CCA branding (Navy, Royal Blue, Crimson) & responsive design
+│   ├── script.js                            # Frontend application state, API fetch client, and modal handlers
+│   └── logo.png                             # Official Christ Centered Academy seal
 ├── routes/
-│   ├── requestRoutes.js        # Parameterized SQL endpoints for student document requests
-│   └── authRoutes.js           # Parameterized SQL endpoints for authentication & registration
-├── db.js                       # Reusable Turso database connection & auto-migration module
-├── server.js                   # Express application entrypoint, middleware, and health route
-├── test_migration.js           # Verification test suite for database and business logic
-├── test_http_endpoints.js      # Integration test suite for HTTP API status codes and responses
-├── .env                        # Local environment variables (excluded from Git)
-├── .env.example                # Environment configuration template
-├── .gitignore                  # Excludes node_modules, .env, .env.*, *.db
-├── package.json                # Project dependencies (@libsql/client, express, bcryptjs)
-└── README.md                   # Complete system and deployment documentation
+│   ├── requestRoutes.js                     # REST endpoints for student document requests
+│   └── authRoutes.js                        # REST endpoints for authentication, profile, and student management
+├── data/
+│   └── avatars.json                         # Persistent avatar storage
+├── db.js                                    # Supabase client initialization, queries, and auto-seeding
+├── server.js                                # Express server setup, middleware, health check, and routing
+├── supabase_schema.sql                      # Complete Supabase PostgreSQL schema with RLS policies
+├── test_new_fixes.js                        # 88-assertion integration test suite covering user requirements
+├── test_unified_login_and_drawer.js         # Verification suite for unified login & responsive drawer
+├── test_drawer_and_admin_persistence.js     # Verification suite for mobile drawer layout & admin profile persistence
+├── test_isolation_and_cascade.js            # Verification suite for request isolation and cascading deletions
+├── test_http_endpoints.js                   # REST API status code and validation test suite
+├── .env                                     # Environment variables (excluded from Git)
+├── .env.example                             # Environment configuration template
+├── .gitignore                               # Excludes node_modules, .env, and sensitive files
+├── package.json                             # Dependencies (@supabase/supabase-js, express, bcryptjs)
+└── README.md                                # Comprehensive system documentation
 ```
-
----
-
-## 🛠️ Turso Cloud Database Setup Guide
-
-Follow these steps to connect your CCA DocTrack system to **Turso Cloud**:
-
-### Option A: Using the Turso CLI
-
-1. **Install the Turso CLI**:
-   - **Windows (PowerShell)**:
-     ```powershell
-     irm https://get.tur.so/install.ps1 | iex
-     ```
-   - **macOS / Linux**:
-     ```bash
-     curl -sSfL https://get.tur.so/install.sh | bash
-     ```
-
-2. **Sign In or Sign Up**:
-   ```bash
-   turso auth signup
-   # or
-   turso auth login
-   ```
-
-3. **Create the Database**:
-   ```bash
-   turso db create cca-doctrack
-   ```
-
-4. **Retrieve Database URL**:
-   ```bash
-   turso db show cca-doctrack --url
-   ```
-   *Example output*: `libsql://cca-doctrack-your-username.turso.io`
-
-5. **Generate an Authentication Token**:
-   ```bash
-   turso db tokens create cca-doctrack
-   ```
-   *Copy the generated JWT token string.*
-
-### Option B: Using the Turso Web Console
-1. Visit [turso.tech](https://turso.tech) and log in.
-2. Click **Create Database** and name it `cca-doctrack`.
-3. Select your closest region (e.g., Tokyo or Singapore).
-4. Under the database details, copy the **Database URL** (`libsql://...`).
-5. Click **Generate Token** and copy the **Auth Token**.
 
 ---
 
 ## ⚙️ Environment Configuration
 
-1. In the project root, create or edit your `.env` file:
-   ```ini
-   PORT=3000
+Create or update your `.env` file in the project root:
 
-   # Turso Cloud Database credentials
-   TURSO_DATABASE_URL=libsql://cca-doctrack-your-username.turso.io
-   TURSO_AUTH_TOKEN=your_generated_turso_auth_token_here
-   ```
+```ini
+PORT=3000
 
-> [!NOTE]
-> **Offline / Local Fallback**: If `TURSO_DATABASE_URL` is empty, unset, or set to the placeholder string, the application automatically uses a local SQLite database file (`file:cca_doctrack.db`). You can immediately develop and test without creating an external account!
+# Supabase Cloud Database Configuration
+SUPABASE_URL=https://your-supabase-project-id.supabase.co
+SUPABASE_SECRET_KEY=your-supabase-service-role-secret-key
+
+# Optional Default Password Overrides
+DEFAULT_ADMIN_PASSWORD=admin123
+DEFAULT_STUDENT_PASSWORD=student123
+```
+
+> [!IMPORTANT]
+> The backend communicates with Supabase using the `SUPABASE_SECRET_KEY` (service role key), which securely bypasses client-side RLS to perform administrative evaluations and user management securely on the server. Never expose this key in client-side code!
 
 ---
 
-## ▶️ Running & Testing the Application Locally
+## ▶️ Running & Testing Locally
 
-### 1. Install Dependencies
+### 1. Prerequisites
+- **Node.js**: `v18.0.0` or higher
+- **npm**: `v9.0.0` or higher
+
+### 2. Installation
 ```bash
+git clone https://github.com/jynllnmgpnty/cca-doctrack.git
+cd cca-doctrack
 npm install
 ```
 
-### 2. Run Automated Verification Tests
-Run the comprehensive Turso migration and HTTP API test suites:
+### 3. Run Automated Verification Test Suites
+Execute the comprehensive test suites:
 ```bash
-# Test 1: Verify SQL schema, queries, data persistence, and statistics
-node test_migration.js
+# Test 1: Complete 88-assertion verification of all system requirements
+node test_new_fixes.js
 
-# Test 2: Verify full HTTP endpoints, status codes, and error validations
+# Test 2: Unified login and responsive drawer tests
+node test_unified_login_and_drawer.js
+
+# Test 3: Mobile drawer profile header & Supabase admin persistence tests
+node test_drawer_and_admin_persistence.js
+
+# Test 4: Student request isolation and user cascade deletion tests
+node test_isolation_and_cascade.js
+
+# Test 5: Standard HTTP endpoints and REST validation tests
 node test_http_endpoints.js
 ```
 
-### 3. Start the Server
-- **Development Mode** (auto-reload via nodemon):
+### 4. Start the Application
+- **Development Mode** (auto-restart with nodemon):
   ```bash
   npm run dev
   ```
@@ -190,141 +240,103 @@ node test_http_endpoints.js
   npm start
   ```
 
-### 4. Access the Web Application
+### 5. Access the Web Application
 Open your browser to:
 ```text
 http://localhost:3000
 ```
 
-### 5. Default Demonstration Accounts
-| Portal | Email | Password | Role |
+---
+
+## 🔑 Default Demonstration Accounts
+
+| Portal | Login Identifier | Password | Access Level |
 |---|---|---|---|
-| **Registrar Admin Portal** | `admin@cca.edu.ph` | `admin123` | Administrator |
-| **Student Portal** | `jaynellan@cca.edu.ph` | `student123` | Student |
+| **Registrar Administrator Portal** | `admin@cca.edu.ph` (or `admin`) | `admin123` | Full Administrative Privileges |
+| **Student Document Portal** | `student@cca.edu.ph` (or `23-67894`) | `student123` | Student Request & Tracking Portal |
 
 ---
 
 ## 📡 REST API Reference
 
-All requests and responses use JSON (`Content-Type: application/json`).
+All requests and responses use JSON format (`Content-Type: application/json`).
 
 ### 1. System Health Check
 - **Endpoint**: `GET /api/health`
-- **Status Codes**: `200 OK` (Healthy), `503 Service Unavailable` (DB offline)
-- **Sample Response**:
+- **Status Codes**: `200 OK` (Connected), `503 Service Unavailable` (Disconnected)
+- **Response**:
   ```json
   {
     "status": "UP",
     "service": "CCA DocTrack API",
-    "uptime": "42s",
+    "uptime": "120s",
     "database": {
       "status": "Connected",
-      "type": "Turso Cloud Database (libSQL)",
-      "mode": "Remote Turso Cloud",
-      "description": "Connected to Remote Turso Cloud"
+      "type": "Supabase Database (PostgreSQL)",
+      "mode": "Supabase Cloud Database"
     },
-    "timestamp": "2026-11-22T07:45:00.000Z"
+    "timestamp": "2026-11-28T14:00:00.000Z"
   }
   ```
 
-### 2. Retrieve Document Requests
-- **Endpoint**: `GET /api/requests`
-- **Query Parameters**: `?studentId=<id>` (optional filter)
-- **Status Codes**: `200 OK`, `500 Internal Server Error`
-- **Sample Response**:
-  ```json
-  {
-    "success": true,
-    "count": 1,
-    "data": [
-      {
-        "_id": "1",
-        "id": 1,
-        "studentName": "Jaynellan Almary O. Magpantay",
-        "studentId": "23-67894",
-        "documentType": "Transcript of Records",
-        "purpose": "Scholarship Application Requirement",
-        "dateSubmitted": "2026-11-20",
-        "status": "Processing",
-        "course": "BS Information Technology",
-        "email": "jaynellan@cca.edu.ph",
-        "createdAt": "2026-11-20 08:00:00"
-      }
-    ]
-  }
-  ```
+### 2. Authentication & User Management
+- **Unified Login**: `POST /api/auth/login`
+  - Accepts `{ email, password }` (email can be email address or Student ID number).
+  - Automatically returns authorized user role and profile details.
+- **Student Registration**: `POST /api/auth/register`
+  - Enforces `@cca.edu.ph` email, 8+ character password, and blocks `role=admin`.
+- **Get Profile**: `GET /api/auth/profile?identifier=<email|studentId|id>&role=<student|admin>`
+- **Update Profile In-Place**: `PATCH /api/auth/profile`
+- **Change Password**: `POST /api/auth/change-password`
+- **Save Profile Avatar**: `POST /api/auth/avatar`
+- **Get All Registered Students**: `GET /api/auth/students` (Admin only)
+- **Cascade Delete Student**: `DELETE /api/auth/students/:identifier` (Cascades to requests and reactivations)
 
-### 3. Submit Document Request
-- **Endpoint**: `POST /api/requests`
-- **Status Codes**: `201 Created`, `400 Bad Request`, `500 Internal Server Error`
-- **Payload**:
-  ```json
-  {
-    "studentName": "Maria Santos",
-    "studentId": "23-10045",
-    "course": "BS Information Technology",
-    "documentType": "Certificate of Enrollment",
-    "purpose": "CHED Scholarship Renewal",
-    "dateSubmitted": "2026-11-22",
-    "email": "msantos@cca.edu.ph"
-  }
-  ```
-
-### 4. Retrieve Single Request by ID
-- **Endpoint**: `GET /api/requests/:id`
-- **Status Codes**: `200 OK`, `400 Bad Request` (invalid ID), `404 Not Found`
-
-### 5. Update Request Status (Admin)
-- **Endpoint**: `PATCH /api/requests/:id`
-- **Status Codes**: `200 OK`, `400 Bad Request` (invalid status), `404 Not Found`
-- **Payload**:
-  ```json
-  {
-    "status": "Completed"
-  }
-  ```
-- *Allowed Statuses*: `Pending`, `Processing`, `Completed`
-
-### 6. Authentication Endpoints
-- **Register Account**: `POST /api/auth/register` (`201 Created`, `400 Bad Request`)
-- **Login**: `POST /api/auth/login` (`200 OK`, `401 Unauthorized`, `403 Forbidden`)
+### 3. Document Requests
+- **List Requests**: `GET /api/requests`
+  - Optional filter: `?studentId=<id>` (Enforces ownership isolation)
+- **Submit Request**: `POST /api/requests`
+- **Get Single Request**: `GET /api/requests/:id`
+- **Update Request Status**: `PATCH /api/requests/:id` (Admin only)
+- **Delete Request**: `DELETE /api/requests/:id`
 
 ---
 
 ## 🌐 Deploying to Render (PaaS)
 
-When you are ready to deploy to Render:
+The application is deployed live on **Render**. To deploy your own instance:
 
-### Step 1: Push Code to GitHub
-```bash
-git add .
-git commit -m "Migrate CCA DocTrack database to Turso Cloud (libSQL)"
-git push origin main
-```
-
-### Step 2: Configure Web Service on Render
-1. Go to [dashboard.render.com](https://dashboard.render.com) and click **New +** &rarr; **Web Service**.
-2. Select your repository `https://github.com/jynllnmgpnty/cca-doctrack`.
-3. Provide the service configuration:
-   - **Name**: `cca-doctrack`
+1. **Push Repository to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Deploy CCA DocTrack to Render"
+   git push origin main
+   ```
+2. **Create New Web Service on Render**:
+   - Go to [dashboard.render.com](https://dashboard.render.com) &rarr; **New +** &rarr; **Web Service**.
+   - Connect repository: `https://github.com/jynllnmgpnty/cca-doctrack`.
    - **Environment**: `Node`
-   - **Region**: Closest region (e.g., Singapore)
    - **Branch**: `main`
    - **Build Command**: `npm install`
    - **Start Command**: `node server.js`
-   - **Instance Type**: `Free`
-4. Expand **Environment Variables** and add:
-   - `PORT`: `10000` *(Render provides this dynamically, but `server.js` listens to `process.env.PORT`)*
-   - `TURSO_DATABASE_URL`: `libsql://your-database-name-your-org.turso.io`
-   - `TURSO_AUTH_TOKEN`: `your_turso_auth_token`
-5. Click **Deploy Web Service**.
-6. Once deployed, Render provides your live URL (e.g. `https://cca-doctrack.onrender.com`).
+   - **Plan**: `Free`
+3. **Configure Environment Variables**:
+   - `PORT`: `10000` *(or dynamic port provided by Render)*
+   - `SUPABASE_URL`: `https://your-supabase-project-id.supabase.co`
+   - `SUPABASE_SECRET_KEY`: `your-supabase-service-role-secret-key`
+   - `DEFAULT_ADMIN_PASSWORD`: `admin123`
+   - `DEFAULT_STUDENT_PASSWORD`: `student123`
+4. **Deploy**:
+   - Click **Deploy Web Service**.
+   - Your live URL is active at `https://cca-doctrack.onrender.com`.
 
 ---
 
 ## 🛡️ Security & Integrity Highlights
 
-- **SQL Injection Prevention**: All queries use parameterized inputs (`db.execute({ sql: '...', args: [...] })`).
-- **Credential Protection**: Database URLs and tokens are never hardcoded and are ignored by Git via `.gitignore`.
-- **Password Salting & Hashing**: All user passwords stored in Turso are hashed with bcrypt (10 salt rounds).
-- **Graceful Error Handling**: Full validation for bad status codes and malformed request formats.
+- **SQL Injection Immunization**: All database transactions execute via Supabase's parameterized query builder.
+- **Cryptographic Security**: Passwords salted and hashed with `bcryptjs` (10 rounds). Plaintext passwords are never stored.
+- **Row-Level Security (RLS)**: Enforced on Supabase PostgreSQL tables; public anonymous access to password hashes is completely denied.
+- **Privilege Separation**: Public registration cannot grant administrative roles.
+- **Student Data Privacy**: Strict ownership verification prevents any user from snooping on or tampering with another student's document submissions.
+- **Cascade Cleanliness**: Removing an account automatically cleans up all associated records, preventing orphaned database artifacts.
