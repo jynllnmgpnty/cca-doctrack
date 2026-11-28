@@ -190,9 +190,6 @@ SUPABASE_SECRET_KEY=your-supabase-service-role-secret-key
 # DEFAULT_STUDENT_PASSWORD=your_custom_student_password
 ```
 
-> [!WARNING]
-> **Production Security**: Do NOT set or publish default passwords (`admin123`, `student123`) as environment variables on live production hosts. Default seed credentials are for initial local development and academic evaluation only. On live deployments, update passwords immediately upon first login.
-
 > [!IMPORTANT]
 > The backend communicates with Supabase using the `SUPABASE_SECRET_KEY` (service role key), which securely bypasses client-side RLS to perform administrative evaluations and user management securely on the server. Never expose this key in client-side code!
 
@@ -310,8 +307,6 @@ The application is deployed live on **Render**. To deploy your own instance:
    - `SUPABASE_URL`: `https://your-supabase-project-id.supabase.co`
    - `SUPABASE_SECRET_KEY`: `your-supabase-service-role-secret-key`
 
-> [!CAUTION]
-> Do NOT set or publish default demo passwords (`admin123`, `student123`) as Render environment variables. Default credentials must be treated as demo-only and changed on any live deployed site.
 
 4. **Deploy**:
    - Click **Deploy Web Service**.
