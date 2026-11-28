@@ -71,7 +71,7 @@ async function runHttpTests() {
     const healthJson = await healthRes.json();
     assert(healthJson.status === 'UP', 'Health status is UP');
     assert(healthJson.database.status === 'Connected', 'Database status is Connected');
-    assert(healthJson.database.type.includes('Supabase') || healthJson.database.type.includes('Turso'), 'Database type specifies database engine');
+    assert(healthJson.database.type.includes('Supabase'), 'Database type specifies Supabase PostgreSQL database engine');
 
     // 2. GET /api/requests
     console.log('\n--- Test 2: GET /api/requests ---');

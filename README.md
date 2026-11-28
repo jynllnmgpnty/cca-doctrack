@@ -185,10 +185,13 @@ PORT=3000
 SUPABASE_URL=https://your-supabase-project-id.supabase.co
 SUPABASE_SECRET_KEY=your-supabase-service-role-secret-key
 
-# Optional Default Password Overrides
-DEFAULT_ADMIN_PASSWORD=admin123
-DEFAULT_STUDENT_PASSWORD=student123
+# Optional Initial Seed Password Overrides (Local Development / Demo Only)
+# DEFAULT_ADMIN_PASSWORD=your_custom_admin_password
+# DEFAULT_STUDENT_PASSWORD=your_custom_student_password
 ```
+
+> [!WARNING]
+> **Production Security**: Do NOT set or publish default passwords (`admin123`, `student123`) as environment variables on live production hosts. Default seed credentials are for initial local development and academic evaluation only. On live deployments, update passwords immediately upon first login.
 
 > [!IMPORTANT]
 > The backend communicates with Supabase using the `SUPABASE_SECRET_KEY` (service role key), which securely bypasses client-side RLS to perform administrative evaluations and user management securely on the server. Never expose this key in client-side code!
@@ -242,7 +245,10 @@ http://localhost:3000
 
 ## 🔑 Default Demonstration Accounts
 
-| Portal | Login Identifier | Password | Access Level |
+> [!NOTE]
+> The accounts below are seeded exclusively for local development and academic demonstration. On live deployed environments, administrators and users should update default passwords upon first sign-in via Account Settings.
+
+| Portal | Login Identifier | Demo Password | Access Level |
 |---|---|---|---|
 | **Registrar Administrator Portal** | `admin@cca.edu.ph` (or `admin`) | `admin123` | Full Administrative Privileges |
 | **Student Document Portal** | `student@cca.edu.ph` (or `23-67894`) | `student123` | Student Request & Tracking Portal |
@@ -316,8 +322,10 @@ The application is deployed live on **Render**. To deploy your own instance:
    - `PORT`: `10000` *(or dynamic port provided by Render)*
    - `SUPABASE_URL`: `https://your-supabase-project-id.supabase.co`
    - `SUPABASE_SECRET_KEY`: `your-supabase-service-role-secret-key`
-   - `DEFAULT_ADMIN_PASSWORD`: `admin123`
-   - `DEFAULT_STUDENT_PASSWORD`: `student123`
+
+> [!CAUTION]
+> Do NOT set or publish default demo passwords (`admin123`, `student123`) as Render environment variables. Default credentials must be treated as demo-only and changed on any live deployed site.
+
 4. **Deploy**:
    - Click **Deploy Web Service**.
    - Your live URL is active at `https://cca-doctrack.onrender.com`.
